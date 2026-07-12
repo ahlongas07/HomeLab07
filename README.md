@@ -1,6 +1,11 @@
 # Homelab07
 
 > Build • Host • Automate
+>
+> > ⚠️ **Project Status**
+>
+> Homelab07 is currently in active early development.
+> The repository reflects the project's engineering foundation and will evolve incrementally through documented sprints.
 
 Homelab07 is an infrastructure engineering project focused on designing and building a modern, reproducible and maintainable self-hosted platform.
 
