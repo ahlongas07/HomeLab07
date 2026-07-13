@@ -1,193 +1,168 @@
-# ROADMAP
+# HomeLab07 Roadmap
 
-**Project:** Homelab07
+## Vision
 
-**Version:** 1.0
+Build a modern, self-hosted infrastructure platform that is simple, maintainable, reproducible, and documented using professional engineering practices.
 
-**Status:** Active
-
----
-
-# Purpose
-
-This roadmap defines the evolution of Homelab07.
-
-The project progresses through engineering sprints, where each sprint delivers a measurable improvement to the platform.
-
-The roadmap is intentionally simple.
-
-Its purpose is to provide direction, not deadlines.
+Every sprint must deliver a complete platform capability that can be demonstrated and validated.
 
 ---
 
-# Current Status
+# Project Milestones
 
-Current Phase:
+## ✅ Kickoff
 
-✅ Engineering Foundation
+Status: Completed
 
-Current Version:
+Objectives:
 
-0.1.0-alpha
-
----
-
-# Sprint 0
-
-## Engineering Foundation
-
-### Objective
-
-Establish the foundation of the project.
-
-### Deliverables
-
-- Project Charter
-- Engineering Principles
-- Roadmap
-- Development Environment
-- Repository Structure
-- Visual Identity
-
-### Status
-
-✅ Completed
+- Project definition
+- Engineering principles
+- Repository creation
+- Documentation
+- Git workflow
+- Development environment
+- Runtime environment
+- SSH authentication
+- Docker installation
+- Foundation architecture
 
 ---
 
-# Sprint 1
+## Sprint 001 — Foundation
 
-## Zero Touch SSL
+Status: In Progress
 
-### Objective
+Goal:
 
-Replace manual SSL certificate management with an automated solution.
+Validate the complete deployment pipeline by publishing the first service.
 
-### Expected Outcome
+Capabilities:
+
+- Docker Compose
+- First Nginx service
+- Landing page
+- GitHub → NAS deployment
+- Internet publication
+- Deployment workflow validation
+
+---
+
+## Sprint 002 — Zero Touch SSL
+
+Goal:
+
+Provide automatic HTTPS without manual certificate management.
+
+Capabilities:
 
 - Reverse Proxy
-- Automatic HTTPS
-- Automatic Certificate Renewal
-- Centralized SSL Management
-
-### Status
-
-⬜ Planned
+- Automatic Let's Encrypt certificates
+- Cloudflare integration
+- HTTP → HTTPS redirection
+- Secure default configuration
 
 ---
 
-# Sprint 2
+## Sprint 003 — Identity
 
-## Infrastructure Standardization
+Goal:
 
-### Objective
+Centralize authentication for self-hosted services.
 
-Standardize the deployment of services.
+Capabilities:
 
-### Expected Outcome
-
-- Common directory structure
-- Shared deployment methodology
-- Standard configuration model
-- Reproducible deployments
-
-### Status
-
-⬜ Planned
+- Identity Provider
+- Single Sign-On
+- Forward Authentication
+- Protected services
 
 ---
 
-# Sprint 3
+## Sprint 004 — Observability
 
-## Platform Services
+Goal:
 
-### Objective
+Provide visibility into platform health.
 
-Expand the platform with additional self-hosted services.
+Capabilities:
 
-### Candidate Services
-
-- Document Management
-- Dashboard
-- Password Manager
-- Media Services
-
-### Status
-
-⬜ Planned
+- Logs
+- Metrics
+- Dashboards
+- Health checks
+- Alerting foundation
 
 ---
 
-# Sprint 4
+## Sprint 005 — Backup & Recovery
 
-## Monitoring
+Goal:
 
-### Objective
+Guarantee platform recoverability.
 
-Increase platform visibility.
+Capabilities:
 
-### Expected Outcome
-
-- Resource Monitoring
-- Service Health
-- Centralized Dashboards
-
-### Status
-
-⬜ Planned
+- Backup strategy
+- Restore procedures
+- Disaster Recovery documentation
+- Backup validation
 
 ---
 
-# Sprint 5
+## Sprint 006 — Document Management
 
-## Platform Maturity
+Goal:
 
-### Objective
+Deploy the first production workload.
 
-Reduce operational effort and improve long-term maintainability.
+Capabilities:
 
-### Expected Outcome
-
-- Automated Backups
-- Health Checks
-- Operational Improvements
-- Documentation Refinement
-
-### Status
-
-⬜ Planned
+- Paperless-ngx
+- OCR
+- Document ingestion
+- Persistent storage
 
 ---
 
-# Future Ideas
+## Sprint 007 — Platform Hardening
 
-These items are intentionally left without priority.
+Goal:
 
-They will be evaluated as the platform evolves.
+Increase security and operational maturity.
 
-Potential topics include:
+Capabilities:
 
-- Performance improvements
-- Additional services
-- Security enhancements
-- Hardware upgrades
-- Community contributions
-
----
-
-# Guiding Principle
-
-Progress is measured by engineering quality rather than the number of completed features.
-
-Every sprint should leave the platform:
-
-- Simpler
-- Better documented
-- Easier to maintain
-- Easier to reproduce
+- Secret management improvements
+- Least privilege review
+- Network segmentation
+- Security review
+- Operational documentation
 
 ---
 
-# Motto
+## Version Milestones
 
-> Build • Host • Automate
+| Version | Milestone |
+|---------|-----------|
+| v0.1.0-kickoff | Project Kickoff |
+| v0.2.0-foundation | First operational platform |
+| v0.3.0-zero-touch-ssl | Automatic HTTPS |
+| v0.4.0-identity | Centralized authentication |
+| v0.5.0-observability | Platform monitoring |
+| v0.6.0-backup-recovery | Disaster recovery |
+| v0.7.0-document-management | First production workload |
+| v1.0.0-production | Stable platform |
+
+---
+
+# Engineering Strategy
+
+Each sprint must:
+
+- Deliver one complete platform capability.
+- Be independently demonstrable.
+- Be fully documented.
+- Preserve simplicity.
+- Minimize operational complexity.
+- Keep GitHub as the single source of truth.
