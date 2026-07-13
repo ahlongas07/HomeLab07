@@ -136,3 +136,29 @@ Homelab07 values engineering quality over implementation speed.
 The objective is not only to build a working platform.
 
 The objective is to build a platform that remains understandable, maintainable and reproducible for years.
+
+## Pull Request Size
+
+Each implementation task should be reviewable in less than 15 minutes.
+
+If a task becomes larger than that, split it before implementation.
+
+# Service README Standard
+
+- Purpose
+- Responsibilities
+- Technology
+- Directory Structure
+- Validation
+- Run
+- Verification
+- Security
+- Related Sprint
+
+## Source Control
+
+The agent never commits, pushes or creates pull requests.
+
+The agent prepares implementation changes and a commit summary.
+
+The repository owner is responsible for Git history.
