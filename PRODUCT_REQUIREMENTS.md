@@ -1,6 +1,6 @@
 # PRODUCT REQUIREMENTS DOCUMENT
 
-**Project:** Homelab07
+**Project:** HomeLab07
 
 **Version:** 1.0
 
@@ -10,7 +10,7 @@
 
 # Purpose
 
-This document defines the functional and non-functional requirements that Homelab07 must satisfy throughout its lifecycle.
+This document defines the functional and non-functional requirements that HomeLab07 must satisfy throughout its lifecycle.
 
 It establishes **what** the platform must accomplish without prescribing **how** it should be implemented.
 
@@ -20,7 +20,7 @@ Implementation details belong to architecture documents and sprint specification
 
 # Product Vision
 
-Homelab07 is a self-hosted infrastructure platform designed to simplify operations through automation, reproducibility and engineering best practices.
+HomeLab07 is a self-hosted infrastructure platform designed to simplify operations through automation, reproducibility and engineering best practices.
 
 The platform should remain simple to understand, easy to maintain and capable of evolving without increasing operational complexity.
 
@@ -238,7 +238,7 @@ The platform will be considered successful when:
 
 # Acceptance Criteria
 
-Homelab07 satisfies its product objectives when:
+HomeLab07 satisfies its product objectives when:
 
 - Infrastructure can be recreated from version-controlled assets.
 - Operational procedures are documented.
@@ -282,6 +282,6 @@ No implementation should exist without a documented purpose.
 
 # Final Statement
 
-Homelab07 is not defined by the technologies it uses.
+HomeLab07 is not defined by the technologies it uses.
 
 It is defined by the engineering principles it consistently applies.

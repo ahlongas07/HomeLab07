@@ -82,13 +82,13 @@ The landing page must display:
 
 The sprint is considered complete when all of the following are true:
 
-- [ ] Repository updated from GitHub
-- [ ] `docker compose config` succeeds
-- [ ] Nginx container starts successfully
-- [ ] Landing page loads from the NAS
-- [ ] Landing page is reachable from the local network
-- [ ] Landing page is reachable from the Internet
-- [ ] No sensitive configuration exists inside the Git repository
+- [x] Repository updated from GitHub
+- [x] `docker compose config` succeeds
+- [x] Nginx container starts successfully
+- [x] Landing page loads from the NAS
+- [x] Landing page is reachable from the local network
+- [x] Landing page is reachable from the Internet
+- [x] No sensitive configuration exists inside the Git repository
 
 ---
 

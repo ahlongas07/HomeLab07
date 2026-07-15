@@ -1,8 +1,8 @@
 # ENGINEERING PRINCIPLES
 
-**Project:** Homelab07
+**Project:** HomeLab07
 
-**Version:** 1.0
+**Version:** 1.1
 
 **Status:** Active
 
@@ -10,7 +10,7 @@
 
 # Purpose
 
-This document defines the engineering principles that guide every technical decision made within the Homelab07 project.
+This document defines the engineering principles that guide every technical decision made within the HomeLab07 project.
 
 Technologies may change.
 
@@ -48,15 +48,29 @@ A feature without documentation is considered incomplete.
 
 # Principle 3
 
+## Secure by Default
+
+No service should become publicly accessible unless explicitly configured.
+
+Security should favor intentional exposure over convenience.
+
+Secrets, credentials, certificates, and environment-specific values must remain outside the Git repository.
+
+---
+
+# Principle 4
+
 ## Automation Over Repetition
 
 If a task needs to be repeated, it should eventually become automated.
 
 Manual operational procedures are considered temporary solutions.
 
+Automation must never bypass the platform operation layer or weaken security boundaries.
+
 ---
 
-# Principle 4
+# Principle 5
 
 ## Infrastructure as Code
 
@@ -68,7 +82,7 @@ Production should never become the only source of truth.
 
 ---
 
-# Principle 5
+# Principle 6
 
 ## Storage First
 
@@ -80,25 +94,26 @@ Infrastructure should leverage native storage capabilities before introducing ad
 
 ---
 
-# Principle 6
+# Principle 7
 
 ## Separation of Concerns
 
-Infrastructure.
+HomeLab07 separates:
 
-Applications.
-
-Persistent Storage.
-
-Documentation.
-
-Monitoring.
+- Source code
+- Platform operations
+- Infrastructure services
+- Application services
+- Secrets
+- Persistent data
+- Documentation
+- Monitoring
 
 Each concern should evolve independently.
 
 ---
 
-# Principle 7
+# Principle 8
 
 ## Production Is Never Edited
 
@@ -110,7 +125,7 @@ Configuration changes originate from the repository.
 
 ---
 
-# Principle 8
+# Principle 9
 
 ## Reproducibility
 
@@ -124,7 +139,7 @@ Nothing else.
 
 ---
 
-# Principle 9
+# Principle 10
 
 ## Observability
 
@@ -136,7 +151,7 @@ Infrastructure should explain its own health.
 
 ---
 
-# Principle 10
+# Principle 11
 
 ## Security by Design
 
@@ -154,7 +169,19 @@ Examples should always use placeholders.
 
 ---
 
-# Principle 11
+# Principle 12
+
+## Shared Infrastructure Services
+
+Shared infrastructure services provide platform capabilities.
+
+They must not create application-specific state unless explicitly required by that infrastructure service.
+
+Applications are responsible for creating and managing their own databases, users, passwords, and minimum required privileges.
+
+---
+
+# Principle 13
 
 ## Engineering Over Convenience
 
@@ -166,7 +193,7 @@ Technical debt must be explicit.
 
 ---
 
-# Principle 12
+# Principle 14
 
 ## Continuous Improvement
 
@@ -186,11 +213,12 @@ Every sprint should improve at least one of the following:
 Before implementing any feature, ask:
 
 1. Does it simplify the platform?
-2. Can it be automated?
-3. Is it reproducible?
-4. Is it documented?
-5. Can someone else understand it?
-6. Does it increase unnecessary complexity?
+2. Is it secure by default?
+3. Can it be automated?
+4. Is it reproducible?
+5. Is it documented?
+6. Can someone else understand it?
+7. Does it increase unnecessary complexity?
 
 If the answer to the last question is "yes", reconsider the design.
 
@@ -212,12 +240,38 @@ Engineering quality is achieved when:
 - The solution is maintainable.
 - The solution minimizes operational effort.
 
+---
 
+# Platform Operation Layer
+
+The `operation/` directory defines the public operational interface of HomeLab07.
+
+External automation, including future Rock-on integration, should invoke these scripts rather than interacting directly with Docker or Docker Compose.
+
+---
+
+# Private Configuration
+
+Environment-specific and sensitive configuration belongs outside the Git repository in `HomeLab07.private`.
+
+The private directory is organized by responsibility:
+
+```text
+HomeLab07.private/
+├── backups/
+├── certs/
+├── env/
+└── secrets/
+```
+
+Service environment files belong in:
+
+```text
+HomeLab07.private/env/
+```
 
 ---
 
 # Motto
 
 > Simplicity creates reliability.
-
-The operation/ directory defines the public operational interface of HomeLab07. External automation, including future Rock-on integration, should invoke these scripts rather than interacting directly with Docker or Docker Compose.

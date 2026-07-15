@@ -49,9 +49,9 @@ Validate the complete deployment pipeline by deploying the first operational pla
 
 ---
 
-## Sprint 002 — Data Foundation
+## ✅ Sprint 002 — Data Foundation
 
-**Status:** Planned
+**Status:** Completed
 
 ### Goal
 
@@ -65,6 +65,7 @@ Establish the persistent storage foundation for HomeLab07.
 - Storage strategy
 - Backup foundation
 - Secure credential management
+- Internal-only database networking
 
 ---
 

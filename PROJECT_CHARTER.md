@@ -2,7 +2,7 @@
 
 **Project:** HomeLab07
 
-**Version:** 0.2.0
+**Version:** 0.3.0
 
 **Status:** Active
 
@@ -228,6 +228,7 @@ Current operational commands:
 - start
 - stop
 - status
+- compose
 
 Future operational capabilities should extend this interface rather than bypass it.
 
@@ -353,3 +354,4 @@ Every implementation should leave the platform simpler, more secure, better docu
 |----------|------------|----------------------------------------------|
 | 0.1.0-alpha | 2026-07-11 | Initial Project Charter |
 | 0.2.0 | 2026-07-15 | Architecture and engineering principles updated after Foundation milestone |
+| 0.3.0 | 2026-07-15 | Data Foundation milestone completed |

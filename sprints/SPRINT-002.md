@@ -2,7 +2,7 @@
 
 **Version:** v0.3.0-data-foundation
 
-**Status:** In Progress
+**Status:** Completed
 
 ---
 
@@ -54,7 +54,7 @@ Including:
 - README.md
 - .env.example
 - Persistent volume configuration
-- Initial database configuration
+- Root account bootstrap configuration
 
 Create the persistent storage structure inside the dedicated Rockstor Share:
 
@@ -137,41 +137,43 @@ Every stateful service must:
 
 # Success Criteria
 
-The sprint will be considered complete when:
+The sprint is complete because:
 
-- MariaDB starts successfully through:
+- [x] MariaDB starts successfully through:
 
 ```bash
 ./operation/start.sh
 ```
 
-- MariaDB stops successfully through:
+- [x] MariaDB stops successfully through:
 
 ```bash
 ./operation/stop.sh
 ```
 
-- Platform status reports MariaDB correctly through:
+- [x] Platform status reports MariaDB correctly through:
 
 ```bash
 ./operation/status.sh
 ```
 
-- `docker compose config` validates successfully.
+- [x] `docker compose config` validates successfully.
 
-- The database survives container recreation.
+- [x] The database survives container recreation.
 
-- Persistent data is stored inside the dedicated Rockstor Share.
+- [x] Persistent data is stored inside the dedicated Rockstor Share.
 
-- Credentials are stored outside the Git repository.
+- [x] Credentials are stored outside the Git repository.
 
-- The service is reachable only from the internal Docker network.
+- [x] The service is reachable only from the internal Docker network.
 
-- Database initialization is documented.
+- [x] MariaDB root account initialization is documented.
 
-- Backup procedure is documented.
+- [x] Application-specific database provisioning is documented.
 
-- Restore procedure is documented.
+- [x] Backup procedure is documented.
+
+- [x] Restore procedure is documented.
 
 ---
 
@@ -207,8 +209,9 @@ This sprint reinforces the architectural principles established during Sprint 00
 
 In particular:
 
-- MariaDB is a shared platform service.
-- Applications consume the database but never own it.
+- MariaDB is a shared infrastructure service.
+- MariaDB initializes only the root account.
+- Applications create and own their own databases, users, passwords, and privileges.
 - Operational actions remain centralized in `operation/`.
 - Source code, secrets, and persistent data remain physically separated.
 - Rockstor manages persistent storage.
@@ -246,3 +249,20 @@ This sprint establishes the permanent separation between:
 - Persistent Application Data
 
 forming one of the core architectural principles of HomeLab07.
+
+---
+
+# Sprint Outcome
+
+Sprint 002 successfully established the HomeLab07 data foundation.
+
+The platform now provides:
+
+- A shared MariaDB infrastructure service.
+- Persistent database storage outside the Git repository.
+- Private environment configuration through `HomeLab07.private/env/mariadb.env`.
+- Internal-only database networking.
+- Operational integration through `operation/start.sh`, `operation/stop.sh`, and `operation/status.sh`.
+- Initial backup and restore documentation.
+
+This sprint confirms that stateful infrastructure services can be deployed reproducibly while keeping source code, secrets, and persistent data separated.
