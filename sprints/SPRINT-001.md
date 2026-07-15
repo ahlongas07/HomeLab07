@@ -150,3 +150,110 @@ Every future service will follow the same deployment methodology validated in th
 A user should be able to access the HomeLab07 landing page from a web browser and verify that the platform deployment workflow is fully operational.
 
 This marks the completion of the first operational milestone of HomeLab07.
+
+---
+
+# Lessons Learned
+
+## Technical
+
+### Docker Permissions
+
+The operational user must belong to the `docker` group to manage containers without requiring elevated privileges.
+
+After updating group membership, a new login session is required before the changes take effect.
+
+### Repository Structure
+
+Separating `HomeLab07.private` from the Git repository proved to be a better long-term architectural decision.
+
+The repository contains only version-controlled assets, while environment-specific configuration and sensitive information remain outside version control.
+
+### Deployment Workflow
+
+The deployment workflow was successfully validated:
+
+```text
+Developer Workstation
+        ↓
+Git Commit
+        ↓
+GitHub
+        ↓
+Runtime Environment
+        ↓
+git pull
+        ↓
+Docker Compose
+        ↓
+Running Service
+```
+
+This workflow will serve as the standard deployment process for all future services.
+
+### Service Architecture
+
+Keeping each service self-contained under `services/<service-name>/` simplifies maintenance, documentation, testing, and future deployments.
+
+Each service owns:
+
+- Docker Compose definition
+- Runtime configuration
+- Static assets
+- Service documentation
+
+---
+
+## Engineering
+
+### Documentation First
+
+Investing time in documentation before implementation reduced ambiguity and helped maintain architectural consistency.
+
+The combination of:
+
+- AGENTS.md
+- ENGINEERING_PRINCIPLES.md
+- ROADMAP.md
+- Sprint documentation
+
+provided a clear implementation framework.
+
+### Incremental Development
+
+Implementing the sprint as a sequence of small, reviewable tasks produced higher-quality results than implementing the entire sprint at once.
+
+### AI Collaboration
+
+Using an AI coding agent as an implementation partner, while keeping architectural decisions and repository ownership under human review, resulted in better implementation quality and more consistent documentation.
+
+The adopted workflow is:
+
+```text
+Architecture
+        ↓
+Implementation
+        ↓
+Review
+        ↓
+Documentation
+        ↓
+Commit
+```
+
+This process becomes the standard engineering workflow for HomeLab07.
+
+---
+
+## Sprint Outcome
+
+Sprint 001 successfully established the operational foundation of HomeLab07.
+
+The platform now provides:
+
+- A reproducible deployment workflow.
+- A standardized project structure.
+- The first operational Docker service.
+- A documented engineering process.
+
+This milestone marks the transition from project planning to platform implementation.
