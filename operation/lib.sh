@@ -34,3 +34,17 @@ compose() {
         -f "${PROJECT_ROOT}/services/${service}/compose.yaml" \
         "$@"
 }
+
+compose_service() {
+    local service="$1"
+    shift
+
+    docker compose \
+        -f "${PROJECT_ROOT}/services/${service}/compose.yaml" \
+        "$@"
+}
+
+print_footer() {
+    echo
+    echo "Operation completed successfully."
+}
