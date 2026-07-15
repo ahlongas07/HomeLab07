@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: mariadb:11.4
+    image: mariadb:11.4.12
     container_name: homelab07-mariadb
     restart: unless-stopped
     environment:

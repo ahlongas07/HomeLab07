@@ -2,139 +2,29 @@
 
 ## Purpose
 
-Provide the first shared stateful platform service for HomeLab07.
+Provide the first shared stateful infrastructure service for HomeLab07.
 
-MariaDB establishes the persistent data foundation that future platform and application services will use when they require relational storage.
+MariaDB establishes the persistent data foundation for platform applications that require relational storage.
 
 ---
 
 ## Responsibilities
 
-- Shared relational database service
+- Shared relational database server
 - Persistent database storage
 - Internal-only database access
 - Stateful service reference implementation
 - Initial backup and restore procedure
 
----
-
-## Technology
-
-- MariaDB official container image
-- Docker Compose
-- Rockstor persistent storage
-- HomeLab07 operation layer
+MariaDB does not create application-specific databases during bootstrap.
 
 ---
 
-## Directory Structure
+## Architecture Overview
 
-```text
-mariadb/
-├── compose.yaml
-├── .env.example
-└── README.md
-```
+MariaDB is an infrastructure service, not an application service.
 
-Runtime data is not stored in this directory.
-
-Persistent database files belong under the Rockstor share:
-
-```text
-homelab07-data/
-└── mariadb/
-```
-
-The physical mount point is environment-specific and must be configured outside the Git repository.
-
----
-
-## Configuration
-
-Create the private configuration file outside this repository:
-
-```bash
-mkdir -p ../HomeLab07.private/env
-cp services/mariadb/.env.example ../HomeLab07.private/env/mariadb.env
-```
-
-Edit the private `.env` file and set real values:
-
-```bash
-HOMELAB07_DATA_ROOT=/path/to/homelab07-data
-MARIADB_ROOT_PASSWORD=replace-with-a-strong-root-password
-```
-
-`HOMELAB07_DATA_ROOT` must point to the mounted Rockstor share named `homelab07-data`.
-
-Do not commit the private `.env` file.
-
----
-
-## Validation
-
-Validate the Compose configuration through the operation layer:
-
-```bash
-./operation/compose.sh mariadb config
-```
-
-If running Docker Compose directly, include the private env file:
-
-```bash
-docker compose \
-  --env-file ../HomeLab07.private/env/mariadb.env \
-  -f services/mariadb/compose.yaml \
-  config
-```
-
----
-
-## Run
-
-Start the platform:
-
-```bash
-./operation/start.sh
-```
-
-Check service status:
-
-```bash
-./operation/status.sh
-```
-
-Stop the platform:
-
-```bash
-./operation/stop.sh
-```
-
----
-
-## Network Access
-
-MariaDB is attached only to the internal Docker network:
-
-```text
-homelab07-internal
-```
-
-The service does not publish host ports.
-
-Applications should connect to MariaDB through the internal Docker network, not through the public network.
-
----
-
-## Database Provisioning
-
-MariaDB is a shared infrastructure service.
-
-This service provides only the database server and initializes only the root account.
-
-Application-specific databases are not created during MariaDB bootstrap.
-
-Every platform application is responsible for creating:
+It provides only the database server and initializes only the root account. Each platform application is responsible for creating and managing:
 
 - its own database;
 - its own database user;
@@ -157,13 +47,175 @@ Authentik
   User: authentik_user
 ```
 
-Application database creation belongs to each application's deployment procedure.
+This follows the HomeLab07 Storage First architecture:
+
+- source code remains in Git;
+- secrets remain in `HomeLab07.private`;
+- persistent data remains in the Rockstor storage share;
+- lifecycle operations go through `operation/`;
+- applications own their own database schema and privileges.
 
 ---
 
-## Backup
+## Technology
 
-This sprint defines an initial logical backup procedure.
+- MariaDB 11.4.12
+- Docker Compose
+- Rockstor persistent storage
+- HomeLab07 operation layer
+
+---
+
+## Directory Structure
+
+```text
+mariadb/
+├── compose.yaml
+├── .env.example
+└── README.md
+```
+
+Runtime data is not stored in this directory.
+
+---
+
+## Storage Layout
+
+Persistent database files belong under the dedicated Rockstor share:
+
+```text
+homelab07-data/
+└── mariadb/
+```
+
+The physical mount point is environment-specific and must be configured outside the Git repository through:
+
+```text
+HomeLab07.private/env/mariadb.env
+```
+
+The service reads the mount point from:
+
+```bash
+HOMELAB07_DATA_ROOT=/path/to/homelab07-data
+```
+
+The Docker bind mount maps:
+
+```text
+${HOMELAB07_DATA_ROOT}/mariadb -> /var/lib/mysql
+```
+
+---
+
+## Private Configuration
+
+Create the private configuration file outside this repository:
+
+```bash
+mkdir -p ../HomeLab07.private/env
+cp services/mariadb/.env.example ../HomeLab07.private/env/mariadb.env
+```
+
+Edit the private environment file:
+
+```bash
+HOMELAB07_DATA_ROOT=/path/to/homelab07-data
+MARIADB_ROOT_PASSWORD=replace-with-a-strong-root-password
+```
+
+Do not commit the private environment file.
+
+---
+
+## Deployment Procedure
+
+Validate the Compose configuration through the operation layer:
+
+```bash
+./operation/compose.sh mariadb config
+```
+
+Start the platform:
+
+```bash
+./operation/start.sh
+```
+
+Check service status:
+
+```bash
+./operation/status.sh
+```
+
+Stop the platform:
+
+```bash
+./operation/stop.sh
+```
+
+If running Docker Compose directly, include the private env file:
+
+```bash
+docker compose \
+  --env-file ../HomeLab07.private/env/mariadb.env \
+  -f services/mariadb/compose.yaml \
+  config
+```
+
+---
+
+## Operational Commands
+
+HomeLab07 operations must go through the `operation/` layer.
+
+```bash
+./operation/start.sh
+./operation/status.sh
+./operation/stop.sh
+./operation/compose.sh mariadb config
+```
+
+External automation should invoke these scripts instead of calling Docker Compose directly.
+
+---
+
+## Network Access
+
+MariaDB is attached only to the internal Docker network:
+
+```text
+homelab07-internal
+```
+
+The service does not publish host ports.
+
+Applications should connect to MariaDB through the internal Docker network, not through the public network.
+
+---
+
+## Validation Results
+
+Sprint 002 validation completed successfully.
+
+- MariaDB 11.4.12 deployed successfully.
+- Persistent storage validated using the dedicated Rockstor Share.
+- Data survives container recreation.
+- MariaDB runs as the `mysql` user inside the container.
+- Healthcheck is operational.
+- Docker bind mount verified.
+- `operation/start.sh` implemented and validated.
+- `operation/stop.sh` implemented and validated.
+- `operation/status.sh` implemented and validated.
+- Secrets are stored in `HomeLab07.private`.
+- No application-specific database is created during MariaDB bootstrap.
+- MariaDB acts exclusively as a shared infrastructure service.
+
+---
+
+## Backup Strategy
+
+Sprint 002 defines an initial logical backup strategy.
 
 Run the backup from the runtime environment:
 
@@ -178,13 +230,19 @@ docker exec homelab07-mariadb \
   -p > /path/to/backups/mariadb-backup.sql
 ```
 
-Store backups outside the Git repository.
+Backups must be stored outside the Git repository.
 
-The backup destination should be managed by the storage platform or a future backup service.
+Recommended private backup location:
+
+```text
+HomeLab07.private/backups/
+```
+
+Future backup automation should preserve this separation between source code, secrets, and persistent data.
 
 ---
 
-## Restore
+## Restore Procedure
 
 Restore from a logical backup:
 
@@ -199,18 +257,6 @@ Validate the restored databases before returning dependent applications to servi
 
 ---
 
-## Verification
-
-The service is considered healthy when:
-
-- `./operation/start.sh` starts MariaDB successfully;
-- `./operation/status.sh` reports the container as running or healthy;
-- data remains present after container recreation;
-- no database ports are exposed on the host;
-- persistent data exists under `homelab07-data/mariadb`.
-
----
-
 ## Security
 
 Database credentials must remain outside Git in:
@@ -218,6 +264,8 @@ Database credentials must remain outside Git in:
 ```text
 ../HomeLab07.private/env/mariadb.env
 ```
+
+Database backups must remain outside Git.
 
 Do not expose MariaDB directly to the public network.
 
@@ -228,3 +276,4 @@ Do not commit database dumps, credentials, certificates, or environment-specific
 ## Related Sprint
 
 - Sprint 002 - Data Foundation
+- Version: `v0.3.0-data-foundation`

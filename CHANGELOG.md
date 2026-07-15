@@ -1,8 +1,9 @@
-## [0.3.0-data-foundation] - 2026-07-15
+## [v0.3.0-data-foundation] - 2026-07-15
 
 ### Added
 
 - MariaDB shared infrastructure service.
+- MariaDB 11.4.12 deployment.
 - Persistent database storage model using the `homelab07-data` share.
 - Private service environment loading from `HomeLab07.private/env`.
 - MariaDB integration with platform operation commands:
@@ -15,6 +16,7 @@
 
 - MariaDB initializes only the root account.
 - Application-specific databases, users, passwords, and privileges are now owned by each application deployment.
+- MariaDB is documented as a shared infrastructure service.
 - Sprint 002 marked as completed.
 
 ---
