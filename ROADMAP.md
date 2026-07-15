@@ -4,7 +4,7 @@
 
 Build a modern, self-hosted infrastructure platform that is simple, maintainable, reproducible, and documented using professional engineering practices.
 
-Every sprint must deliver a complete platform capability that can be demonstrated and validated.
+Every sprint must deliver one complete platform capability that can be demonstrated, validated, and integrated into the platform without increasing unnecessary complexity.
 
 ---
 
@@ -12,9 +12,9 @@ Every sprint must deliver a complete platform capability that can be demonstrate
 
 ## ✅ Kickoff
 
-Status: Completed
+**Status:** Completed
 
-Objectives:
+### Objectives
 
 - Project definition
 - Engineering principles
@@ -29,48 +29,72 @@ Objectives:
 
 ---
 
-## Sprint 001 — Foundation
+## ✅ Sprint 001 — Foundation
 
-Status: In Progress
+**Status:** Completed
 
-Goal:
+### Goal
 
-Validate the complete deployment pipeline by publishing the first service.
+Validate the complete deployment pipeline by deploying the first operational platform service and establishing the operational foundation of HomeLab07.
 
-Capabilities:
+### Capabilities
 
 - Docker Compose
 - First Nginx service
 - Landing page
 - GitHub → NAS deployment
-- Internet publication
 - Deployment workflow validation
+- Platform operation layer
+- Reproducible service architecture
 
 ---
 
-## Sprint 002 — Zero Touch SSL
+## Sprint 002 — Data Foundation
 
-Goal:
+**Status:** Planned
 
-Provide automatic HTTPS without manual certificate management.
+### Goal
 
-Capabilities:
+Establish the persistent storage foundation for HomeLab07.
+
+### Capabilities
+
+- Shared relational database
+- Persistent platform storage
+- Stateful service architecture
+- Storage strategy
+- Backup foundation
+- Secure credential management
+
+---
+
+## Sprint 003 — Zero Touch SSL
+
+**Status:** Planned
+
+### Goal
+
+Provide automatic HTTPS with secure service publication.
+
+### Capabilities
 
 - Reverse Proxy
-- Automatic Let's Encrypt certificates
-- Cloudflare integration
+- Automatic TLS certificates
 - HTTP → HTTPS redirection
 - Secure default configuration
+- Public service publication
 
 ---
 
-## Sprint 003 — Identity
+## Sprint 004 — Identity
 
-Goal:
+**Status:** Planned
+
+### Goal
 
 Centralize authentication for self-hosted services.
 
-Capabilities:
+### Capabilities
 
 - Identity Provider
 - Single Sign-On
@@ -79,13 +103,15 @@ Capabilities:
 
 ---
 
-## Sprint 004 — Observability
+## Sprint 005 — Observability
 
-Goal:
+**Status:** Planned
+
+### Goal
 
 Provide visibility into platform health.
 
-Capabilities:
+### Capabilities
 
 - Logs
 - Metrics
@@ -95,13 +121,15 @@ Capabilities:
 
 ---
 
-## Sprint 005 — Backup & Recovery
+## Sprint 006 — Backup & Recovery
 
-Goal:
+**Status:** Planned
+
+### Goal
 
 Guarantee platform recoverability.
 
-Capabilities:
+### Capabilities
 
 - Backup strategy
 - Restore procedures
@@ -110,28 +138,33 @@ Capabilities:
 
 ---
 
-## Sprint 006 — Document Management
+## Sprint 007 — Application Platform
 
-Goal:
+**Status:** Planned
 
-Deploy the first production workload.
+### Goal
 
-Capabilities:
+Deploy the first production application on the HomeLab07 platform.
 
-- Paperless-ngx
-- OCR
-- Document ingestion
+### Capabilities
+
+- First production workload
+- Shared database consumption
 - Persistent storage
+- Secure publication
+- Operational validation
 
 ---
 
-## Sprint 007 — Platform Hardening
+## Sprint 008 — Platform Hardening
 
-Goal:
+**Status:** Planned
+
+### Goal
 
 Increase security and operational maturity.
 
-Capabilities:
+### Capabilities
 
 - Secret management improvements
 - Least privilege review
@@ -141,17 +174,18 @@ Capabilities:
 
 ---
 
-## Version Milestones
+# Version Milestones
 
 | Version | Milestone |
 |---------|-----------|
 | v0.1.0-kickoff | Project Kickoff |
 | v0.2.0-foundation | First operational platform |
-| v0.3.0-zero-touch-ssl | Automatic HTTPS |
-| v0.4.0-identity | Centralized authentication |
-| v0.5.0-observability | Platform monitoring |
-| v0.6.0-backup-recovery | Disaster recovery |
-| v0.7.0-document-management | First production workload |
+| v0.3.0-data-foundation | Persistent platform services |
+| v0.4.0-zero-touch-ssl | Automatic HTTPS |
+| v0.5.0-identity | Centralized authentication |
+| v0.6.0-observability | Platform monitoring |
+| v0.7.0-backup-recovery | Disaster recovery |
+| v0.8.0-application-platform | First production workload |
 | v1.0.0-production | Stable platform |
 
 ---
@@ -164,5 +198,27 @@ Each sprint must:
 - Be independently demonstrable.
 - Be fully documented.
 - Preserve simplicity.
+- Strengthen the platform architecture.
 - Minimize operational complexity.
 - Keep GitHub as the single source of truth.
+- Separate source code, secrets, and persistent data.
+- Prefer explicit configuration over implicit behavior.
+- Follow the principle of secure-by-default.
+
+---
+
+# Documentation Hierarchy
+
+HomeLab07 follows a single source of truth model for project documentation.
+
+Priority order:
+
+1. `sprints/SPRINT-XXX.md`
+2. `ROADMAP.md`
+3. `PROJECT_CHARTER.md`
+
+Sprint documents define the implementation plan.
+
+The roadmap summarizes the platform evolution.
+
+The Project Charter defines the long-term vision and changes only when the project's strategic direction changes.

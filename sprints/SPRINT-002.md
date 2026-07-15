@@ -30,8 +30,8 @@ This sprint defines the storage architecture that future platform services will 
 
 - Reverse proxy.
 - HTTPS.
-- Let's Encrypt.
-- Public Internet exposure.
+- Automatic TLS certificates.
+- Public Internet publication.
 - Identity management.
 - Application deployment.
 - Database replication.
@@ -52,11 +52,11 @@ Including:
 
 - compose.yaml
 - README.md
-- Environment template
+- .env.example
 - Persistent volume configuration
 - Initial database configuration
 
-Create the persistent storage layout:
+Create the persistent storage structure inside the dedicated Rockstor Share:
 
 ```
 homelab07-data/
@@ -69,7 +69,12 @@ Integrate the service with:
 - operation/stop.sh
 - operation/status.sh
 
-Document the storage architecture and deployment process.
+Document:
+
+- Deployment procedure
+- Storage architecture
+- Initial backup procedure
+- Initial restore procedure
 
 ---
 
@@ -79,11 +84,15 @@ This sprint establishes the standard persistent storage model for HomeLab07.
 
 Persistent application data must never be stored inside the Git repository.
 
-All persistent platform data will be stored under the dedicated Rockstor share:
+Persistent data is stored in a dedicated Rockstor Share.
+
+Share name:
 
 ```
-homelab07-data/
+homelab07-data
 ```
+
+The physical mount point depends on the NAS configuration and must never be hardcoded.
 
 Each stateful service owns its own directory inside the share.
 
@@ -98,7 +107,7 @@ homelab07-data/
 └── ...
 ```
 
-This storage model becomes the standard for all future persistent services.
+This storage model becomes the standard for all future persistent platform services.
 
 ---
 
@@ -124,13 +133,23 @@ The sprint will be considered complete when:
 ./operation/start.sh
 ```
 
+- MariaDB stops successfully through:
+
+```bash
+./operation/stop.sh
+```
+
+- Platform status reports MariaDB correctly through:
+
+```bash
+./operation/status.sh
+```
+
+- `docker compose config` validates successfully.
+
 - The database survives container recreation.
 
-- Persistent data is stored under:
-
-```
-homelab07-data/mariadb/
-```
+- Persistent data is stored inside the dedicated Rockstor Share.
 
 - Credentials are stored outside the Git repository.
 
@@ -138,7 +157,9 @@ homelab07-data/mariadb/
 
 - Database initialization is documented.
 
-- Platform operations continue to be executed exclusively through the `operation/` layer.
+- Backup procedure is documented.
+
+- Restore procedure is documented.
 
 ---
 
@@ -196,9 +217,9 @@ In particular:
 
 # Dependencies
 
-Requires completion of:
+Requires:
 
-- Sprint 001 – Foundation
+- Sprint 001 – Foundation (Completed)
 
 ---
 

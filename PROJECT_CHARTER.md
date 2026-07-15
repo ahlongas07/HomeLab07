@@ -1,44 +1,44 @@
 # PROJECT CHARTER
 
-**Project:** Homelab07
+**Project:** HomeLab07
 
-**Version:** 0.1.0-alpha
+**Version:** 0.2.0
 
 **Status:** Active
 
 **Project Type:** Infrastructure Engineering Project
 
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-15
 
 ---
 
 # Executive Summary
 
-Homelab07 is an infrastructure engineering project dedicated to designing, building and maintaining a modern self-hosted platform based on simplicity, automation and reproducibility.
+HomeLab07 is an infrastructure engineering project dedicated to designing, building, and maintaining a modern self-hosted platform based on simplicity, automation, security, and reproducibility.
 
-The project applies professional engineering practices to home infrastructure by treating documentation, architecture and operations as first-class components of the platform.
+The project applies professional engineering practices to home infrastructure by treating documentation, architecture, operations, and persistent storage as first-class components of the platform.
 
-Rather than being a collection of services, Homelab07 is intended to become a repeatable methodology for building reliable self-hosted environments.
+Rather than being a collection of services, HomeLab07 is intended to become a repeatable engineering methodology for building reliable self-hosted environments.
 
 ---
 
 # Vision
 
-Create a modern self-hosted platform that is elegant, maintainable and easy to reproduce while demonstrating engineering best practices.
+Build a modern self-hosted infrastructure platform that is simple, maintainable, secure, reproducible, and professionally documented.
 
 ---
 
 # Mission
 
-Reduce operational complexity through automation, standardization and documentation, enabling infrastructure that is easy to understand, maintain and recover.
+Reduce operational complexity through standardization, automation, and clear engineering practices while preserving full control over the platform.
 
 ---
 
 # Purpose
 
-Homelab07 exists to answer a single engineering question:
+HomeLab07 exists to answer a single engineering question:
 
-> **How can a personal self-hosted environment achieve enterprise-quality operations without enterprise-level complexity?**
+> **How can a personal self-hosted environment achieve enterprise-quality engineering without enterprise-level complexity?**
 
 ---
 
@@ -56,7 +56,15 @@ Complexity must always have a measurable benefit.
 
 Every architectural decision should be documented before implementation.
 
-Documentation is part of the product.
+Documentation is part of the deliverable.
+
+---
+
+## Secure by Default
+
+No service should become publicly accessible unless explicitly configured.
+
+Security should always favor intentional exposure over convenience.
 
 ---
 
@@ -64,31 +72,42 @@ Documentation is part of the product.
 
 Any operational task performed repeatedly should eventually become automated.
 
+Automation must never compromise security or maintainability.
+
 ---
 
 ## Infrastructure as Code
 
-Infrastructure definitions should be version-controlled and reproducible.
+Infrastructure definitions should be version-controlled, reproducible, and reviewable.
 
 ---
 
 ## Storage First
 
-Persistent data belongs to the storage platform.
+Persistent application data belongs to the storage platform.
 
-Applications should remain as stateless as reasonably possible.
+Applications should remain stateless whenever reasonably possible.
 
 ---
 
 ## Separation of Concerns
 
-Applications, infrastructure and persistent storage should remain logically independent.
+Clearly separate:
+
+- Source Code
+- Platform Operations
+- Infrastructure Services
+- Application Services
+- Secrets
+- Persistent Data
+
+Each layer evolves independently while preserving reproducibility.
 
 ---
 
 ## Continuous Improvement
 
-Every sprint should leave the platform easier to maintain than before.
+Every sprint should strengthen the platform architecture while reducing operational complexity.
 
 ---
 
@@ -97,27 +116,28 @@ Every sprint should leave the platform easier to maintain than before.
 ## Short-Term
 
 - Establish engineering standards.
-- Define project architecture.
-- Automate HTTPS.
-- Standardize deployments.
-- Eliminate repetitive operational tasks.
+- Define platform architecture.
+- Standardize platform operations.
+- Introduce persistent platform services.
+- Automate secure service publication.
 
 ---
 
 ## Medium-Term
 
-- Build reusable deployment templates.
+- Build reusable deployment patterns.
 - Improve observability.
-- Standardize recovery procedures.
-- Improve maintainability.
+- Standardize backup and recovery.
+- Simplify platform operations.
 
 ---
 
 ## Long-Term
 
-- Create a reusable engineering platform for self-hosted environments.
+- Create a reusable engineering platform for self-hosted infrastructure.
 - Share engineering knowledge with the community.
-- Encourage reproducible infrastructure practices.
+- Promote reproducible infrastructure practices.
+- Enable community contributions through clear engineering standards.
 
 ---
 
@@ -127,12 +147,15 @@ The project includes:
 
 - Infrastructure architecture
 - Storage architecture
+- Platform operations
+- Docker-based services
+- Persistent services
 - Reverse proxy
 - SSL automation
-- Docker-based services
+- Identity management
 - Documentation
 - Operational procedures
-- Disaster recovery procedures
+- Backup and recovery procedures
 - Engineering standards
 
 ---
@@ -144,7 +167,7 @@ The following topics are intentionally excluded during the initial phases:
 - Kubernetes
 - Multi-node orchestration
 - High Availability clusters
-- Enterprise Identity Providers
+- Enterprise IAM platforms
 - Public cloud deployment
 - Complex CI/CD platforms
 
@@ -155,12 +178,72 @@ The following topics are intentionally excluded during the initial phases:
 Every engineering decision should satisfy the following priorities:
 
 1. Simplicity
-2. Reliability
-3. Reproducibility
-4. Maintainability
-5. Performance
+2. Security
+3. Reliability
+4. Reproducibility
+5. Maintainability
+6. Performance
 
-If a solution improves performance but significantly increases operational complexity, it should be reconsidered.
+If a solution improves performance while significantly increasing operational complexity or reducing security, it should be reconsidered.
+
+---
+
+# Platform Architecture
+
+HomeLab07 follows a layered architecture.
+
+```
+Source Code
+        │
+        ▼
+Platform Operations
+        │
+        ▼
+Infrastructure Services
+        │
+        ▼
+Application Services
+        │
+        ▼
+Persistent Data
+```
+
+Platform responsibilities are intentionally separated.
+
+- Git manages source code.
+- Docker executes services.
+- Rockstor manages persistent storage.
+- The operation layer manages the platform lifecycle.
+
+---
+
+# Platform Operations
+
+All lifecycle operations are centralized through the platform operation layer.
+
+Administrators interact with HomeLab07 through a consistent operational interface instead of directly managing individual containers.
+
+Current operational commands:
+
+- start
+- stop
+- status
+
+Future operational capabilities should extend this interface rather than bypass it.
+
+---
+
+# Persistent Storage
+
+Persistent application data is managed outside the Git repository.
+
+Platform services remain reproducible from version-controlled configuration while storing runtime state in dedicated persistent storage.
+
+Persistent services must:
+
+- survive container recreation;
+- separate runtime data from configuration;
+- avoid writable container layers for persistence.
 
 ---
 
@@ -169,56 +252,51 @@ If a solution improves performance but significantly increases operational compl
 The project will be considered successful when:
 
 - Infrastructure can be rebuilt from documentation.
-- Deployments become predictable.
-- Operational effort is significantly reduced.
-- Manual maintenance becomes the exception rather than the rule.
+- Platform services are reproducible.
+- Deployments are predictable.
+- Operational effort is minimized.
+- Persistent data remains independent from source code.
 - Documentation accurately represents the running platform.
 
 ---
 
-# Roadmap
+# Initial Roadmap
 
-## Sprint 0
+The roadmap is capability-driven.
 
-Engineering Foundation
+Each sprint delivers one complete platform capability.
 
-- Project structure
-- Documentation
-- Repository
-- Development environment
-- Branding
+## Sprint 001 — Foundation
 
----
+Deliver the first operational platform service and validate the deployment pipeline.
 
-## Sprint 1
+## Sprint 002 — Data Foundation
 
-Zero Touch SSL
+Establish the persistent storage foundation and introduce the first shared stateful service.
 
-Objective:
+## Sprint 003 — Zero Touch SSL
 
-Introduce automated HTTPS through a reverse proxy while removing manual certificate management from application services.
+Provide secure public service publication with automatic HTTPS.
 
----
+## Sprint 004 — Identity
 
-## Sprint 2
+Centralize authentication for platform services.
 
-Deployment Standardization
+## Sprint 005 — Observability
 
-- Infrastructure templates
-- Environment configuration
-- Backup strategy
-- Restore procedures
+Provide platform monitoring and health visibility.
 
----
+## Sprint 006 — Backup & Recovery
 
-## Sprint 3
+Implement the platform recovery strategy.
 
-Platform Services
+## Sprint 007 — Application Platform
 
-- Additional self-hosted services
-- Operational improvements
-- Monitoring
-- Documentation expansion
+Deploy the first production application.
+
+## Sprint 008 — Platform Hardening
+
+Increase security and operational maturity.
 
 ---
 
@@ -228,9 +306,28 @@ A feature is considered complete only when:
 
 - It is documented.
 - It is version-controlled.
-- It can be reproduced.
+- It is reproducible.
 - It has been validated.
-- It improves the overall platform.
+- It integrates with the operation layer.
+- It strengthens the platform architecture.
+
+---
+
+# Documentation Model
+
+HomeLab07 follows a single source of truth documentation strategy.
+
+Documentation hierarchy:
+
+1. Sprint Documents (`sprints/`)
+2. Roadmap (`ROADMAP.md`)
+3. Project Charter (`PROJECT_CHARTER.md`)
+
+Responsibilities:
+
+- Sprint documents define implementation.
+- The Roadmap summarizes platform evolution.
+- The Project Charter defines long-term vision, architectural principles, and engineering philosophy.
 
 ---
 
@@ -242,16 +339,17 @@ A feature is considered complete only when:
 
 # Guiding Statement
 
-Homelab07 is not a collection of servers.
+HomeLab07 is not a collection of containers.
 
 It is an engineering discipline applied to self-hosted infrastructure.
 
-Every implementation should leave the platform simpler, better documented and easier to reproduce than before.
+Every implementation should leave the platform simpler, more secure, better documented, and easier to reproduce than before.
 
 ---
 
 # Version History
 
-| Version     | Date       | Description             |
-| ----------- | ---------- | ----------------------- |
+| Version | Date | Description |
+|----------|------------|----------------------------------------------|
 | 0.1.0-alpha | 2026-07-11 | Initial Project Charter |
+| 0.2.0 | 2026-07-15 | Architecture and engineering principles updated after Foundation milestone |
