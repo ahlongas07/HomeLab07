@@ -1,0 +1,29 @@
+services:
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:2.15.1
+    container_name: homelab07-nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    environment:
+      DB_MYSQL_HOST: ${NPM_DB_HOST:?NPM_DB_HOST is required}
+      DB_MYSQL_PORT: ${NPM_DB_PORT:-3306}
+      DB_MYSQL_USER: ${NPM_DB_USER:?NPM_DB_USER is required}
+      DB_MYSQL_PASSWORD: ${NPM_DB_PASSWORD:?NPM_DB_PASSWORD is required}
+      DB_MYSQL_NAME: ${NPM_DB_NAME:?NPM_DB_NAME is required}
+      DISABLE_IPV6: "true"
+    volumes:
+      - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/nginx-proxy-manager/data:/data
+      - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/nginx-proxy-manager/letsencrypt:/etc/letsencrypt
+    networks:
+      - homelab07-internal
+      - homelab07-proxy
+
+networks:
+  homelab07-internal:
+    name: homelab07-internal
+    external: true
+  homelab07-proxy:
+    name: homelab07-proxy

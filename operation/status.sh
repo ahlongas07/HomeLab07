@@ -15,6 +15,12 @@ echo
 compose_service mariadb ps
 
 echo
+echo "  Nginx Proxy Manager"
+echo
+
+compose_service nginx-proxy-manager ps
+
+echo
 echo "  Landing Page"
 echo
 

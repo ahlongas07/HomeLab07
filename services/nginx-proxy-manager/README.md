@@ -40,7 +40,7 @@ Nginx Proxy Manager is **not** responsible for:
 
 | Component | Technology |
 |-----------|------------|
-| Reverse Proxy | Nginx Proxy Manager |
+| Reverse Proxy | Nginx Proxy Manager 2.15.1 |
 | Database | MariaDB |
 | Certificates | Let's Encrypt |
 | Runtime | Docker Compose |
@@ -142,6 +142,13 @@ Location:
 
 ```
 HomeLab07.private/env/nginx-proxy-manager.env
+```
+
+Create the private environment file from the repository template:
+
+```bash
+mkdir -p ../HomeLab07.private/env
+cp services/nginx-proxy-manager/.env.example ../HomeLab07.private/env/nginx-proxy-manager.env
 ```
 
 Expected variables:
