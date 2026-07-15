@@ -47,9 +47,9 @@ Nginx Proxy Manager is **not** responsible for:
 
 ---
 
-# Dependencies
+# Infrastructure Requirements
 
-Requires:
+Requires available shared infrastructure:
 
 - MariaDB (Sprint 002)
 
@@ -57,7 +57,7 @@ Requires:
 
 # Platform Integration
 
-Consumes:
+Uses shared infrastructure:
 
 - MariaDB
 
@@ -81,19 +81,23 @@ Consumed by:
                       │
                       ▼
           Nginx Proxy Manager
-              │             │
-              │             ▼
-              │          MariaDB
-              │
-              ▼
-       Published Platform Services
+                      │
+       ┌──────────────┴──────────────┐
+       ▼                             ▼
+Landing Page                Future Services
+
+──────────────────────────────────────────
+
+          Shared Infrastructure
+
+               MariaDB
 ```
 
 Nginx Proxy Manager is the **only service exposed to the public Internet**.
 
 All remaining platform services remain on private Docker networks unless explicitly published.
 
-MariaDB is a dependency of Nginx Proxy Manager, not a public service.
+MariaDB belongs to the shared infrastructure layer and is not part of the public publication path.
 
 Published services, such as the Landing Page, are reached through the proxy network and do not publish their own public ports.
 
@@ -241,6 +245,8 @@ HomeLab07.private/env/nginx-proxy-manager.env
 
 ## Docker Networks
 
+HomeLab07 standardizes two Docker networks.
+
 Internal Network:
 
 ```text
@@ -249,8 +255,7 @@ homelab07-internal
 
 Purpose:
 
-- MariaDB connectivity.
-- Private infrastructure communication.
+- Private communication between platform services.
 
 Topology:
 
@@ -269,8 +274,7 @@ homelab07-proxy
 
 Purpose:
 
-- Reverse proxy traffic.
-- Communication between Nginx Proxy Manager and explicitly published services.
+- Traffic between the reverse proxy and published services.
 
 Topology:
 

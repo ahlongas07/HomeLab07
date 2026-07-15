@@ -136,33 +136,37 @@ This sprint introduces the first public entry point of the platform.
                     │
                     ▼
         Nginx Proxy Manager
-            │             │
-            │             ▼
-            │          MariaDB
-            │
-            ▼
-     Published Platform Services
+                    │
+     ┌──────────────┴──────────────┐
+     ▼                             ▼
+Landing Page              Future Services
+
+──────────────────────────────────────────
+
+        Shared Infrastructure
+
+             MariaDB
 ```
 
 All public traffic must enter the platform through Nginx Proxy Manager.
 
 Platform services must never expose themselves directly to the Internet.
 
-MariaDB is a private dependency of Nginx Proxy Manager and must never be published.
+MariaDB belongs to the shared infrastructure layer and must never be published.
 
-This sprint defines two Docker networks:
+HomeLab07 standardizes two Docker networks.
 
 ```text
 homelab07-internal
 ```
 
-Used for private infrastructure communication, including MariaDB access.
+Private communication between platform services.
 
 ```text
 homelab07-proxy
 ```
 
-Used for reverse proxy traffic between Nginx Proxy Manager and explicitly published platform services.
+Traffic between the reverse proxy and published services.
 
 The Landing Page becomes the first service published through `homelab07-proxy` and should no longer rely on direct public host port exposure.
 
