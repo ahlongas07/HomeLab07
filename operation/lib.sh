@@ -31,7 +31,7 @@ compose() {
     local service="$1"
     shift
 
-    local env_file="${PRIVATE_ROOT}/services/${service}/.env"
+    local env_file="${PRIVATE_ROOT}/env/${service}.env"
     local env_example="${PROJECT_ROOT}/services/${service}/.env.example"
     local env_args=()
 

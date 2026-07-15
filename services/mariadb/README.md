@@ -54,8 +54,8 @@ The physical mount point is environment-specific and must be configured outside 
 Create the private configuration file outside this repository:
 
 ```bash
-mkdir -p ../HomeLab07.private/services/mariadb
-cp services/mariadb/.env.example ../HomeLab07.private/services/mariadb/.env
+mkdir -p ../HomeLab07.private/env
+cp services/mariadb/.env.example ../HomeLab07.private/env/mariadb.env
 ```
 
 Edit the private `.env` file and set real values:
@@ -83,7 +83,7 @@ If running Docker Compose directly, include the private env file:
 
 ```bash
 docker compose \
-  --env-file ../HomeLab07.private/services/mariadb/.env \
+  --env-file ../HomeLab07.private/env/mariadb.env \
   -f services/mariadb/compose.yaml \
   config
 ```
@@ -216,7 +216,7 @@ The service is considered healthy when:
 Database credentials must remain outside Git in:
 
 ```text
-../HomeLab07.private/services/mariadb/.env
+../HomeLab07.private/env/mariadb.env
 ```
 
 Do not expose MariaDB directly to the public network.

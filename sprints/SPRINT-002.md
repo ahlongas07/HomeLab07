@@ -103,7 +103,7 @@ HOMELAB07_DATA_ROOT=/path/to/homelab07-data
 This value belongs outside the Git repository in:
 
 ```text
-HomeLab07.private/services/mariadb/.env
+HomeLab07.private/env/mariadb.env
 ```
 
 Each stateful service owns its own directory inside the share.
