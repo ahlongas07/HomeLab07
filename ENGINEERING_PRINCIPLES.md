@@ -212,8 +212,12 @@ Engineering quality is achieved when:
 - The solution is maintainable.
 - The solution minimizes operational effort.
 
+
+
 ---
 
 # Motto
 
 > Simplicity creates reliability.
+
+The operation/ directory defines the public operational interface of HomeLab07. External automation, including future Rock-on integration, should invoke these scripts rather than interacting directly with Docker or Docker Compose.
