@@ -6,6 +6,11 @@ print_header "Start"
 
 print_project_root
 
+echo "Starting MariaDB..."
+
+compose mariadb up -d
+
+echo
 echo "Starting Landing Page..."
 
 compose landing-page up -d

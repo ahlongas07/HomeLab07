@@ -9,6 +9,12 @@ print_project_root
 echo "Platform"
 echo
 
+echo "  MariaDB"
+echo
+
+compose_service mariadb ps
+
+echo
 echo "  Landing Page"
 echo
 

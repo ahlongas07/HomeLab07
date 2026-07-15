@@ -2,7 +2,7 @@
 
 **Version:** v0.3.0-data-foundation
 
-**Status:** Planned
+**Status:** In Progress
 
 ---
 
@@ -93,6 +93,18 @@ homelab07-data
 ```
 
 The physical mount point depends on the NAS configuration and must never be hardcoded.
+
+The mount point is provided through the private environment variable:
+
+```bash
+HOMELAB07_DATA_ROOT=/path/to/homelab07-data
+```
+
+This value belongs outside the Git repository in:
+
+```text
+HomeLab07.private/services/mariadb/.env
+```
 
 Each stateful service owns its own directory inside the share.
 

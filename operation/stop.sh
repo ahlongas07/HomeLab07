@@ -11,4 +11,9 @@ echo "Stopping Landing Page..."
 compose landing-page down
 
 echo
+echo "Stopping MariaDB..."
+
+compose mariadb down
+
+echo
 echo "HomeLab07 stopped successfully."
