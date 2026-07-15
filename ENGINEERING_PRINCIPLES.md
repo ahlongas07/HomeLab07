@@ -250,6 +250,26 @@ External automation, including future Rock-on integration, should invoke these s
 
 ---
 
+# Platform Networking
+
+HomeLab07 standardizes two Docker networks.
+
+```text
+homelab07-internal
+```
+
+Private communication between platform services.
+
+```text
+homelab07-proxy
+```
+
+Traffic between the reverse proxy and published services.
+
+Public service exposure should go through the reverse proxy rather than direct host port publication.
+
+---
+
 # Private Configuration
 
 Environment-specific and sensitive configuration belongs outside the Git repository in `HomeLab07.private`.

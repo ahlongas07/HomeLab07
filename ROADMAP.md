@@ -69,9 +69,9 @@ Establish the persistent storage foundation for HomeLab07.
 
 ---
 
-## Sprint 003 — Zero Touch SSL
+## ✅ Sprint 003 — Zero Touch SSL
 
-**Status:** Planned
+**Status:** Completed
 
 ### Goal
 
@@ -84,6 +84,7 @@ Provide automatic HTTPS with secure service publication.
 - HTTP → HTTPS redirection
 - Secure default configuration
 - Public service publication
+- Landing Page HTTPS publication
 
 ---
 

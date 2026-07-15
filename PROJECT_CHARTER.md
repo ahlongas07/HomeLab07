@@ -2,7 +2,7 @@
 
 **Project:** HomeLab07
 
-**Version:** v0.3.0-data-foundation
+**Version:** v0.4.0-zero-touch-ssl
 
 **Status:** Active
 
@@ -355,3 +355,4 @@ Every implementation should leave the platform simpler, more secure, better docu
 | 0.1.0-alpha | 2026-07-11 | Initial Project Charter |
 | 0.2.0 | 2026-07-15 | Architecture and engineering principles updated after Foundation milestone |
 | v0.3.0-data-foundation | 2026-07-15 | Data Foundation milestone completed |
+| v0.4.0-zero-touch-ssl | 2026-07-15 | Zero Touch SSL milestone completed |

@@ -449,18 +449,19 @@ docker exec -i homelab07-mariadb \
 
 # Validation
 
-Deployment is considered successful when:
+Sprint 003 validation completed successfully.
 
-- Nginx Proxy Manager starts successfully.
-- MariaDB connection succeeds.
-- Administration interface is available.
-- HTTP redirects to HTTPS.
-- HTTPS certificates are issued successfully.
-- Certificate renewal is operational.
-- Configuration survives container recreation.
-- Certificates survive container recreation.
-- Landing Page is published through HTTPS.
-- Operation layer integration is validated.
+- [x] Nginx Proxy Manager starts successfully.
+- [x] MariaDB connection succeeds.
+- [x] Administration interface is available.
+- [x] HTTP redirects to HTTPS.
+- [x] HTTPS certificates are issued successfully.
+- [x] Certificate renewal is operational.
+- [x] Configuration survives container recreation.
+- [x] Certificates survive container recreation.
+- [x] Landing Page is published through HTTPS.
+- [x] Operation layer integration is validated.
+- [x] Cloudflare DNS configuration is complete.
 
 ---
 
@@ -497,7 +498,8 @@ HomeLab07 intentionally follows these architectural decisions.
 
 # Related Sprint
 
-Sprint 003 — Zero Touch SSL
+- Sprint 003 — Zero Touch SSL
+- Version: `v0.4.0-zero-touch-ssl`
 
 ---
 

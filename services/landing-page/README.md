@@ -87,6 +87,8 @@ Forward Port: 80
 Scheme: http
 ```
 
+Sprint 003 validation confirmed that the Landing Page is published through HTTPS by Nginx Proxy Manager.
+
 ---
 
 ## Internet Publication
