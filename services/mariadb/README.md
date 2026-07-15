@@ -63,9 +63,6 @@ Edit the private `.env` file and set real values:
 ```bash
 HOMELAB07_DATA_ROOT=/path/to/homelab07-data
 MARIADB_ROOT_PASSWORD=replace-with-a-strong-root-password
-MARIADB_DATABASE=homelab07
-MARIADB_USER=homelab07_app
-MARIADB_PASSWORD=replace-with-a-strong-application-password
 ```
 
 `HOMELAB07_DATA_ROOT` must point to the mounted Rockstor share named `homelab07-data`.
@@ -129,16 +126,38 @@ Applications should connect to MariaDB through the internal Docker network, not 
 
 ---
 
-## Initial Database
+## Database Provisioning
 
-On first startup, the MariaDB image creates:
+MariaDB is a shared infrastructure service.
 
-- the root database account;
-- the database defined by `MARIADB_DATABASE`;
-- the application user defined by `MARIADB_USER`;
-- the password defined by `MARIADB_PASSWORD`.
+This service provides only the database server and initializes only the root account.
 
-Future applications must use their own database, user, password, and minimum required privileges.
+Application-specific databases are not created during MariaDB bootstrap.
+
+Every platform application is responsible for creating:
+
+- its own database;
+- its own database user;
+- its own password;
+- its own minimum required privileges.
+
+Examples:
+
+```text
+Nginx Proxy Manager
+  Database: npm_db
+  User: npm_user
+
+OwnCloud
+  Database: owncloud_db
+  User: owncloud_user
+
+Authentik
+  Database: authentik_db
+  User: authentik_user
+```
+
+Application database creation belongs to each application's deployment procedure.
 
 ---
 
