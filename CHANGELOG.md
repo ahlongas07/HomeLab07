@@ -13,3 +13,12 @@
 ### Notes
 
 Official project kickoff completed.
+
+### Added
+
+- Platform operation layer.
+- Shared operation library.
+- Standard lifecycle commands:
+  - start
+  - stop
+  - status
