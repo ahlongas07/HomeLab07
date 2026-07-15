@@ -24,6 +24,7 @@ This sprint establishes the networking foundation of HomeLab07, allowing platfor
 - HTTP → HTTPS redirection.
 - Secure reverse proxy configuration.
 - Centralized platform administration.
+- Landing Page publication through Nginx Proxy Manager.
 - Integration with the existing operation layer.
 - Service documentation.
 
@@ -135,15 +136,35 @@ This sprint introduces the first public entry point of the platform.
                     │
                     ▼
         Nginx Proxy Manager
-                    │
-        ┌───────────┴───────────┐
-        ▼                       ▼
- Landing Page          Future Platform Services
+            │             │
+            │             ▼
+            │          MariaDB
+            │
+            ▼
+     Published Platform Services
 ```
 
 All public traffic must enter the platform through Nginx Proxy Manager.
 
 Platform services must never expose themselves directly to the Internet.
+
+MariaDB is a private dependency of Nginx Proxy Manager and must never be published.
+
+This sprint defines two Docker networks:
+
+```text
+homelab07-internal
+```
+
+Used for private infrastructure communication, including MariaDB access.
+
+```text
+homelab07-proxy
+```
+
+Used for reverse proxy traffic between Nginx Proxy Manager and explicitly published platform services.
+
+The Landing Page becomes the first service published through `homelab07-proxy` and should no longer rely on direct public host port exposure.
 
 ---
 
@@ -190,6 +211,7 @@ The sprint is complete when:
 - HTTP requests redirect automatically to HTTPS.
 - Configuration survives container recreation.
 - Certificates survive container recreation.
+- Landing Page no longer relies on direct public host port exposure.
 - Persistent storage is validated.
 - Operation layer integration is validated.
 - Documentation is complete.
@@ -207,6 +229,7 @@ Validate the following:
 - Container recreation.
 - Persistent configuration.
 - Persistent certificates.
+- Landing Page proxy network integration.
 - Internal Docker networking.
 - Operation layer integration.
 
@@ -224,6 +247,7 @@ This sprint reinforces the following permanent engineering principles.
 - Platform operations remain centralized.
 - Public exposure is always explicit.
 - Security is the default configuration.
+- Published services use the proxy network instead of publishing public ports directly.
 
 ---
 

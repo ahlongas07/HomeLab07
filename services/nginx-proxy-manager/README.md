@@ -81,18 +81,21 @@ Consumed by:
                       │
                       ▼
           Nginx Proxy Manager
-                      │
-          ┌───────────┴───────────┐
-          ▼                       ▼
-   Landing Page         Future Platform Services
-                      │
-                      ▼
-                   MariaDB
+              │             │
+              │             ▼
+              │          MariaDB
+              │
+              ▼
+       Published Platform Services
 ```
 
 Nginx Proxy Manager is the **only service exposed to the public Internet**.
 
 All remaining platform services remain on private Docker networks unless explicitly published.
+
+MariaDB is a dependency of Nginx Proxy Manager, not a public service.
+
+Published services, such as the Landing Page, are reached through the proxy network and do not publish their own public ports.
 
 ---
 
@@ -238,7 +241,18 @@ HomeLab07.private/env/nginx-proxy-manager.env
 
 ## Docker Networks
 
-Internal Network
+Internal Network:
+
+```text
+homelab07-internal
+```
+
+Purpose:
+
+- MariaDB connectivity.
+- Private infrastructure communication.
+
+Topology:
 
 ```
 MariaDB
@@ -247,7 +261,18 @@ MariaDB
 Nginx Proxy Manager
 ```
 
-Proxy Network
+Proxy Network:
+
+```text
+homelab07-proxy
+```
+
+Purpose:
+
+- Reverse proxy traffic.
+- Communication between Nginx Proxy Manager and explicitly published services.
+
+Topology:
 
 ```
 Internet
@@ -260,6 +285,23 @@ Published Platform Services
 ```
 
 Only Nginx Proxy Manager is publicly exposed.
+
+Platform services published through Nginx Proxy Manager should join `homelab07-proxy` and avoid publishing host ports directly.
+
+---
+
+# Landing Page Integration
+
+During Sprint 003, the Landing Page becomes the first service published through Nginx Proxy Manager.
+
+The Landing Page should:
+
+- join the `homelab07-proxy` Docker network;
+- stop relying on direct public host port publication;
+- remain reachable through Nginx Proxy Manager;
+- be validated through HTTPS.
+
+This keeps Nginx Proxy Manager as the single public entry point of HomeLab07.
 
 ---
 
@@ -293,45 +335,104 @@ Do not keep the default administrator credentials.
 
 # Backup
 
-1. Stop the platform.
+Nginx Proxy Manager backup requires both persistent files and its application database.
+
+Back up:
+
+- `${HOMELAB07_DATA_ROOT}/nginx-proxy-manager/`
+- MariaDB database `npm_db`
+
+1. Stop Nginx Proxy Manager before backing up its persistent files.
 
 ```bash
-./operation/stop.sh
+./operation/compose.sh nginx-proxy-manager down
 ```
 
-2. Backup:
+2. Back up persistent files:
 
 ```
 homelab07-data/nginx-proxy-manager/
 ```
 
-3. Start the platform.
+3. Ensure MariaDB is running before creating the logical database backup.
 
 ```bash
-./operation/start.sh
+./operation/compose.sh mariadb up -d
+```
+
+4. Back up the Nginx Proxy Manager database:
+
+```bash
+docker exec homelab07-mariadb \
+  mariadb-dump \
+  --single-transaction \
+  --quick \
+  --lock-tables=false \
+  -uroot \
+  -p \
+  npm_db > /path/to/backups/npm_db.sql
+```
+
+5. Store backups outside the Git repository.
+
+Recommended location:
+
+```text
+HomeLab07.private/backups/nginx-proxy-manager/
+```
+
+6. Start Nginx Proxy Manager again.
+
+```bash
+./operation/compose.sh nginx-proxy-manager up -d
 ```
 
 ---
 
 # Restore
 
-1. Stop the platform.
+Nginx Proxy Manager restore requires both persistent files and its application database.
+
+Restore:
+
+- `${HOMELAB07_DATA_ROOT}/nginx-proxy-manager/`
+- MariaDB database `npm_db`
+
+1. Stop Nginx Proxy Manager before restoring its persistent files.
 
 ```bash
-./operation/stop.sh
+./operation/compose.sh nginx-proxy-manager down
 ```
 
-2. Restore:
+2. Restore persistent files:
 
 ```
 homelab07-data/nginx-proxy-manager/
 ```
 
-3. Start the platform.
+3. Ensure MariaDB is running before restoring the logical database backup.
 
 ```bash
-./operation/start.sh
+./operation/compose.sh mariadb up -d
 ```
+
+4. Restore the Nginx Proxy Manager database:
+
+```bash
+docker exec -i homelab07-mariadb \
+  mariadb \
+  -uroot \
+  -p \
+  npm_db < /path/to/backups/npm_db.sql
+```
+
+5. Start Nginx Proxy Manager again.
+
+```bash
+./operation/compose.sh nginx-proxy-manager up -d
+```
+
+6. Validate the administration interface, proxy hosts, and certificates.
 
 ---
 
