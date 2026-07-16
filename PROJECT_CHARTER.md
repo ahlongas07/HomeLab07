@@ -8,7 +8,7 @@
 
 **Project Type:** Infrastructure Engineering Project
 
-**Last Updated:** 2026-07-15
+**Last Updated:** 2026-07-16
 
 ---
 
@@ -18,13 +18,13 @@ HomeLab07 is an infrastructure engineering project dedicated to designing, build
 
 The project applies professional engineering practices to home infrastructure by treating documentation, architecture, operations, and persistent storage as first-class components of the platform.
 
-Rather than being a collection of services, HomeLab07 is intended to become a repeatable engineering methodology for building reliable self-hosted environments.
+Rather than being a collection of services, HomeLab07 is intended to become a reference implementation for building reliable self-hosted environments through reusable platform capabilities and business-facing services that consume them.
 
 ---
 
 # Vision
 
-Build a modern self-hosted infrastructure platform that is simple, maintainable, secure, reproducible, and professionally documented.
+Build a modern self-hosted infrastructure platform that is simple, maintainable, secure, reproducible, professionally documented, and useful as a reference implementation.
 
 ---
 
@@ -120,12 +120,15 @@ Every sprint should strengthen the platform architecture while reducing operatio
 - Standardize platform operations.
 - Introduce persistent platform services.
 - Automate secure service publication.
+- Prioritize reusable platform capabilities before business-facing applications.
 
 ---
 
 ## Medium-Term
 
 - Build reusable deployment patterns.
+- Introduce shared in-memory data services.
+- Deploy business-facing services that consume shared platform capabilities.
 - Improve observability.
 - Standardize backup and recovery.
 - Simplify platform operations.
@@ -150,6 +153,8 @@ The project includes:
 - Platform operations
 - Docker-based services
 - Persistent services
+- In-memory platform services
+- Business-facing platform services
 - Reverse proxy
 - SSL automation
 - DNS automation
@@ -267,7 +272,7 @@ The project will be considered successful when:
 
 The roadmap is capability-driven.
 
-Each sprint delivers one complete platform capability.
+Each sprint either introduces one reusable platform capability or delivers a platform service that consumes existing capabilities.
 
 ## Sprint 001 — Foundation
 
@@ -281,25 +286,33 @@ Establish the persistent storage foundation and introduce the first shared state
 
 Provide secure public service publication with automatic HTTPS.
 
-## Sprint 004 — Identity
+## Sprint 004 — In-Memory Data Platform
 
-Centralize authentication for platform services.
+Introduce Valkey as the shared in-memory platform service.
 
-## Sprint 005 — Observability
+## Sprint 005 — Collaboration Platform
 
-Provide platform monitoring and health visibility.
+Deploy OwnCloud as the first business-facing platform service.
 
-## Sprint 006 — Backup & Recovery
+## Sprint 006 — Identity Platform
 
-Implement the platform recovery strategy.
+Centralize authentication and authorization for platform services.
 
-## Sprint 007 — Application Platform
+## Sprint 007 — Media Platform
 
-Deploy the first production application.
+Deploy multimedia services through the shared platform.
 
-## Sprint 008 — Platform Hardening
+## Sprint 008 — Smart Home Platform
+
+Provide smart home automation services.
+
+## Sprint 009 — Platform Hardening
 
 Increase security and operational maturity.
+
+## Sprint 010 — Backup & Recovery
+
+Implement the platform recovery strategy.
 
 ---
 
@@ -358,3 +371,4 @@ Every implementation should leave the platform simpler, more secure, better docu
 | 0.2.0 | 2026-07-15 | Architecture and engineering principles updated after Foundation milestone |
 | v0.3.0-data-foundation | 2026-07-15 | Data Foundation milestone completed |
 | v0.4.0-zero-touch-ssl | 2026-07-15 | Zero Touch SSL milestone completed |
+| Roadmap 2.0 | 2026-07-16 | Product roadmap updated to prioritize reusable platform capabilities and business-facing services |

@@ -1,249 +1,391 @@
 # HomeLab07 Roadmap
 
-## Vision
+Version: 2.0
 
-Build a modern, self-hosted infrastructure platform that is simple, maintainable, reproducible, and documented using professional engineering practices.
-
-Every sprint must deliver one complete platform capability that can be demonstrated, validated, and integrated into the platform without increasing unnecessary complexity.
+Status: Active
 
 ---
 
-# Project Milestones
+# Vision
 
-## ✅ Kickoff
+HomeLab07 is a reference implementation of a modern self-hosted platform.
 
-**Status:** Completed
+The roadmap prioritizes reusable platform capabilities before business-facing applications.
 
-### Objectives
+Each Sprint should either:
 
-- Project definition
-- Engineering principles
-- Repository creation
-- Documentation
-- Git workflow
-- Development environment
-- Runtime environment
-- SSH authentication
-- Docker installation
-- Foundation architecture
+- Introduce a reusable platform capability, or
+- Deliver a platform service that consumes those capabilities.
+
+This approach keeps the platform modular, maintainable and reproducible.
 
 ---
 
-## ✅ Sprint 001 — Foundation
+# Phase 1 — Platform Foundation
 
-**Status:** Completed
-
-### Goal
-
-Validate the complete deployment pipeline by deploying the first operational platform service and establishing the operational foundation of HomeLab07.
-
-### Capabilities
-
-- Docker Compose
-- First Nginx service
-- Landing page
-- GitHub → NAS deployment
-- Deployment workflow validation
-- Platform operation layer
-- Reproducible service architecture
+The objective of this phase is to establish the technical foundation of the platform.
 
 ---
 
-## ✅ Sprint 002 — Data Foundation
+## Sprint 001 — Foundation
 
-**Status:** Completed
+Status
 
-### Goal
+✅ Completed
 
-Establish the persistent storage foundation for HomeLab07.
+Objective
 
-### Capabilities
+Create the engineering foundation of HomeLab07.
 
-- Shared relational database
-- Persistent platform storage
-- Stateful service architecture
-- Storage strategy
-- Backup foundation
-- Secure credential management
-- Internal-only database networking
+Deliverables
+
+- Repository structure
+- Engineering standards
+- Operation Layer
+- Shared Docker networking
+- Documentation standards
+- Engineering Principles
+- Project Charter
 
 ---
 
-## ✅ Sprint 003 — Zero Touch SSL
+## Sprint 002 — Data Foundation
 
-**Status:** Completed
+Status
 
-### Goal
+✅ Completed
 
-Provide automatic HTTPS with secure service publication.
+Objective
 
-### Capabilities
+Provide persistent shared relational storage.
 
+Deliverables
+
+- Shared MariaDB
+- Persistent storage
+- Database conventions
+- Shared database architecture
+- Backup-ready storage layout
+
+Platform Capability
+
+Shared relational database.
+
+---
+
+## Sprint 003 — Zero Touch SSL
+
+Status
+
+✅ Completed
+
+Objective
+
+Provide secure publication of platform services.
+
+Deliverables
+
+- Nginx Proxy Manager
+- Automatic Let's Encrypt certificates
+- HTTPS by default
 - Reverse Proxy
-- Automatic TLS certificates
-- HTTP → HTTPS redirection
-- Secure default configuration
-- Public service publication
-- Landing Page HTTPS publication
+- Cloudflare Dynamic DNS
+- Public publication architecture
+
+Platform Capability
+
+Shared networking.
 
 ---
 
-# Platform Enhancements
+# Phase 2 — Shared Platform Capabilities
 
-Platform enhancements are reusable capabilities that improve the platform as a whole without becoming application-specific sprint work.
+The objective of this phase is to introduce reusable services consumed by multiple applications.
 
-## Cloudflare Dynamic DNS
-
-**Status:** In Progress
-
-### Goal
-
-Keep Cloudflare DNS records synchronized with the current public IP address used by HomeLab07.
-
-### Capabilities
-
-- Cloudflare DNS record updates
-- API token authentication
-- Cloudflare proxy-aware DNS management
-- Operation layer integration
-- Secrets outside Git
-- No application-specific coupling
+Applications should never own these capabilities.
 
 ---
 
-## Sprint 004 — Identity
+## Sprint 004 — In-Memory Data Platform
 
-**Status:** Planned
+Status
 
-### Goal
+Planned
 
-Centralize authentication for self-hosted services.
+Objective
 
-### Capabilities
+Provide a shared in-memory platform service for caching, distributed locking and transient application state.
 
-- Identity Provider
+Platform Capability
+
+Valkey
+
+Deliverables
+
+- Valkey deployment
+- Internal Docker networking
+- Stateless configuration
+- Operation Layer integration
+- Service documentation
+- Security hardening
+- Validation procedures
+
+Architecture Principles
+
+- Shared platform service
+- Application agnostic
+- Stateless
+- No persistent storage
+- No published host ports
+- Internal network only
+- Reusable by future platform services
+
+Validation
+
+- Service deployment
+- Platform integration
+- Network isolation
+- Container recreation
+- Operation Layer support
+
+---
+
+## Sprint 005 — Collaboration Platform
+
+Status
+
+Planned
+
+Objective
+
+Deploy the first business-facing platform service.
+
+Business Service
+
+OwnCloud
+
+Consumes
+
+- MariaDB
+- Valkey
+- Nginx Proxy Manager
+- Cloudflare Dynamic DNS
+
+Deliverables
+
+- OwnCloud
+- Shared storage
+- HTTPS publication
+- Platform documentation
+- Operation Layer integration
+
+Validation
+
+- File upload
+- File download
+- Concurrent access
+- Transactional locking
+- HTTPS publication
+
+---
+
+## Sprint 006 — Identity Platform
+
+Status
+
+Planned
+
+Objective
+
+Provide centralized authentication and authorization for the platform.
+
+Platform Capability
+
+Authentik
+
+Provides
+
+- OpenID Connect
 - Single Sign-On
-- Forward Authentication
-- Protected services
+- Identity Management
+- User Management
+- Group Management
+
+Consumes
+
+- PostgreSQL (if required)
+- Nginx Proxy Manager
+
+Integrates With
+
+- OwnCloud
+
+Validation
+
+- OIDC login
+- User provisioning
+- Group synchronization
+- Identity integration
 
 ---
 
-## Sprint 005 — Observability
+## Sprint 007 — Media Platform
 
-**Status:** Planned
+Status
 
-### Goal
+Planned
 
-Provide visibility into platform health.
+Objective
 
-### Capabilities
+Provide multimedia services through the shared platform.
 
-- Logs
-- Metrics
-- Dashboards
-- Health checks
-- Alerting foundation
+Business Service
+
+Jellyfin
+
+Consumes
+
+- Identity Platform
+- Shared Storage
+- Nginx Proxy Manager
+
+Deliverables
+
+- Jellyfin
+- HTTPS publication
+- Media library
+- Streaming
+
+Validation
+
+- Media playback
+- Secure remote access
+- Identity integration
 
 ---
 
-## Sprint 006 — Backup & Recovery
+## Sprint 008 — Smart Home Platform
 
-**Status:** Planned
+Status
 
-### Goal
+Planned
 
-Guarantee platform recoverability.
+Objective
 
-### Capabilities
+Provide smart home automation services.
 
-- Backup strategy
+Business Service
+
+Homebridge
+
+Consumes
+
+- Identity Platform (where applicable)
+- Nginx Proxy Manager
+
+Deliverables
+
+- Homebridge
+- HomeKit integration
+- Remote access
+- Platform documentation
+
+Validation
+
+- HomeKit connectivity
+- Remote access
+- Stable operation
+
+---
+
+# Phase 3 — Platform Operations
+
+The objective of this phase is to operationalize and secure the platform.
+
+---
+
+## Sprint 009 — Platform Hardening
+
+Status
+
+Planned
+
+Objective
+
+Harden the platform for production-quality operation.
+
+Deliverables
+
+- Cloudflare WAF
+- Rate Limiting
+- Zero Trust evaluation
+- Security Headers
+- Platform security review
+- Infrastructure hardening
+
+Validation
+
+- Security assessment
+- Public exposure review
+- Infrastructure review
+
+---
+
+## Sprint 010 — Backup & Recovery
+
+Status
+
+Planned
+
+Objective
+
+Provide reliable disaster recovery for platform services.
+
+Deliverables
+
+- Automated backups
 - Restore procedures
 - Disaster Recovery documentation
 - Backup validation
+- Recovery testing
+
+Validation
+
+- Successful restore
+- Backup integrity
+- Recovery documentation
 
 ---
 
-## Sprint 007 — Application Platform
+# Future Platform Enhancements
 
-**Status:** Planned
+The following capabilities remain outside the current roadmap.
 
-### Goal
+They should only be introduced when justified by platform requirements.
 
-Deploy the first production application on the HomeLab07 platform.
+Potential future enhancements include:
 
-### Capabilities
-
-- First production workload
-- Shared database consumption
-- Persistent storage
-- Secure publication
-- Operational validation
-
----
-
-## Sprint 008 — Platform Hardening
-
-**Status:** Planned
-
-### Goal
-
-Increase security and operational maturity.
-
-### Capabilities
-
-- Secret management improvements
-- Least privilege review
-- Network segmentation
-- Security review
-- Operational documentation
+- Observability
+- Multi-node deployment
+- High Availability
+- Object Storage
+- GitOps
+- Infrastructure as Code
+- Kubernetes
+- Multi-site replication
 
 ---
 
-# Version Milestones
+# Roadmap Principles
 
-| Version | Milestone |
-|---------|-----------|
-| v0.1.0-kickoff | Project Kickoff |
-| v0.2.0-foundation | First operational platform |
-| v0.3.0-data-foundation | Persistent platform services |
-| v0.4.0-zero-touch-ssl | Automatic HTTPS |
-| v0.5.0-identity | Centralized authentication |
-| v0.6.0-observability | Platform monitoring |
-| v0.7.0-backup-recovery | Disaster recovery |
-| v0.8.0-application-platform | First production workload |
-| v1.0.0-production | Stable platform |
+The roadmap follows the engineering philosophy of HomeLab07.
 
----
+Platform capabilities are implemented before applications.
 
-# Engineering Strategy
+Applications consume shared platform services rather than implementing infrastructure independently.
 
-Each sprint must:
+The platform should evolve by increasing reuse, reducing duplication and preserving reproducibility.
 
-- Deliver one complete platform capability.
-- Be independently demonstrable.
-- Be fully documented.
-- Preserve simplicity.
-- Strengthen the platform architecture.
-- Minimize operational complexity.
-- Keep GitHub as the single source of truth.
-- Separate source code, secrets, and persistent data.
-- Prefer explicit configuration over implicit behavior.
-- Follow the principle of secure-by-default.
+Business-facing services should demonstrate the value of the platform while remaining loosely coupled to the underlying infrastructure.
 
----
-
-# Documentation Hierarchy
-
-HomeLab07 follows a single source of truth model for project documentation.
-
-Priority order:
-
-1. `sprints/SPRINT-XXX.md`
-2. `ROADMAP.md`
-3. `PROJECT_CHARTER.md`
-
-Sprint documents define the implementation plan.
-
-The roadmap summarizes the platform evolution.
-
-The Project Charter defines the long-term vision and changes only when the project's strategic direction changes.
+Every Sprint should strengthen the platform as a whole, not only the service being introduced.
