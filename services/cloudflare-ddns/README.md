@@ -149,9 +149,15 @@ Expected variables:
 CLOUDFLARE_API_TOKEN=replace-with-cloudflare-api-token
 CLOUDFLARE_DDNS_DOMAINS=home.example.com
 CLOUDFLARE_DDNS_PROXIED=true
+CLOUDFLARE_DDNS_IP6_PROVIDER=none
+CLOUDFLARE_DDNS_DETECTION_TIMEOUT=10s
 ```
 
 `CLOUDFLARE_DDNS_DOMAINS` should normally contain the canonical endpoint only. Additional service names should usually be configured in Cloudflare as `CNAME` records pointing to that endpoint.
+
+`CLOUDFLARE_DDNS_IP6_PROVIDER=none` disables IPv6 management. This is the recommended HomeLab07 default unless the network has working IPv6 end to end.
+
+`CLOUDFLARE_DDNS_DETECTION_TIMEOUT=10s` gives public IP detection additional time on networks with occasional latency.
 
 Real tokens and domain names must remain only in `HomeLab07.private`.
 
@@ -170,6 +176,14 @@ Zone / DNS / Edit
 ```
 
 Restrict the token to the specific Cloudflare zone used by HomeLab07.
+
+The managed DNS record must belong to a zone that exists in the same Cloudflare account where the token was created. If the service cannot find the zone, verify:
+
+- The API token was copied correctly.
+- The token has access to the target zone.
+- The zone is active in Cloudflare.
+- The configured domain belongs to that zone.
+- The configured record exists or can be created by the token.
 
 ---
 
@@ -249,6 +263,8 @@ Expected recovery behavior:
 | Invalid API token | The container starts but DNS updates fail. Fix the token in `HomeLab07.private/env/cloudflare-ddns.env` and restart the service. |
 | Public IP changes | The service detects the new public IP and updates the configured Cloudflare DNS record. |
 | Cloudflare API temporarily unavailable | DNS updates fail temporarily. The container remains running and retries on the next update cycle. |
+| No IPv6 connectivity | IPv6 management is disabled through `CLOUDFLARE_DDNS_IP6_PROVIDER=none`. |
+| Slow public IP detection | Increase `CLOUDFLARE_DDNS_DETECTION_TIMEOUT` in the private environment file. |
 | Container restart | The service starts again, reads the private environment file, detects the current public IP, and reconciles DNS. |
 | Platform reboot | The operation layer starts the service with the platform. DNS is reconciled after the container starts. |
 
