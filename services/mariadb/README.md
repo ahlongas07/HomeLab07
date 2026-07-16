@@ -274,6 +274,3 @@ Do not commit database dumps, credentials, certificates, or environment-specific
 ---
 
 ## Related Sprint
-
-- Sprint 002 - Data Foundation
-- Version: `v0.3.0-data-foundation`
