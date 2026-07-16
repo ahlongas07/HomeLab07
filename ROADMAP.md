@@ -110,7 +110,7 @@ Applications should never own these capabilities.
 
 Status
 
-In Progress
+✅ Completed
 
 Objective
 
@@ -147,6 +147,8 @@ Validation
 - Network isolation
 - Container recreation
 - Operation Layer support
+- Memory limit validation
+- Memory policy validation
 
 ---
 

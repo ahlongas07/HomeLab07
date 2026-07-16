@@ -5,7 +5,7 @@
 > > ⚠️ **Project Status**
 >
 > HomeLab07 is currently in active early development.
-> The repository reflects the project's operational, data, and secure publication foundation and will evolve incrementally through documented sprints.
+> The repository reflects the project's operational, data, secure publication, and in-memory platform foundation and will evolve incrementally through documented sprints.
 
 HomeLab07 is an infrastructure engineering project focused on designing and building a modern, reproducible, secure, and maintainable self-hosted platform.
 
@@ -25,7 +25,7 @@ The project emphasizes:
 
 🚧 Early Development
 
-Sprint 001, Sprint 002, and Sprint 003 are complete.
+Sprint 001, Sprint 002, Sprint 003, and Sprint 004 are complete.
 
 The project has established:
 
@@ -36,6 +36,7 @@ The project has established:
 - Nginx Proxy Manager as the centralized public entry point.
 - HTTPS publication for the Landing Page.
 - Cloudflare Dynamic DNS as a platform enhancement in progress.
+- Valkey as the shared in-memory data platform.
 
 ## Documentation
 

@@ -2,7 +2,7 @@
 
 **Version:** v0.5.0-in-memory-platform
 
-**Status:** In Progress
+**Status:** Completed
 
 ---
 
@@ -184,6 +184,8 @@ Recommended configuration:
 
 - No AOF persistence.
 - No RDB snapshots.
+- Explicit memory limit.
+- No eviction policy.
 - Restart automatically.
 - Rebuild transient state after restart.
 
@@ -238,6 +240,20 @@ Validate the following:
 - Stateless restart succeeds.
 - Service logs report healthy startup.
 - Internal connectivity succeeds.
+- Memory limit is configured as `128mb`.
+- Memory policy is configured as `noeviction`.
+
+Validation commands:
+
+```bash
+./operation/compose.sh valkey config
+./operation/status.sh
+docker exec homelab07-valkey valkey-cli ping
+docker port homelab07-valkey
+docker network inspect homelab07-internal
+docker exec homelab07-valkey valkey-cli CONFIG GET maxmemory
+docker exec homelab07-valkey valkey-cli CONFIG GET maxmemory-policy
+```
 
 ---
 
@@ -251,6 +267,7 @@ The sprint is complete when:
 - Documentation is complete.
 - No persistent storage is required.
 - No host ports are published.
+- Valkey memory limits are configured and validated.
 - Platform architecture documentation reflects the new capability.
 
 ---

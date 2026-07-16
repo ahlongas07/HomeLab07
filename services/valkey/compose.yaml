@@ -16,6 +16,10 @@ services:
       - "no"
       - --protected-mode
       - "no"
+      - --maxmemory
+      - "128mb"
+      - --maxmemory-policy
+      - noeviction
     tmpfs:
       - /data:rw,noexec,nosuid,nodev,size=64m
     networks:

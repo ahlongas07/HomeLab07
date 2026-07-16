@@ -56,6 +56,8 @@ The image uses the stable major tag:
 valkey/valkey:8-alpine
 ```
 
+This keeps the service on the Valkey 8 release line while allowing patch updates from the upstream image. Pinning to a patch tag, such as `8.1.8-alpine`, can improve deployment repeatability but requires intentional patch maintenance. HomeLab07 currently keeps the major tag and may pin to a patch version when application compatibility requirements become stricter.
+
 ---
 
 ## Architecture Overview
@@ -107,6 +109,15 @@ Persistence is disabled:
 --save ""
 --appendonly no
 ```
+
+Memory usage is bounded explicitly:
+
+```text
+--maxmemory 128mb
+--maxmemory-policy noeviction
+```
+
+The `noeviction` policy prevents Valkey from silently evicting keys when the configured memory limit is reached. Applications should treat memory exhaustion as an operational signal rather than relying on implicit cache eviction.
 
 Protected mode is disabled because Valkey must accept connections from other containers on `homelab07-internal`.
 
@@ -220,6 +231,56 @@ Expected response:
 PONG
 ```
 
+Confirm no host ports are published:
+
+```bash
+docker port homelab07-valkey
+```
+
+Expected response:
+
+```text
+No output
+```
+
+Inspect the internal Docker network:
+
+```bash
+docker network inspect homelab07-internal
+```
+
+Expected result:
+
+```text
+homelab07-valkey is attached to homelab07-internal
+```
+
+Confirm the memory limit:
+
+```bash
+docker exec homelab07-valkey valkey-cli CONFIG GET maxmemory
+```
+
+Expected response:
+
+```text
+maxmemory
+134217728
+```
+
+Confirm the memory policy:
+
+```bash
+docker exec homelab07-valkey valkey-cli CONFIG GET maxmemory-policy
+```
+
+Expected response:
+
+```text
+maxmemory-policy
+noeviction
+```
+
 ---
 
 ## Backup
@@ -256,6 +317,10 @@ The following rules apply:
 - Linux capabilities are dropped.
 - Privilege escalation is disabled.
 - Applications must explicitly opt in to consume Valkey.
+
+`protected-mode` is intentionally disabled because Valkey is isolated inside the `homelab07-internal` Docker network and exposes no host ports. This allows future platform applications on the internal network to connect while preserving the external security boundary.
+
+ACL authentication is not enabled in Sprint 004 because no application consumes Valkey yet and no shared credential contract has been defined. ACL authentication will be evaluated when the first platform application consumes Valkey, starting with Sprint 005.
 
 ---
 
