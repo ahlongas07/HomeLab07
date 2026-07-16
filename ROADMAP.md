@@ -166,12 +166,77 @@ Business Service
 
 OwnCloud
 
+Approved Technology Stack
+
+- `owncloud/server:10.16.3`
+- Shared MariaDB 11.4
+- Shared Valkey
+- Nginx Proxy Manager
+- Cloudflare Dynamic DNS
+
+Not Approved
+
+- OCIS
+- `latest` image tags
+- release candidate images
+- dedicated MariaDB
+- dedicated Valkey
+
 Consumes
 
 - MariaDB
 - Valkey
 - Nginx Proxy Manager
 - Cloudflare Dynamic DNS
+
+Storage Principles
+
+- The NAS is the authoritative storage layer.
+- OwnCloud provides collaboration capabilities.
+- Applications must not become the owners of user data.
+- Persistent OwnCloud data must remain directly recoverable from NAS storage.
+
+Encryption Policy
+
+The following are not approved for Sprint 005:
+
+- Default Encryption Module
+- server-side encryption
+- application-managed encryption at rest
+
+The engineering objective is to preserve direct file recoverability from the NAS.
+
+Database Provisioning
+
+- Database creation remains manual during this Sprint.
+- SQL examples must use placeholders only.
+- Database collation must be validated against OwnCloud Server 10.16.3 recommendations before implementation.
+- MariaDB remains application agnostic.
+
+Reverse Proxy Configuration
+
+OwnCloud reverse proxy documentation must include placeholders for:
+
+- `trusted_domains`
+- `trusted_proxies`
+- `overwrite.cli.url`
+- `overwriteprotocol=https`
+
+Real public URLs belong exclusively inside `HomeLab07.private/`.
+
+Valkey Decision
+
+- ACL authentication remains deferred.
+- The current trust model relies on Docker internal networking.
+- OwnCloud consumes the shared Valkey platform capability.
+- No application-specific Valkey instance shall be deployed.
+
+Future ACL evaluation triggers:
+
+- multiple application consumers
+- reduced trust boundary
+- multi-host deployment
+- platform security review
 
 Deliverables
 
@@ -188,6 +253,28 @@ Validation
 - Concurrent access
 - Transactional locking
 - HTTPS publication
+- OwnCloud system configuration validation:
+
+```bash
+docker exec homelab07-owncloud php occ config:list system
+```
+
+Expected configuration:
+
+- `memcache.local` is configured.
+- `memcache.locking` is configured.
+- Redis configuration is present.
+- Redis host points to `homelab07-valkey`.
+
+Healthcheck Requirements
+
+- Healthchecks must tolerate the initial installation and migration process.
+- Startup probes must not be aggressive.
+
+Operational Principle
+
+- Prefer `php occ` for administrative actions over manual file editing.
+- Every `occ` command executed during installation must be documented.
 
 ---
 

@@ -1,0 +1,529 @@
+# Sprint 005 — Collaboration Platform
+
+**Version:** v0.6.0-collaboration-platform
+
+**Status:** Planned
+
+---
+
+# Objective
+
+Deploy the first business-facing platform service on top of the HomeLab07 shared platform.
+
+This sprint validates that the platform capabilities introduced in previous sprints can be consumed without modifying the underlying infrastructure.
+
+The objective is **not** simply to deploy OwnCloud.
+
+The objective is to demonstrate that HomeLab07 has successfully evolved into a reusable application platform.
+
+---
+
+# Engineering Objective
+
+This sprint validates the core engineering philosophy of HomeLab07.
+
+Infrastructure capabilities are implemented once.
+
+Business applications consume those capabilities.
+
+No platform service should become application-specific.
+
+The successful completion of this sprint demonstrates that new applications can be onboarded without redesigning the platform.
+
+---
+
+# Scope
+
+## In Scope
+
+- Deploy OwnCloud Server.
+- Shared MariaDB integration.
+- Shared Valkey integration.
+- HTTPS publication through Nginx Proxy Manager.
+- Persistent application storage.
+- Operation Layer integration.
+- Platform documentation.
+- Engineering validation.
+
+---
+
+## Out of Scope
+
+- Authentik.
+- Single Sign-On.
+- LDAP.
+- External Storage Providers.
+- Object Storage.
+- Backup automation.
+- Monitoring.
+- High Availability.
+- Clustering.
+- Performance tuning.
+
+Identity will be introduced in Sprint 006.
+
+Backup automation will be introduced in Sprint 010.
+
+---
+
+# Approved Technology Stack
+
+The following technology stack is approved for Sprint 005.
+
+| Capability | Approved Technology |
+|------------|---------------------|
+| Application | `owncloud/server:10.16.3` |
+| Database | Shared MariaDB 11.4 |
+| In-memory platform | Shared Valkey |
+| Reverse proxy | Nginx Proxy Manager |
+| Dynamic DNS | Cloudflare Dynamic DNS |
+
+Do not use:
+
+- OCIS.
+- `latest` image tags.
+- release candidate images.
+- dedicated MariaDB.
+- dedicated Valkey.
+
+---
+
+# Platform Dependencies
+
+OwnCloud consumes the following platform capabilities.
+
+| Capability | Service |
+|------------|---------|
+| Database | MariaDB |
+| In-Memory Data | Valkey |
+| HTTPS Publication | Nginx Proxy Manager |
+| Dynamic DNS | Cloudflare Dynamic DNS |
+
+The sprint must not modify any existing platform capability unless a platform-wide engineering improvement is identified.
+
+---
+
+# Persistent Storage
+
+Create a dedicated Rockstor Share.
+
+Recommended:
+
+```text
+homelab07-owncloud
+```
+
+Suggested layout:
+
+```text
+homelab07-owncloud/
+├── config
+├── data
+└── apps
+```
+
+Persistent data must remain isolated from other platform services.
+
+---
+
+# Storage Principles
+
+- The NAS is the authoritative storage layer.
+- OwnCloud provides collaboration capabilities.
+- Applications must not become the owners of user data.
+- Persistent OwnCloud data must remain directly recoverable from NAS storage.
+
+---
+
+# Encryption Policy
+
+The following are not approved for Sprint 005:
+
+- Default Encryption Module.
+- Server-side encryption.
+- Application-managed encryption at rest.
+
+The engineering objective is to preserve direct recoverability of files from the NAS.
+
+Encryption that prevents direct file recovery from NAS storage is out of scope.
+
+---
+
+# Database Provisioning
+
+Database creation remains manual during this sprint.
+
+Automation is intentionally deferred.
+
+SQL must use placeholders only.
+
+Database collation must be validated against OwnCloud Server 10.16.3 recommendations before implementation.
+
+Example:
+
+```sql
+CREATE DATABASE owncloud
+CHARACTER SET utf8mb4
+COLLATE <validated-owncloud-collation>;
+
+CREATE USER 'owncloud'@'%'
+IDENTIFIED BY '<owncloud-database-password>';
+
+GRANT ALL PRIVILEGES
+ON owncloud.*
+TO 'owncloud'@'%';
+
+FLUSH PRIVILEGES;
+```
+
+MariaDB remains application agnostic.
+
+No OwnCloud-specific MariaDB container shall be introduced.
+
+---
+
+# Private Configuration
+
+The following values belong exclusively inside:
+
+```text
+HomeLab07.private/
+```
+
+Expected variables include:
+
+- database credentials;
+- OwnCloud administrator credentials;
+- public URL;
+- trusted domains;
+- reverse proxy configuration where applicable.
+
+The repository must contain only placeholder values.
+
+Real public URLs must not be committed to the repository.
+
+---
+
+# Reverse Proxy Configuration
+
+OwnCloud must be published exclusively through Nginx Proxy Manager.
+
+OwnCloud must never expose host ports.
+
+The service documentation must include placeholder-based configuration for:
+
+- `trusted_domains`;
+- `trusted_proxies`;
+- `overwrite.cli.url`;
+- `overwriteprotocol=https`.
+
+Configuration must prevent:
+
+- redirect loops;
+- mixed content;
+- incorrect HTTPS detection;
+- login failures.
+
+Real public URLs belong exclusively inside `HomeLab07.private/`.
+
+---
+
+# Valkey Decision
+
+Sprint 004 intentionally deployed Valkey without authentication.
+
+Sprint 005 must evaluate this decision.
+
+Current engineering decision:
+
+- ACL authentication remains deferred.
+- The current trust model relies on Docker internal networking.
+- OwnCloud consumes the shared Valkey platform capability.
+- No application-specific Valkey instance shall be deployed.
+
+Future ACL evaluation triggers include:
+
+- multiple application consumers;
+- reduced trust boundary;
+- multi-host deployment;
+- platform security review.
+
+---
+
+# MariaDB Compatibility Risk
+
+HomeLab07 currently uses shared MariaDB 11.4.
+
+OwnCloud documentation may not explicitly certify MariaDB 11.4.
+
+The compatibility risk is accepted for Sprint 005 and must be validated during implementation.
+
+No platform downgrade shall be performed unless a reproducible incompatibility is demonstrated.
+
+If MariaDB compatibility issues are identified:
+
+1. Capture logs.
+2. Identify the failing component.
+3. Validate whether the issue is configuration-related.
+4. Evaluate OwnCloud adjustments.
+5. Evaluate OwnCloud version adjustments.
+6. Evaluate MariaDB workarounds.
+7. Consider platform downgrade only as a last resort.
+
+Platform capabilities must not be modified solely to satisfy a single application.
+
+---
+
+# Docker Principles
+
+The service must follow existing HomeLab07 conventions.
+
+Expected characteristics:
+
+- `restart: unless-stopped`;
+- healthcheck enabled;
+- read-only filesystem where practical;
+- no unnecessary Linux capabilities;
+- no privilege escalation.
+
+If OwnCloud requires writable runtime paths, document the engineering decision rather than introducing unnecessary complexity.
+
+---
+
+# Networking
+
+OwnCloud joins:
+
+- `homelab07-internal`;
+- `homelab07-proxy`.
+
+No host ports shall be published.
+
+Public traffic enters exclusively through Nginx Proxy Manager.
+
+Cloudflare Dynamic DNS remains transparent to the application.
+
+No application-specific DNS logic shall be implemented.
+
+---
+
+# Operation Layer
+
+Integrate OwnCloud with:
+
+```text
+operation/start.sh
+operation/stop.sh
+operation/status.sh
+operation/compose.sh
+```
+
+Normal operation should never require direct Docker Compose commands.
+
+---
+
+# Operational Principle
+
+Whenever administrative actions are required, prefer:
+
+```bash
+php occ
+```
+
+over manual file editing.
+
+Every `occ` command executed during installation must be documented.
+
+---
+
+# Documentation
+
+Create:
+
+```text
+services/owncloud/
+├── compose.yaml
+├── README.md
+└── .env.example
+```
+
+The README must include:
+
+- Purpose.
+- Responsibilities.
+- Platform Dependencies.
+- Storage.
+- Networking.
+- Deployment.
+- Validation.
+- Security.
+- Backup.
+- Restore.
+- Related Sprint.
+
+---
+
+# Backup
+
+Backup automation is intentionally outside the scope of Sprint 005.
+
+The README must document the critical persistent data.
+
+Expected paths:
+
+```text
+config/
+data/
+apps/
+```
+
+Backup implementation will be introduced during Sprint 010.
+
+---
+
+# Healthcheck Requirements
+
+Healthchecks must tolerate the initial installation and migration process.
+
+Startup probes must not be aggressive.
+
+A healthcheck that marks OwnCloud unhealthy during expected first-run initialization is not acceptable.
+
+---
+
+# Validation
+
+## Platform Validation
+
+Validate:
+
+- MariaDB connectivity.
+- Valkey connectivity.
+- HTTPS publication.
+- Nginx Proxy Manager routing.
+- Cloudflare publication.
+
+---
+
+## Application Validation
+
+Validate:
+
+- Installation wizard.
+- Administrator login.
+- User creation.
+- File upload.
+- File download.
+- Folder creation.
+- Transactional file locking.
+
+---
+
+## Infrastructure Validation
+
+Validate:
+
+```bash
+docker port homelab07-owncloud
+```
+
+Expected:
+
+```text
+No output
+```
+
+Validate:
+
+```bash
+docker inspect homelab07-owncloud \
+  --format '{{json .NetworkSettings.Networks}}'
+```
+
+Expected:
+
+- `homelab07-internal`;
+- `homelab07-proxy`.
+
+Validate:
+
+```bash
+docker exec homelab07-owncloud php occ status
+```
+
+Expected:
+
+```text
+OwnCloud reports a healthy installation.
+```
+
+Validate:
+
+```bash
+docker exec homelab07-owncloud php occ config:list system
+```
+
+Expected:
+
+- `memcache.local` is configured.
+- `memcache.locking` is configured.
+- Redis configuration is present.
+- Redis host points to `homelab07-valkey`.
+
+Validate:
+
+- Container recreation.
+- Persistent storage survives restart.
+- HTTPS remains functional.
+
+---
+
+# Acceptance Criteria
+
+Sprint 005 is complete when:
+
+- OwnCloud Server 10.16.3 deploys successfully.
+- MariaDB integration succeeds.
+- Valkey integration succeeds.
+- HTTPS publication succeeds.
+- Reverse proxy configuration is validated.
+- File locking functions correctly.
+- Files survive container recreation.
+- No host ports are exposed.
+- Platform documentation is complete.
+- No shared platform capability required application-specific modifications.
+
+Warnings and non-blocking deprecations must be documented but do not automatically fail the sprint.
+
+---
+
+# Success Criteria
+
+At the completion of Sprint 005:
+
+- HomeLab07 successfully hosts its first business-facing application.
+- Shared platform capabilities remain independent.
+- The platform architecture is validated.
+- Future applications can reuse the same capabilities without redesigning the infrastructure.
+
+This sprint represents the transition from building infrastructure to delivering reusable platform services.
+
+---
+
+# Engineering Principles
+
+This sprint reinforces the HomeLab07 Engineering Contract.
+
+Platform capabilities are implemented once.
+
+Applications consume those capabilities.
+
+Infrastructure remains application agnostic.
+
+Engineering decisions are documented.
+
+Operational procedures remain reproducible.
+
+Security is introduced incrementally without unnecessary complexity.
+
+Every implementation should strengthen the platform rather than increase coupling between infrastructure and applications.
