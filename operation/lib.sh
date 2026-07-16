@@ -10,6 +10,8 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 readonly PRIVATE_ROOT="${HOMELAB07_PRIVATE_ROOT:-${PROJECT_ROOT}/../HomeLab07.private}"
 
+export HOMELAB07_PRIVATE_ROOT="${PRIVATE_ROOT}"
+
 print_header() {
     local action="$1"
 

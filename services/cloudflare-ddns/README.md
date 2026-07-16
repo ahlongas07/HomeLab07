@@ -98,8 +98,10 @@ External private configuration:
 
 ```text
 HomeLab07.private/
-└── env/
-    └── cloudflare-ddns.env
+├── env/
+│   └── cloudflare-ddns.env
+└── secrets/
+    └── cloudflare-ddns-api-token
 ```
 
 This service does not require persistent runtime storage.
@@ -146,7 +148,7 @@ cp services/cloudflare-ddns/.env.example ../HomeLab07.private/env/cloudflare-ddn
 Expected variables:
 
 ```dotenv
-CLOUDFLARE_API_TOKEN=replace-with-cloudflare-api-token
+CLOUDFLARE_API_TOKEN_FILE=/run/secrets/cloudflare_api_token
 CLOUDFLARE_DDNS_DOMAINS=home.example.com
 CLOUDFLARE_DDNS_PROXIED=true
 CLOUDFLARE_DDNS_IP6_PROVIDER=none
@@ -160,6 +162,22 @@ CLOUDFLARE_DDNS_DETECTION_TIMEOUT=10s
 `CLOUDFLARE_DDNS_DETECTION_TIMEOUT=10s` gives public IP detection additional time on networks with occasional latency.
 
 Real tokens and domain names must remain only in `HomeLab07.private`.
+
+The Cloudflare API token is stored as a private secret file, not inline in the environment file:
+
+```text
+HomeLab07.private/secrets/cloudflare-ddns-api-token
+```
+
+Create it with:
+
+```bash
+mkdir -p ../HomeLab07.private/secrets
+printf '%s' 'replace-with-cloudflare-api-token' > ../HomeLab07.private/secrets/cloudflare-ddns-api-token
+chmod 600 ../HomeLab07.private/secrets/cloudflare-ddns-api-token
+```
+
+The secret file must contain only the token value, with no variable name and no extra newline requirement.
 
 ---
 
@@ -260,7 +278,7 @@ Expected recovery behavior:
 
 | Scenario | Expected Behavior |
 |----------|-------------------|
-| Invalid API token | The container starts but DNS updates fail. Fix the token in `HomeLab07.private/env/cloudflare-ddns.env` and restart the service. |
+| Invalid API token | The container starts but DNS updates fail. Fix the token in `HomeLab07.private/secrets/cloudflare-ddns-api-token` and restart the service. |
 | Public IP changes | The service detects the new public IP and updates the configured Cloudflare DNS record. |
 | Cloudflare API temporarily unavailable | DNS updates fail temporarily. The container remains running and retries on the next update cycle. |
 | No IPv6 connectivity | IPv6 management is disabled through `CLOUDFLARE_DDNS_IP6_PROVIDER=none`. |
@@ -280,6 +298,7 @@ Back up the private environment file outside Git:
 
 ```text
 HomeLab07.private/env/cloudflare-ddns.env
+HomeLab07.private/secrets/cloudflare-ddns-api-token
 ```
 
 Do not copy API tokens into the repository.
@@ -292,6 +311,7 @@ Do not copy API tokens into the repository.
 
 ```text
 HomeLab07.private/env/cloudflare-ddns.env
+HomeLab07.private/secrets/cloudflare-ddns-api-token
 ```
 
 2. Start the service through the operation layer:

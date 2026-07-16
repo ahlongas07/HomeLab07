@@ -8,8 +8,10 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
+    volumes:
+      - ${HOMELAB07_PRIVATE_ROOT:?HOMELAB07_PRIVATE_ROOT is required}/secrets/cloudflare-ddns-api-token:/run/secrets/cloudflare_api_token:ro
     environment:
-      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is required}
+      CLOUDFLARE_API_TOKEN_FILE: ${CLOUDFLARE_API_TOKEN_FILE:-/run/secrets/cloudflare_api_token}
       DOMAINS: ${CLOUDFLARE_DDNS_DOMAINS:?CLOUDFLARE_DDNS_DOMAINS is required}
       PROXIED: ${CLOUDFLARE_DDNS_PROXIED:-true}
       IP6_PROVIDER: ${CLOUDFLARE_DDNS_IP6_PROVIDER:-none}
