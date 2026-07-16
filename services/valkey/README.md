@@ -139,6 +139,14 @@ tmpfs: /data
 
 This allows Valkey to start cleanly while preserving the rule that no runtime data is persisted.
 
+The container runs as a non-root user:
+
+```text
+user: 999:999
+```
+
+The `/data` tmpfs mount is owned by the same UID/GID, and the container starts Valkey directly through `valkey-server`. This avoids startup ownership changes from the image entrypoint while preserving the non-root runtime model.
+
 ---
 
 ## Network Access
@@ -320,6 +328,7 @@ The following rules apply:
 - No secrets are stored.
 - No persistent data is stored.
 - The root filesystem is read-only.
+- The container runs as a non-root user.
 - Linux capabilities are dropped.
 - Privilege escalation is disabled.
 - Applications must explicitly opt in to consume Valkey.

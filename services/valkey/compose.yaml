@@ -3,13 +3,15 @@ services:
     image: valkey/valkey:8-alpine
     container_name: homelab07-valkey
     restart: unless-stopped
+    user: "999:999"
     read_only: true
     cap_drop:
       - ALL
     security_opt:
       - no-new-privileges:true
-    command:
+    entrypoint:
       - valkey-server
+    command:
       - --save
       - ""
       - --appendonly
@@ -21,7 +23,7 @@ services:
       - --maxmemory-policy
       - noeviction
     tmpfs:
-      - /data:rw,noexec,nosuid,nodev,size=64m
+      - /data:rw,noexec,nosuid,nodev,size=64m,uid=999,gid=999,mode=1770
     networks:
       - homelab07-internal
     healthcheck:
