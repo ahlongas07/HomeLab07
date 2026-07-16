@@ -1,12 +1,14 @@
 # AGENTS.md
 
-# Homelab07 - Agent Instructions
+# HomeLab07 - Agent Instructions
 
-Welcome to Homelab07.
+Welcome to HomeLab07.
 
 This repository contains an Infrastructure Engineering project focused on building a modern, reproducible and maintainable self-hosted platform.
 
-This document provides guidance for AI coding agents and technical contributors.
+This document defines how AI engineering agents should contribute to the project.
+
+The objective is not only to generate code, but to preserve the engineering quality, architecture and long-term maintainability of the platform.
 
 ---
 
@@ -16,27 +18,29 @@ The repository is the single source of truth.
 
 Production environments must never become the source of truth.
 
-Every implementation should be reproducible from the repository.
+Every implementation must be reproducible from the repository.
+
+Documentation is considered part of the product.
 
 ---
 
 # Read Before Making Changes
 
-Always review these documents before making significant changes:
+Before making significant changes, always review:
 
 1. PROJECT_CHARTER.md
 2. ENGINEERING_PRINCIPLES.md
 3. PRODUCT_REQUIREMENTS.md
 4. ROADMAP.md
-5. The current Sprint document inside `/sprints`
+5. The active Sprint document under `/sprints`
 
-These documents define the project's vision, engineering philosophy and current objectives.
+These documents define the project vision, architecture and current implementation priorities.
 
 ---
 
 # Engineering Priorities
 
-When making decisions, prioritize:
+When multiple solutions are possible, prioritize:
 
 1. Simplicity
 2. Reliability
@@ -47,16 +51,56 @@ When making decisions, prioritize:
 
 Avoid unnecessary complexity.
 
+Every engineering decision should reduce long-term operational effort.
+
+---
+
+# Architecture Principles
+
+HomeLab07 is built as a reusable infrastructure platform.
+
+Infrastructure capabilities should remain reusable by all platform applications.
+
+Applications should consume platform services rather than implementing infrastructure individually.
+
+Examples include:
+
+- Shared MariaDB
+- Shared Reverse Proxy
+- Shared Identity Provider
+- Shared DNS
+- Shared Operations Layer
+
+Shared infrastructure components must remain application-agnostic whenever possible.
+
 ---
 
 # Repository Rules
 
-- Documentation is part of the deliverable.
-- Infrastructure should be reproducible.
-- Production must never be edited manually.
+- Documentation is part of every implementation.
+- Infrastructure must remain reproducible.
+- Production environments must never be edited manually.
 - Configuration belongs in version control.
-- Keep changes focused and easy to review.
+- Keep implementations focused and easy to review.
 - Do not modify unrelated files.
+- Every change should strengthen the platform rather than solving only one application's problem.
+
+---
+
+# Sprint Discipline
+
+Every implementation must belong to one of the following:
+
+- Approved Sprint
+- Platform Enhancement
+- Documentation Improvement
+- Bug Fix
+
+Do not introduce additional platform capabilities outside the approved scope.
+
+If additional improvements are identified, propose them as future Sprint work rather than implementing them immediately.
+
+Maintain focus on completing the current Sprint.
 
 ---
 
@@ -65,17 +109,69 @@ Avoid unnecessary complexity.
 Never commit:
 
 - Passwords
-- API keys
+- API Keys
 - Secrets
 - Certificates
-- SSH keys
+- Private Keys
+- SSH Keys
 - Environment-specific configuration
 - Production IP addresses
 - Production domain names
 
-Use placeholders and example files whenever possible.
+Always use placeholders and example configuration files.
 
-Environment-specific information belongs only inside the local `private/` directory.
+Environment-specific information belongs only inside:
+
+```
+HomeLab07.private/
+```
+
+The agent MUST NEVER modify:
+
+- HomeLab07.private/
+- Local environment files
+- Certificates
+- SSH private keys
+
+unless explicitly instructed.
+
+Infrastructure services must never be exposed publicly unless explicitly required by the current Sprint.
+
+---
+
+# Service Architecture
+
+Each infrastructure service owns its own:
+
+- Documentation
+- Configuration
+- Persistent storage
+- Operational procedures
+- Validation procedure
+
+Infrastructure services should remain independent whenever possible.
+
+Shared services should not contain application-specific configuration.
+
+---
+
+# Service README Standard
+
+Every service README should include:
+
+- Purpose
+- Responsibilities
+- Technology
+- Directory Structure
+- Configuration
+- Deployment
+- Validation
+- Backup
+- Restore
+- Security
+- Related Sprint
+
+Documentation should be updated as part of the implementation.
 
 ---
 
@@ -87,13 +183,60 @@ Prefer:
 - YAML for infrastructure configuration.
 - Shell scripts for automation.
 
-Keep implementations simple and readable.
+Implementations should remain:
+
+- Simple
+- Readable
+- Maintainable
+- Self-documenting
 
 ---
 
-# Git Guidelines
+# Validation Requirements
 
-Create small, focused commits.
+Before creating a commit, validate the implementation whenever applicable.
+
+Examples include:
+
+- docker compose config
+- operation/status.sh
+- YAML validation
+- Markdown validation
+- Shell script syntax validation
+
+If validation fails:
+
+- Explain the issue.
+- Do not commit until the implementation is consistent.
+
+Validation is part of the Definition of Done.
+
+---
+
+# Git Workflow
+
+The AI agent is considered an engineering contributor.
+
+The agent MAY:
+
+- Create feature branches.
+- Modify repository files.
+- Create focused Git commits.
+- Rebase feature branches.
+- Push feature branches when explicitly authorized.
+
+The agent MUST NOT:
+
+- Push directly to `main`.
+- Rewrite Git history.
+- Force push.
+- Delete branches.
+- Delete tags.
+- Create releases unless explicitly instructed.
+
+Every commit should represent one logical engineering change.
+
+Commits should remain small enough to be reviewed in less than 15 minutes.
 
 Preferred commit prefixes:
 
@@ -103,9 +246,17 @@ Preferred commit prefixes:
 - refactor:
 - chore:
 
-Example:
+Examples:
 
-docs: improve roadmap
+```
+feat: implement nginx proxy manager
+
+docs: update sprint 004
+
+fix: correct docker networking
+
+refactor: simplify operation scripts
+```
 
 ---
 
@@ -118,6 +269,9 @@ If multiple solutions are possible, choose the one that:
 - Keeps infrastructure simple.
 - Aligns with ENGINEERING_PRINCIPLES.md.
 - Reduces operational effort.
+- Improves platform reusability.
+
+The simplest correct solution is usually preferred.
 
 ---
 
@@ -125,40 +279,42 @@ If multiple solutions are possible, choose the one that:
 
 Do not make assumptions.
 
-Explain the available options, the trade-offs and recommend the solution that best follows the Engineering Principles.
+Instead:
+
+- Explain the available options.
+- Describe the trade-offs.
+- Recommend the solution that best aligns with the Engineering Principles.
+- Wait for approval before making architectural changes.
+
+---
+
+# Definition of Done
+
+An implementation is complete only when:
+
+- Documentation is updated.
+- Configuration is reproducible.
+- Validation succeeds.
+- Security requirements are satisfied.
+- Operational procedures are documented.
+- The implementation aligns with the current Sprint.
 
 ---
 
 # Final Principle
 
-Homelab07 values engineering quality over implementation speed.
+HomeLab07 values engineering quality over implementation speed.
 
-The objective is not only to build a working platform.
+The objective is not merely to build working services.
 
-The objective is to build a platform that remains understandable, maintainable and reproducible for years.
+The objective is to evolve HomeLab07 as a reusable infrastructure platform where every implementation strengthens the platform rather than solving a single application problem.
 
-## Pull Request Size
+Every Sprint should leave the platform:
 
-Each implementation task should be reviewable in less than 15 minutes.
+- Simpler
+- Better documented
+- Easier to maintain
+- Easier to reproduce
+- More secure
 
-If a task becomes larger than that, split it before implementation.
-
-# Service README Standard
-
-- Purpose
-- Responsibilities
-- Technology
-- Directory Structure
-- Validation
-- Run
-- Verification
-- Security
-- Related Sprint
-
-## Source Control
-
-The agent never commits, pushes or creates pull requests.
-
-The agent prepares implementation changes and a commit summary.
-
-The repository owner is responsible for Git history.
+Build • Host • Automate
