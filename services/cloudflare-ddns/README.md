@@ -26,6 +26,19 @@ Cloudflare Dynamic DNS is not responsible for:
 
 ---
 
+## Design Principles
+
+Cloudflare Dynamic DNS follows the HomeLab07 platform design principles.
+
+- One service, one responsibility.
+- DNS synchronization is a platform capability, not application functionality.
+- The service is stateless by design.
+- Infrastructure remains application-agnostic.
+- Secrets remain outside Git.
+- Public DNS changes are centralized instead of duplicated across services.
+
+---
+
 ## Technology
 
 | Component | Technology |
@@ -45,7 +58,7 @@ favonia/cloudflare-ddns:1
 
 ## Architecture Overview
 
-Cloudflare Dynamic DNS belongs to the shared platform layer.
+Cloudflare Dynamic DNS belongs to the Platform Edge Layer.
 
 ```text
 Internet
@@ -61,7 +74,7 @@ Published Platform Services
 
 ──────────────────────────────────────────
 
-Shared Platform Enhancements
+Platform Edge Layer
 
 Cloudflare Dynamic DNS
 ```
@@ -93,6 +106,26 @@ This service does not require persistent runtime storage.
 
 ---
 
+## DNS Strategy
+
+HomeLab07 uses one canonical DNS record managed by Dynamic DNS.
+
+Recommended pattern:
+
+```text
+home.example.com      A      Managed by Cloudflare Dynamic DNS
+
+media.example.com     CNAME  home.example.com
+docs.example.com      CNAME  home.example.com
+auth.example.com      CNAME  home.example.com
+```
+
+Only the canonical `A` record should normally be managed by this service.
+
+Additional public services should usually be published as `CNAME` records pointing to the canonical endpoint. This minimizes DNS updates, simplifies future migrations, and keeps application publication independent from the public IP update mechanism.
+
+---
+
 ## Environment Configuration
 
 Environment variables are stored outside the Git repository.
@@ -114,9 +147,11 @@ Expected variables:
 
 ```dotenv
 CLOUDFLARE_API_TOKEN=replace-with-cloudflare-api-token
-CLOUDFLARE_DDNS_DOMAINS=example.com,www.example.com
+CLOUDFLARE_DDNS_DOMAINS=home.example.com
 CLOUDFLARE_DDNS_PROXIED=true
 ```
+
+`CLOUDFLARE_DDNS_DOMAINS` should normally contain the canonical endpoint only. Additional service names should usually be configured in Cloudflare as `CNAME` records pointing to that endpoint.
 
 Real tokens and domain names must remain only in `HomeLab07.private`.
 
@@ -205,6 +240,22 @@ Validate the following after deployment:
 
 ---
 
+## Failure Scenarios
+
+Expected recovery behavior:
+
+| Scenario | Expected Behavior |
+|----------|-------------------|
+| Invalid API token | The container starts but DNS updates fail. Fix the token in `HomeLab07.private/env/cloudflare-ddns.env` and restart the service. |
+| Public IP changes | The service detects the new public IP and updates the configured Cloudflare DNS record. |
+| Cloudflare API temporarily unavailable | DNS updates fail temporarily. The container remains running and retries on the next update cycle. |
+| Container restart | The service starts again, reads the private environment file, detects the current public IP, and reconciles DNS. |
+| Platform reboot | The operation layer starts the service with the platform. DNS is reconciled after the container starts. |
+
+These scenarios should be validated through logs and DNS resolution after deployment.
+
+---
+
 ## Backup
 
 Cloudflare Dynamic DNS does not store persistent runtime data.
@@ -259,3 +310,19 @@ The following rules apply:
 - Introduced after Sprint 003 — Zero Touch SSL
 
 This enhancement supports the public publication architecture established by Sprint 003 without coupling DNS automation to Nginx Proxy Manager or application services.
+
+---
+
+## Future Evolution
+
+This enhancement establishes the foundation for future Platform Edge capabilities.
+
+Potential future capabilities include:
+
+- Cloudflare Zero Trust
+- Web Application Firewall
+- Rate Limiting
+- Cloudflare Tunnel
+- Advanced Edge Security
+
+These capabilities are intentionally outside the scope of this enhancement.
