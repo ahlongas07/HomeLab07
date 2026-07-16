@@ -110,7 +110,7 @@ Applications should never own these capabilities.
 
 Status
 
-Planned
+In Progress
 
 Objective
 

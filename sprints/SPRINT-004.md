@@ -2,7 +2,7 @@
 
 **Version:** v0.5.0-in-memory-platform
 
-**Status:** Planned
+**Status:** In Progress
 
 ---
 

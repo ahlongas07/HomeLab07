@@ -11,6 +11,11 @@ echo "Starting MariaDB..."
 compose mariadb up -d
 
 echo
+echo "Starting Valkey..."
+
+compose valkey up -d
+
+echo
 echo "Starting Nginx Proxy Manager..."
 
 compose nginx-proxy-manager up -d

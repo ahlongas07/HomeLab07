@@ -39,7 +39,7 @@ compose() {
 
     if [[ -f "${env_file}" ]]; then
         env_args=(--env-file "${env_file}")
-    elif [[ -f "${env_example}" ]]; then
+    elif [[ -f "${env_example}" ]] && grep -Eq '^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*=' "${env_example}"; then
         echo "Missing private environment file for ${service}:"
         echo "  ${env_file}"
         echo
@@ -48,10 +48,16 @@ compose() {
         exit 1
     fi
 
-    docker compose \
-        "${env_args[@]}" \
-        -f "${PROJECT_ROOT}/services/${service}/compose.yaml" \
-        "$@"
+    if [[ ${#env_args[@]} -gt 0 ]]; then
+        docker compose \
+            "${env_args[@]}" \
+            -f "${PROJECT_ROOT}/services/${service}/compose.yaml" \
+            "$@"
+    else
+        docker compose \
+            -f "${PROJECT_ROOT}/services/${service}/compose.yaml" \
+            "$@"
+    fi
 }
 
 compose_service() {

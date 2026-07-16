@@ -21,6 +21,11 @@ echo "Stopping Nginx Proxy Manager..."
 compose nginx-proxy-manager down
 
 echo
+echo "Stopping Valkey..."
+
+compose valkey down
+
+echo
 echo "Stopping MariaDB..."
 
 compose mariadb down

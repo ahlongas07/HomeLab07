@@ -15,6 +15,12 @@ echo
 compose_service mariadb ps
 
 echo
+echo "  Valkey"
+echo
+
+compose_service valkey ps
+
+echo
 echo "  Nginx Proxy Manager"
 echo
 
