@@ -21,6 +21,12 @@ echo
 compose_service nginx-proxy-manager ps
 
 echo
+echo "  Cloudflare Dynamic DNS"
+echo
+
+compose_service cloudflare-ddns ps
+
+echo
 echo "  Landing Page"
 echo
 

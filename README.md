@@ -19,6 +19,7 @@ The project emphasizes:
 - Infrastructure as Code
 - Persistent storage separation
 - Secure public service publication
+- Cloudflare-backed DNS automation
 
 ## Project Status
 
@@ -34,6 +35,7 @@ The project has established:
 - MariaDB as the first shared infrastructure service.
 - Nginx Proxy Manager as the centralized public entry point.
 - HTTPS publication for the Landing Page.
+- Cloudflare Dynamic DNS as a platform enhancement in progress.
 
 ## Documentation
 

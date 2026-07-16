@@ -11,6 +11,11 @@ echo "Stopping Landing Page..."
 compose landing-page down
 
 echo
+echo "Stopping Cloudflare Dynamic DNS..."
+
+compose cloudflare-ddns down
+
+echo
 echo "Stopping Nginx Proxy Manager..."
 
 compose nginx-proxy-manager down

@@ -152,6 +152,7 @@ The project includes:
 - Persistent services
 - Reverse proxy
 - SSL automation
+- DNS automation
 - Identity management
 - Documentation
 - Operational procedures
@@ -213,6 +214,7 @@ Platform responsibilities are intentionally separated.
 - Git manages source code.
 - Docker executes services.
 - Rockstor manages persistent storage.
+- Cloudflare manages public DNS.
 - The operation layer manages the platform lifecycle.
 
 ---

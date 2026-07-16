@@ -16,6 +16,11 @@ echo "Starting Nginx Proxy Manager..."
 compose nginx-proxy-manager up -d
 
 echo
+echo "Starting Cloudflare Dynamic DNS..."
+
+compose cloudflare-ddns up -d
+
+echo
 echo "Starting Landing Page..."
 
 compose landing-page up -d

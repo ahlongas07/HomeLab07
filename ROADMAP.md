@@ -88,6 +88,29 @@ Provide automatic HTTPS with secure service publication.
 
 ---
 
+# Platform Enhancements
+
+Platform enhancements are reusable capabilities that improve the platform as a whole without becoming application-specific sprint work.
+
+## Cloudflare Dynamic DNS
+
+**Status:** In Progress
+
+### Goal
+
+Keep Cloudflare DNS records synchronized with the current public IP address used by HomeLab07.
+
+### Capabilities
+
+- Cloudflare DNS record updates
+- API token authentication
+- Cloudflare proxy-aware DNS management
+- Operation layer integration
+- Secrets outside Git
+- No application-specific coupling
+
+---
+
 ## Sprint 004 — Identity
 
 **Status:** Planned

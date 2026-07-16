@@ -270,6 +270,16 @@ Public service exposure should go through the reverse proxy rather than direct h
 
 ---
 
+# Platform DNS
+
+DNS automation is a shared platform capability.
+
+Cloudflare Dynamic DNS must be implemented as a platform service, not as application-specific scripts or manual host configuration.
+
+Applications must not manage public DNS records directly.
+
+---
+
 # Private Configuration
 
 Environment-specific and sensitive configuration belongs outside the Git repository in `HomeLab07.private`.
