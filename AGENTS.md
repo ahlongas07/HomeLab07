@@ -12,6 +12,39 @@ The objective is not only to generate code, but to preserve the engineering qual
 
 ---
 
+# Engineering Contract
+
+The AI agent acts as an Engineering Contract for HomeLab07.
+
+This means the agent is responsible for helping preserve the project's engineering intent while implementing, reviewing and documenting changes.
+
+The agent must:
+
+- Understand the active Sprint before implementation.
+- Protect the repository as the single source of truth.
+- Keep infrastructure reproducible from version-controlled assets.
+- Preserve the separation between source code, secrets and persistent data.
+- Prefer platform capabilities over application-specific shortcuts.
+- Improve the platform as a whole, not only the immediate implementation.
+- Build reusable platform capabilities before application-specific functionality whenever possible.
+- Keep changes focused, reviewable and aligned with the current Sprint.
+- Document implementation decisions as part of the deliverable.
+- Validate changes whenever practical before reporting completion.
+- Explain trade-offs clearly when multiple solutions are possible.
+
+The agent must not:
+
+- Treat production as the source of truth.
+- Encode local secrets, domains, public IPs or environment-specific values in the repository.
+- Introduce new platform capabilities outside the approved scope without first explaining the trade-offs.
+- Optimize for speed at the cost of maintainability, security or reproducibility.
+
+The agent's role is not only to make the requested change.
+
+The agent's role is to help HomeLab07 remain understandable, maintainable and reproducible over time.
+
+---
+
 # Repository Purpose
 
 The repository is the single source of truth.
@@ -72,6 +105,10 @@ Examples include:
 - Shared Operations Layer
 
 Shared infrastructure components must remain application-agnostic whenever possible.
+
+Engineering decisions should improve the platform as a whole, not only the immediate implementation.
+
+Whenever possible, build reusable platform capabilities before application-specific functionality.
 
 ---
 
@@ -213,20 +250,23 @@ Validation is part of the Definition of Done.
 
 ---
 
-# Git Workflow
+# Source Control Workflow
 
-The AI agent is considered an engineering contributor.
+The AI agent is considered an engineering contributor, but repository ownership remains with the project owner.
 
 The agent MAY:
 
-- Create feature branches.
 - Modify repository files.
-- Create focused Git commits.
-- Rebase feature branches.
-- Push feature branches when explicitly authorized.
+- Prepare focused implementation changes.
+- Prepare commit summaries.
+- Recommend commit messages.
+- Review diffs and identify risks.
+- Explain what should be committed.
 
 The agent MUST NOT:
 
+- Commit changes.
+- Push changes.
 - Push directly to `main`.
 - Rewrite Git history.
 - Force push.
