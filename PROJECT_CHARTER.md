@@ -2,7 +2,7 @@
 
 **Project:** HomeLab07
 
-**Version:** v0.4.0-zero-touch-ssl
+**Version:** v0.5.0-in-memory-platform
 
 **Status:** Active
 
@@ -372,3 +372,4 @@ Every implementation should leave the platform simpler, more secure, better docu
 | v0.3.0-data-foundation | 2026-07-15 | Data Foundation milestone completed |
 | v0.4.0-zero-touch-ssl | 2026-07-15 | Zero Touch SSL milestone completed |
 | Roadmap 2.0 | 2026-07-16 | Product roadmap updated to prioritize reusable platform capabilities and business-facing services |
+| v0.5.0-in-memory-platform | 2026-07-16 | In-Memory Data Platform milestone completed |

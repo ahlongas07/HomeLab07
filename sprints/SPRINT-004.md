@@ -250,7 +250,8 @@ Validation commands:
 ./operation/status.sh
 docker exec homelab07-valkey valkey-cli ping
 docker port homelab07-valkey
-docker network inspect homelab07-internal
+docker inspect homelab07-valkey \
+  --format '{{json .NetworkSettings.Networks}}'
 docker exec homelab07-valkey valkey-cli CONFIG GET maxmemory
 docker exec homelab07-valkey valkey-cli CONFIG GET maxmemory-policy
 ```

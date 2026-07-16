@@ -56,7 +56,9 @@ The image uses the stable major tag:
 valkey/valkey:8-alpine
 ```
 
-This keeps the service on the Valkey 8 release line while allowing patch updates from the upstream image. Pinning to a patch tag, such as `8.1.8-alpine`, can improve deployment repeatability but requires intentional patch maintenance. HomeLab07 currently keeps the major tag and may pin to a patch version when application compatibility requirements become stricter.
+This keeps the service on the Valkey 8 release line while allowing patch updates from the upstream image. Pinning to a patch tag, such as `8.1.8-alpine`, can improve deployment repeatability but requires intentional patch maintenance.
+
+Recommendation: keep `8-alpine` for Sprint 004. Valkey is not yet consumed by an application, so the operational benefit of automatic patch updates is currently higher than the release-control benefit of patch pinning. Re-evaluate patch pinning when the first application consumes Valkey and compatibility testing becomes part of the release process.
 
 ---
 
@@ -117,7 +119,9 @@ Memory usage is bounded explicitly:
 --maxmemory-policy noeviction
 ```
 
-The `noeviction` policy prevents Valkey from silently evicting keys when the configured memory limit is reached. Applications should treat memory exhaustion as an operational signal rather than relying on implicit cache eviction.
+The `128mb` limit is intentionally conservative for Sprint 004 because Valkey is introduced as a shared platform capability before any application consumes it. It prevents uncontrolled memory growth while leaving enough capacity for initial cache, lock, and transient state workloads.
+
+The `noeviction` policy prevents Valkey from silently evicting keys when the configured memory limit is reached. Applications should treat memory exhaustion as an operational signal rather than relying on implicit cache eviction. This favors predictable failure over hidden data loss in coordination workloads such as distributed locking.
 
 Protected mode is disabled because Valkey must accept connections from other containers on `homelab07-internal`.
 
@@ -243,16 +247,17 @@ Expected response:
 No output
 ```
 
-Inspect the internal Docker network:
+Inspect the container network attachments:
 
 ```bash
-docker network inspect homelab07-internal
+docker inspect homelab07-valkey \
+  --format '{{json .NetworkSettings.Networks}}'
 ```
 
 Expected result:
 
 ```text
-homelab07-valkey is attached to homelab07-internal
+The JSON output includes homelab07-internal and no published host-port mapping.
 ```
 
 Confirm the memory limit:
@@ -311,12 +316,20 @@ The following rules apply:
 
 - Valkey is internal-only.
 - No host ports are published.
+- Valkey is reachable only through `homelab07-internal`.
 - No secrets are stored.
 - No persistent data is stored.
 - The root filesystem is read-only.
 - Linux capabilities are dropped.
 - Privilege escalation is disabled.
 - Applications must explicitly opt in to consume Valkey.
+
+Current trust model:
+
+- Containers attached to `homelab07-internal` are trusted platform participants.
+- Valkey exposes no host ports and is not reachable directly from the host network or the public Internet.
+- Network isolation is the active security boundary for Sprint 004.
+- Authentication is intentionally omitted during this Sprint because there is no consuming application or credential contract yet.
 
 `protected-mode` is intentionally disabled because Valkey is isolated inside the `homelab07-internal` Docker network and exposes no host ports. This allows future platform applications on the internal network to connect while preserving the external security boundary.
 
