@@ -129,13 +129,15 @@ Persistent data must remain isolated from other platform services.
 # Storage Principles
 
 - The NAS is the authoritative storage layer.
-- OwnCloud provides collaboration capabilities.
+- OwnCloud provides collaboration services on top of NAS-backed storage.
 - Applications must not become the owners of user data.
 - Persistent OwnCloud data must remain directly recoverable from NAS storage.
 
 ---
 
 # Encryption Policy
+
+OwnCloud server-side encryption must remain disabled.
 
 The following are not approved for Sprint 005:
 
@@ -147,6 +149,8 @@ The engineering objective is to preserve direct recoverability of files from the
 
 Encryption that prevents direct file recovery from NAS storage is out of scope.
 
+This is a permanent engineering rule for OwnCloud in HomeLab07 unless a future sprint explicitly approves a different storage and recovery model.
+
 ---
 
 # Database Provisioning
@@ -157,7 +161,9 @@ Automation is intentionally deferred.
 
 SQL must use placeholders only.
 
-Database collation must be validated against OwnCloud Server 10.16.3 recommendations before implementation.
+Do not hardcode the database collation before implementation.
+
+Database collation must be validated against OwnCloud Server 10.16.3 recommendations before creating the database.
 
 Example:
 
@@ -202,6 +208,8 @@ The repository must contain only placeholder values.
 
 Real public URLs must not be committed to the repository.
 
+The approved public endpoint value belongs in `HomeLab07.private/` and must be represented in repository documentation with placeholders.
+
 ---
 
 # Reverse Proxy Configuration
@@ -210,12 +218,28 @@ OwnCloud must be published exclusively through Nginx Proxy Manager.
 
 OwnCloud must never expose host ports.
 
+OwnCloud must not assume direct Internet exposure.
+
+Publication path:
+
+```text
+Internet
+    ↓
+Cloudflare
+    ↓
+Nginx Proxy Manager
+    ↓
+OwnCloud
+```
+
 The service documentation must include placeholder-based configuration for:
 
 - `trusted_domains`;
 - `trusted_proxies`;
 - `overwrite.cli.url`;
 - `overwriteprotocol=https`.
+
+The approved public endpoint is environment-specific and belongs in `HomeLab07.private/`.
 
 Configuration must prevent:
 
@@ -245,8 +269,7 @@ Future ACL evaluation triggers include:
 
 - multiple application consumers;
 - reduced trust boundary;
-- multi-host deployment;
-- platform security review.
+- multi-host deployment.
 
 ---
 
@@ -319,6 +342,40 @@ operation/compose.sh
 ```
 
 Normal operation should never require direct Docker Compose commands.
+
+---
+
+# Manual Nginx Proxy Manager Configuration
+
+During Sprint 005, the Nginx Proxy Manager Proxy Host is created manually.
+
+Use placeholders in repository documentation.
+
+The approved public endpoint and real public domain belong exclusively inside `HomeLab07.private/`.
+
+Proxy Host requirements:
+
+| Setting | Value |
+|---------|-------|
+| Domain | `<owncloud-public-domain>` |
+| Forward Host | `homelab07-owncloud` |
+| Forward Port | `8080` |
+| Scheme | `http` |
+| SSL Certificate | Let's Encrypt |
+| Force SSL | enabled |
+| HTTP/2 | enabled |
+
+Validate that OwnCloud is reachable through the full publication path:
+
+```text
+Internet
+    ↓
+Cloudflare
+    ↓
+Nginx Proxy Manager
+    ↓
+OwnCloud
+```
 
 ---
 
@@ -468,7 +525,7 @@ Expected:
 - `memcache.local` is configured.
 - `memcache.locking` is configured.
 - Redis configuration is present.
-- Redis host points to `homelab07-valkey`.
+- Redis-backed configuration points to `homelab07-valkey`.
 
 Validate:
 

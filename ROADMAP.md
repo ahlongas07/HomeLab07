@@ -192,11 +192,13 @@ Consumes
 Storage Principles
 
 - The NAS is the authoritative storage layer.
-- OwnCloud provides collaboration capabilities.
+- OwnCloud provides collaboration services on top of NAS-backed storage.
 - Applications must not become the owners of user data.
 - Persistent OwnCloud data must remain directly recoverable from NAS storage.
 
 Encryption Policy
+
+OwnCloud server-side encryption must remain disabled.
 
 The following are not approved for Sprint 005:
 
@@ -210,7 +212,8 @@ Database Provisioning
 
 - Database creation remains manual during this Sprint.
 - SQL examples must use placeholders only.
-- Database collation must be validated against OwnCloud Server 10.16.3 recommendations before implementation.
+- Database collation must not be hardcoded before implementation.
+- Database collation must be validated against OwnCloud Server 10.16.3 recommendations before creating the database.
 - MariaDB remains application agnostic.
 
 Reverse Proxy Configuration
@@ -224,6 +227,30 @@ OwnCloud reverse proxy documentation must include placeholders for:
 
 Real public URLs belong exclusively inside `HomeLab07.private/`.
 
+Platform Publication
+
+```text
+Internet
+    ↓
+Cloudflare
+    ↓
+Nginx Proxy Manager
+    ↓
+OwnCloud
+```
+
+OwnCloud must not assume direct Internet exposure.
+
+Manual Nginx Proxy Manager Configuration
+
+- Proxy Host is created manually during Sprint 005.
+- Domain belongs in `HomeLab07.private/` and must be documented with placeholders in the repository.
+- Forward Host: `homelab07-owncloud`
+- Forward Port: `8080`
+- HTTPS via Let's Encrypt.
+- Force SSL enabled.
+- HTTP/2 enabled.
+
 Valkey Decision
 
 - ACL authentication remains deferred.
@@ -236,7 +263,6 @@ Future ACL evaluation triggers:
 - multiple application consumers
 - reduced trust boundary
 - multi-host deployment
-- platform security review
 
 Deliverables
 
@@ -264,7 +290,7 @@ Expected configuration:
 - `memcache.local` is configured.
 - `memcache.locking` is configured.
 - Redis configuration is present.
-- Redis host points to `homelab07-valkey`.
+- Redis-backed configuration points to `homelab07-valkey`.
 
 Healthcheck Requirements
 

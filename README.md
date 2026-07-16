@@ -38,6 +38,16 @@ The project has established:
 - Cloudflare Dynamic DNS as a platform enhancement in progress.
 - Valkey as the shared in-memory data platform.
 
+Sprint 005 is planned as the first business-facing platform service.
+
+Approved direction:
+
+- OwnCloud Server using `owncloud/server:10.16.3`.
+- Shared MariaDB, Valkey, Nginx Proxy Manager, and Cloudflare Dynamic DNS.
+- NAS-backed storage remains the authoritative user data layer.
+- OwnCloud server-side encryption remains disabled to preserve direct file recoverability from NAS storage.
+- Public endpoint values and environment-specific configuration belong only in `HomeLab07.private/`.
+
 ## Documentation
 
 - Project Charter
