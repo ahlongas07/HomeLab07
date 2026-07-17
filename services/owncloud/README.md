@@ -436,68 +436,47 @@ Every `occ` command executed during installation must be documented.
 
 ---
 
-## Snow Cone Theme
+## Snow Cone Branding
 
-The `owncloud-personalization` branch includes a private Snow Cone theme app:
+The `owncloud-personalization` branch includes Snow Cone branding assets:
 
 ```text
 services/owncloud/theme-snowcone
 ```
 
-The theme is mounted into the OwnCloud custom apps path:
+The first implementation attempted to load the branding as a private OwnCloud theme app. OwnCloud detected the files on disk but did not register `theme-snowcone` as an enableable app in this deployment.
+
+The current branch therefore uses a reproducible branding overlay instead of an enabled theme app.
+
+The overlay copies Snow Cone assets into the running OwnCloud container:
 
 ```text
-./theme-snowcone -> /mnt/data/custom/theme-snowcone
+/var/www/owncloud/core/img/favicon.svg
+/var/www/owncloud/core/img/logo-icon.svg
+/var/www/owncloud/core/img/logo.svg
 ```
-
-The mount is intentionally writable because the official OwnCloud image fixes ownership under `/mnt/data/custom` during startup. A read-only theme mount causes startup to fail when the container tries to run `chown`.
 
 It customizes:
 
-- service name;
-- slogan;
 - favicon;
 - login logo;
-- header logo;
-- primary accent color.
+- header logo.
 
-Apply the theme after recreating the container:
+Apply the branding after recreating the container:
 
 ```bash
 ./operation/compose.sh owncloud up -d --force-recreate
-./operation/owncloud-theme-enable.sh
+./operation/owncloud-branding-apply.sh
 ```
 
-The script enables the theme and adds it to the integrity ignore list because this is a private unsigned theme.
+This is an overlay on top of the official OwnCloud image. Reapply it after every container recreation or image upgrade.
 
-The script also sets the compatibility theme value:
-
-```text
-theme=theme-snowcone
-```
-
-This keeps the deployment predictable if OwnCloud does not immediately apply the enabled theme app to the login page.
-
-Equivalent `occ` commands:
+Equivalent operations:
 
 ```bash
-docker exec \
-  --user www-data \
-  --workdir /var/www/owncloud \
-  homelab07-owncloud \
-  php occ app:enable theme-snowcone
-
-docker exec \
-  --user www-data \
-  --workdir /var/www/owncloud \
-  homelab07-owncloud \
-  php occ config:system:set integrity.ignore.missing.app.signature 0 --value="theme-snowcone"
-
-docker exec \
-  --user www-data \
-  --workdir /var/www/owncloud \
-  homelab07-owncloud \
-  php occ config:system:set theme --value="theme-snowcone"
+docker cp services/owncloud/theme-snowcone/core/img/favicon.svg homelab07-owncloud:/var/www/owncloud/core/img/favicon.svg
+docker cp services/owncloud/theme-snowcone/core/img/logo-icon.svg homelab07-owncloud:/var/www/owncloud/core/img/logo-icon.svg
+docker cp services/owncloud/theme-snowcone/core/img/logo.svg homelab07-owncloud:/var/www/owncloud/core/img/logo.svg
 ```
 
 If the browser keeps showing the old favicon or logo, clear browser cache or force refresh the page.
