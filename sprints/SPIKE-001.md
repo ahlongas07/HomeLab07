@@ -411,3 +411,80 @@ A successful spike may result in any of the following outcomes:
 The spike must not be considered successful merely because OpenCloud appears easier or newer.
 
 The spike must be considered successful only if the decision is supported by technical evidence aligned with HomeLab07 principles.
+
+## Evaluation Principles
+
+The purpose of this spike is not to identify the platform with the largest feature set.
+
+The purpose is to determine which platform best aligns with the architectural principles of HomeLab07.
+
+When evaluating alternatives, the following principles take precedence:
+
+1. Simplicity over feature count.
+2. Declarative infrastructure over manual configuration.
+3. Reproducibility over convenience.
+4. Low operational maintenance over advanced customization.
+5. Recoverability over application complexity.
+6. Platform independence over application-specific optimizations.
+
+Additional functionality should only be considered when it does not introduce disproportionate operational complexity.
+
+The final recommendation must be based on these principles rather than popularity, familiarity, or personal preference.
+
+## Platform Independence
+
+One of the primary goals of this spike is to evaluate whether HomeLab07 has successfully separated platform capabilities from application-specific implementation.
+
+The investigation should answer the following questions:
+
+- Can OpenCloud replace OwnCloud without requiring architectural changes to HomeLab07?
+- Which existing platform services can be reused without modification?
+- Which assumptions inside HomeLab07 currently couple the platform to OwnCloud?
+- Which assumptions should become generic platform capabilities instead of application-specific implementations?
+- Can future collaboration platforms be integrated using the same platform services?
+
+The spike should evaluate not only OpenCloud itself, but also the architectural flexibility of HomeLab07.
+
+## Decision Matrix
+
+The final recommendation should evaluate both platforms using the following criteria.
+
+| Criterion | Priority |
+|-----------|----------|
+| Deployment simplicity | High |
+| Operational simplicity | High |
+| Recovery simplicity | High |
+| Docker Compose integration | High |
+| Persistent storage clarity | High |
+| Upgrade simplicity | High |
+| Reverse proxy integration | Medium |
+| Documentation quality | Medium |
+| Community maturity | Medium |
+| Resource consumption | Medium |
+| Branding flexibility | Low |
+| Advanced enterprise functionality | Low |
+
+Higher priority criteria should have greater influence on the final recommendation than lower priority criteria.
+
+The spike should explicitly justify how each platform performs against every criterion.
+
+## Long-Term Architectural Goal
+
+This spike is part of a broader architectural objective.
+
+HomeLab07 should provide reusable platform capabilities that allow individual applications to be replaced without requiring changes to the underlying infrastructure.
+
+Examples of reusable platform capabilities include:
+
+- Reverse proxy
+- DNS
+- TLS certificates
+- Docker networking
+- Persistent storage
+- Backup strategy
+- Monitoring
+- Operational tooling
+
+The success of this spike is not measured solely by selecting the better application.
+
+It is also measured by validating that HomeLab07 has achieved sufficient architectural decoupling to support future application replacement with minimal platform impact.
