@@ -6,6 +6,8 @@ Provide the first published service of HomeLab07.
 
 This service validates the complete deployment workflow and serves as the reference implementation for future services published through Nginx Proxy Manager.
 
+It also presents the current public platform status. During Sprint 005, the page was updated to reflect the collaboration platform milestone and OwnCloud availability.
+
 ---
 
 ## Responsibilities
@@ -15,6 +17,7 @@ This service validates the complete deployment workflow and serves as the refere
 - Nginx reference implementation
 - Static content hosting
 - Reverse proxy publication target
+- Public status signal for platform milestones
 
 ---
 
@@ -50,6 +53,13 @@ Validate the Compose configuration through the operation layer:
 ```
 
 The command must complete without errors.
+
+Validate that the rendered page reflects the current platform milestone:
+
+```text
+v0.6.0-collaboration-platform
+OwnCloud enabled
+```
 
 ---
 
@@ -117,3 +127,4 @@ Implemented during:
 
 - Sprint 001 – Foundation
 - Sprint 003 – Zero Touch SSL
+- Sprint 005 – Collaboration Platform status update

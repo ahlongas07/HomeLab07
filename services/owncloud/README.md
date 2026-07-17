@@ -6,6 +6,12 @@ OwnCloud provides the first business-facing collaboration service on top of the 
 
 It validates that platform capabilities can be consumed by an application without making those capabilities application-specific.
 
+Implementation lessons from the first deployment are captured in:
+
+```text
+services/owncloud/IMPLEMENTATION_NOTES.md
+```
+
 ---
 
 ## Responsibilities
