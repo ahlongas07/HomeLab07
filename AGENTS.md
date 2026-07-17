@@ -157,6 +157,10 @@ Never commit:
 
 Always use placeholders and example configuration files.
 
+Repository documentation must be written from the HomeLab07 perspective.
+
+Do not include external commercial brand names, customer names, or client-specific branding in repository documentation unless explicitly approved for that document.
+
 Environment-specific information belongs only inside:
 
 ```
