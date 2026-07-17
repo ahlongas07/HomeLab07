@@ -92,7 +92,7 @@ if [[ "${confirmation}" != "${OWNCLOUD_DB_NAME}" ]]; then
 fi
 
 docker exec -i \
-    -e MARIADB_PWD="${MARIADB_ROOT_PASSWORD}" \
+    -e MYSQL_PWD="${MARIADB_ROOT_PASSWORD}" \
     homelab07-mariadb \
     mariadb -u root <<SQL
 DROP DATABASE IF EXISTS \`${OWNCLOUD_DB_NAME}\`;

@@ -107,7 +107,7 @@ echo "  ${OWNCLOUD_DB_COLLATION}"
 echo
 
 docker exec -i \
-    -e MARIADB_PWD="${MARIADB_ROOT_PASSWORD}" \
+    -e MYSQL_PWD="${MARIADB_ROOT_PASSWORD}" \
     homelab07-mariadb \
     mariadb -u root <<SQL
 CREATE DATABASE IF NOT EXISTS \`${OWNCLOUD_DB_NAME}\`
