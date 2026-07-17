@@ -444,11 +444,13 @@ The `owncloud-personalization` branch includes a private Snow Cone theme app:
 services/owncloud/theme-snowcone
 ```
 
-The theme is mounted read-only into the OwnCloud custom apps path:
+The theme is mounted into the OwnCloud custom apps path:
 
 ```text
 ./theme-snowcone -> /mnt/data/custom/theme-snowcone
 ```
+
+The mount is intentionally writable because the official OwnCloud image fixes ownership under `/mnt/data/custom` during startup. A read-only theme mount causes startup to fail when the container tries to run `chown`.
 
 It customizes:
 
