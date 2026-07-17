@@ -68,6 +68,19 @@ ${OWNCLOUD_DATA_ROOT} -> /mnt/data
 
 The entire official OwnCloud persistent root is mounted at `/mnt/data`.
 
+The container sets the OwnCloud internal volume paths explicitly:
+
+```text
+OWNCLOUD_VOLUME_ROOT=/mnt/data
+OWNCLOUD_VOLUME_FILES=/mnt/data/files
+```
+
+The expected `datadirectory` inside OwnCloud is:
+
+```text
+/mnt/data/files
+```
+
 The official image owns the internal layout. The resulting directories, ownership and permissions must be captured after first initialization and documented in this README.
 
 Capture the runtime layout with:
