@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<info>
+    <id>theme-snowcone</id>
+    <name>Snow Cone Theme</name>
+    <description>Snow Cone visual identity for OwnCloud.</description>
+    <licence>MIT</licence>
+    <author>Snow Cone</author>
+    <version>0.1.0</version>
+    <types>
+        <theme/>
+    </types>
+    <dependencies>
+        <owncloud min-version="10" max-version="10" />
+    </dependencies>
+</info>

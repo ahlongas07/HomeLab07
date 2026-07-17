@@ -436,6 +436,58 @@ Every `occ` command executed during installation must be documented.
 
 ---
 
+## Snow Cone Theme
+
+The `owncloud-personalization` branch includes a private Snow Cone theme app:
+
+```text
+services/owncloud/theme-snowcone
+```
+
+The theme is mounted read-only into the OwnCloud custom apps path:
+
+```text
+./theme-snowcone -> /mnt/data/custom/theme-snowcone
+```
+
+It customizes:
+
+- service name;
+- slogan;
+- favicon;
+- login logo;
+- header logo;
+- primary accent color.
+
+Apply the theme after recreating the container:
+
+```bash
+./operation/compose.sh owncloud up -d --force-recreate
+./operation/owncloud-theme-enable.sh
+```
+
+The script enables the theme and adds it to the integrity ignore list because this is a private unsigned theme.
+
+Equivalent `occ` commands:
+
+```bash
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ app:enable theme-snowcone
+
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:system:set integrity.ignore.missing.app.signature 0 --value="theme-snowcone"
+```
+
+If the browser keeps showing the old favicon or logo, clear browser cache or force refresh the page.
+
+---
+
 ## Healthcheck
 
 The healthcheck uses the script provided by the official OwnCloud image:

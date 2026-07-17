@@ -1,0 +1,39 @@
+:root {
+    --snowcone-navy: #233263;
+    --snowcone-yellow: #ffc04d;
+    --snowcone-coral: #ec6465;
+    --snowcone-cyan: #72c7d4;
+}
+
+#body-login {
+    background: var(--snowcone-navy);
+}
+
+#body-login .wrapper {
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
+}
+
+#body-login #header .logo,
+#body-login #header .logo-icon {
+    background-image: url('../img/logo.svg');
+    background-size: contain;
+    width: 260px;
+    height: 100px;
+}
+
+#header {
+    background-color: var(--snowcone-navy);
+}
+
+#header .logo-icon {
+    background-image: url('../img/logo-icon.svg');
+    background-size: contain;
+}
+
+.primary,
+input[type='submit'].primary,
+button.primary {
+    background-color: var(--snowcone-coral);
+    border-color: var(--snowcone-coral);
+}
