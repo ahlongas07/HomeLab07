@@ -156,7 +156,7 @@ Validation
 
 Status
 
-Planned
+In Progress
 
 Objective
 

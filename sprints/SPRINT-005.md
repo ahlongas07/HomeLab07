@@ -2,7 +2,7 @@
 
 **Version:** v0.6.0-collaboration-platform
 
-**Status:** Planned
+**Status:** In Progress
 
 ---
 

@@ -1,0 +1,460 @@
+# OwnCloud
+
+## Purpose
+
+OwnCloud provides the first business-facing collaboration service on top of the HomeLab07 shared platform.
+
+It validates that platform capabilities can be consumed by an application without making those capabilities application-specific.
+
+---
+
+## Responsibilities
+
+- Browser-based file collaboration.
+- File upload and download.
+- Folder creation and sharing.
+- User-facing access to NAS-backed data.
+- Consumption of shared MariaDB for application metadata.
+- Consumption of shared Valkey for cache and transactional file locking.
+- Publication through Nginx Proxy Manager.
+
+OwnCloud is not responsible for:
+
+- Owning the authoritative storage layer.
+- Managing public DNS records.
+- Providing identity federation.
+- Providing backup automation.
+- Providing platform-wide encryption at rest.
+- Running a dedicated database or dedicated cache.
+
+---
+
+## Platform Dependencies
+
+| Capability | Service |
+|------------|---------|
+| Application | `owncloud/server:10.16.3` |
+| Database | Shared MariaDB 11.4 |
+| In-memory data | Shared Valkey |
+| HTTPS publication | Nginx Proxy Manager |
+| Dynamic DNS | Cloudflare Dynamic DNS |
+| Storage | NAS-backed Rockstor Share |
+
+Not approved for this sprint:
+
+- OCIS.
+- `latest` image tags.
+- release candidate images.
+- dedicated MariaDB.
+- dedicated Valkey.
+
+---
+
+## Storage
+
+The NAS is the authoritative storage layer.
+
+OwnCloud provides collaboration services on top of NAS-backed storage.
+
+Applications must not become the owners of user data.
+
+OwnCloud persistent state is mounted at:
+
+```text
+${HOMELAB07_DATA_ROOT}/owncloud -> /mnt/data
+```
+
+The dedicated NAS-backed path should be treated as the OwnCloud service data root. The image manages its internal layout under `/mnt/data`.
+
+Critical persistent data includes:
+
+```text
+config/
+data/
+apps/
+```
+
+The exact runtime layout must be validated after first initialization because it is owned by the official OwnCloud image.
+
+---
+
+## Encryption Policy
+
+OwnCloud server-side encryption must remain disabled.
+
+Do not enable:
+
+- Default Encryption Module.
+- Server-side Encryption.
+- Application-managed encryption at rest.
+
+The engineering objective is to preserve direct recoverability of files from NAS storage.
+
+Encryption that prevents direct file recovery from NAS storage is out of scope unless a future sprint explicitly approves a different storage and recovery model.
+
+---
+
+## Networking
+
+OwnCloud joins:
+
+```text
+homelab07-internal
+homelab07-proxy
+```
+
+No host ports are published.
+
+Public traffic must follow this path:
+
+```text
+Internet
+    ↓
+Cloudflare
+    ↓
+Nginx Proxy Manager
+    ↓
+OwnCloud
+```
+
+OwnCloud must never assume direct Internet exposure.
+
+---
+
+## Configuration
+
+Create the private environment file:
+
+```bash
+mkdir -p ../HomeLab07.private/env
+cp services/owncloud/.env.example ../HomeLab07.private/env/owncloud.env
+```
+
+Edit only the private file:
+
+```text
+HomeLab07.private/env/owncloud.env
+```
+
+Required values include:
+
+- `HOMELAB07_DATA_ROOT`
+- `OWNCLOUD_DOMAIN`
+- `OWNCLOUD_TRUSTED_DOMAINS`
+- `OWNCLOUD_OVERWRITE_CLI_URL`
+- `OWNCLOUD_OVERWRITE_PROTOCOL`
+- `OWNCLOUD_TRUSTED_PROXIES`
+- `OWNCLOUD_DB_HOST`
+- `OWNCLOUD_DB_NAME`
+- `OWNCLOUD_DB_USERNAME`
+- `OWNCLOUD_DB_PASSWORD`
+- `OWNCLOUD_ADMIN_USERNAME`
+- `OWNCLOUD_ADMIN_PASSWORD`
+- `OWNCLOUD_REDIS_HOST`
+
+Real public URLs and credentials belong exclusively inside `HomeLab07.private/`.
+
+Repository examples must use placeholders only.
+
+---
+
+## Database Provisioning
+
+OwnCloud uses the shared HomeLab07 MariaDB platform service.
+
+Database creation remains manual during Sprint 005.
+
+Validate the recommended collation for OwnCloud Server 10.16.3 before creating the database.
+
+Do not hardcode the collation until validation is complete.
+
+Example SQL:
+
+```sql
+CREATE DATABASE owncloud
+CHARACTER SET utf8mb4
+COLLATE <validated-owncloud-collation>;
+
+CREATE USER 'owncloud'@'%'
+IDENTIFIED BY '<owncloud-database-password>';
+
+GRANT ALL PRIVILEGES
+ON owncloud.*
+TO 'owncloud'@'%';
+
+FLUSH PRIVILEGES;
+```
+
+MariaDB remains application agnostic.
+
+Do not introduce a dedicated MariaDB container for OwnCloud.
+
+---
+
+## Reverse Proxy
+
+OwnCloud is published exclusively through Nginx Proxy Manager.
+
+The Nginx Proxy Manager Proxy Host is created manually during Sprint 005.
+
+Use placeholders in repository documentation. The approved public endpoint value belongs in `HomeLab07.private/`.
+
+Proxy Host requirements:
+
+| Setting | Value |
+|---------|-------|
+| Domain | `<owncloud-public-domain>` |
+| Forward Host | `homelab07-owncloud` |
+| Forward Port | `8080` |
+| Scheme | `http` |
+| SSL Certificate | Let's Encrypt |
+| Force SSL | enabled |
+| HTTP/2 | enabled |
+
+OwnCloud reverse proxy configuration must include:
+
+- `trusted_domains`
+- `trusted_proxies`
+- `overwrite.cli.url`
+- `overwriteprotocol=https`
+
+Apply administrative configuration through `occ` whenever practical.
+
+Document every `occ` command executed during installation.
+
+Example commands:
+
+```bash
+docker exec homelab07-owncloud php occ config:system:set trusted_domains 1 --value="<owncloud-public-domain>"
+docker exec homelab07-owncloud php occ config:system:set trusted_proxies 0 --value="homelab07-nginx-proxy-manager"
+docker exec homelab07-owncloud php occ config:system:set overwrite.cli.url --value="https://<owncloud-public-domain>"
+docker exec homelab07-owncloud php occ config:system:set overwriteprotocol --value="https"
+```
+
+If the official Docker image rejects the `php occ` form, use the image-provided `occ` wrapper and document the substituted command.
+
+---
+
+## Valkey
+
+OwnCloud consumes the shared Valkey platform capability.
+
+Current decision:
+
+- ACL authentication remains deferred.
+- The current trust model relies on Docker internal networking.
+- No application-specific Valkey instance is deployed.
+
+Future ACL evaluation triggers:
+
+- multiple application consumers;
+- reduced trust boundary;
+- multi-host deployment.
+
+Expected Valkey endpoint:
+
+```text
+homelab07-valkey:6379
+```
+
+---
+
+## Deployment
+
+Validate the Compose configuration with placeholder values:
+
+```bash
+docker compose \
+  --env-file services/owncloud/.env.example \
+  -f services/owncloud/compose.yaml \
+  config
+```
+
+After private configuration and database provisioning are complete, start through the operation layer:
+
+```bash
+./operation/start.sh
+```
+
+Or start only OwnCloud:
+
+```bash
+./operation/compose.sh owncloud up -d
+```
+
+Check status:
+
+```bash
+./operation/status.sh
+```
+
+View logs:
+
+```bash
+./operation/compose.sh owncloud logs
+```
+
+---
+
+## Operational Commands
+
+HomeLab07 operations should go through the `operation/` layer.
+
+```bash
+./operation/start.sh
+./operation/status.sh
+./operation/stop.sh
+./operation/compose.sh owncloud config
+./operation/compose.sh owncloud logs
+```
+
+Administrative OwnCloud actions should prefer `occ` over manual file editing.
+
+Every `occ` command executed during installation must be documented.
+
+---
+
+## Healthcheck
+
+The healthcheck uses the script provided by the official OwnCloud image:
+
+```text
+/usr/bin/healthcheck
+```
+
+The healthcheck includes a longer startup grace period to tolerate initial installation and migration:
+
+```text
+start_period: 180s
+retries: 10
+```
+
+Avoid aggressive startup probes during the first deployment.
+
+---
+
+## Validation
+
+Validate the following after deployment.
+
+Check that OwnCloud is running:
+
+```bash
+./operation/compose.sh owncloud ps
+```
+
+Confirm no host ports are published:
+
+```bash
+docker port homelab07-owncloud
+```
+
+Expected response:
+
+```text
+No output
+```
+
+Inspect network attachments:
+
+```bash
+docker inspect homelab07-owncloud \
+  --format '{{json .NetworkSettings.Networks}}'
+```
+
+Expected networks:
+
+```text
+homelab07-internal
+homelab07-proxy
+```
+
+Validate OwnCloud status:
+
+```bash
+docker exec homelab07-owncloud php occ status
+```
+
+Expected result:
+
+```text
+OwnCloud reports a healthy installation.
+```
+
+Validate system configuration:
+
+```bash
+docker exec homelab07-owncloud php occ config:list system
+```
+
+Expected configuration:
+
+- `memcache.local` is configured.
+- `memcache.locking` is configured.
+- Redis configuration is present.
+- Redis-backed configuration points to `homelab07-valkey`.
+
+Validate application behavior:
+
+- Administrator login succeeds.
+- User creation succeeds.
+- File upload succeeds.
+- File download succeeds.
+- Folder creation succeeds.
+- Transactional file locking works.
+- Files survive container recreation.
+- HTTPS access works through Cloudflare and Nginx Proxy Manager.
+
+---
+
+## Backup
+
+Backup automation is outside the scope of Sprint 005.
+
+The critical persistent data lives under:
+
+```text
+${HOMELAB07_DATA_ROOT}/owncloud
+```
+
+The OwnCloud MariaDB database must also be backed up for a complete service backup.
+
+Backup implementation will be introduced during Sprint 010.
+
+---
+
+## Restore
+
+Restore automation is outside the scope of Sprint 005.
+
+A future restore procedure must restore both:
+
+- `${HOMELAB07_DATA_ROOT}/owncloud`
+- the OwnCloud MariaDB database
+
+Restoring only files or only the database may produce an inconsistent application state.
+
+---
+
+## Security
+
+Security model:
+
+- OwnCloud publishes no host ports.
+- Public access is only through Nginx Proxy Manager.
+- MariaDB access uses `homelab07-internal`.
+- Valkey access uses `homelab07-internal`.
+- Public URLs and credentials remain in `HomeLab07.private/`.
+- Server-side encryption remains disabled to preserve NAS recoverability.
+- Dedicated MariaDB and Valkey instances are not allowed.
+
+The container does not use `read_only: true` or `cap_drop: ALL` in Sprint 005 because the official image performs initialization and writes runtime state under `/mnt/data`. This may be revisited after the first deployment is stable.
+
+---
+
+## Related Sprint
+
+- Sprint 005 — Collaboration Platform
+- Version: `v0.6.0-collaboration-platform`
+
+This sprint validates HomeLab07 as an application platform by deploying a business-facing service that consumes shared MariaDB, shared Valkey, Nginx Proxy Manager, Cloudflare Dynamic DNS, and NAS-backed storage.

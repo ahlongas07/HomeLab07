@@ -39,6 +39,7 @@ The project has established:
 - Valkey as the shared in-memory data platform.
 
 Sprint 005 is planned as the first business-facing platform service.
+Implementation is in progress.
 
 Approved direction:
 

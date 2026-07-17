@@ -27,6 +27,12 @@ echo
 compose_service nginx-proxy-manager ps
 
 echo
+echo "  OwnCloud"
+echo
+
+compose_service owncloud ps
+
+echo
 echo "  Cloudflare Dynamic DNS"
 echo
 
