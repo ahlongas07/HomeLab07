@@ -22,7 +22,7 @@ The objective is to define how HomeLab07 will validate or reject the hypothesis 
 
 HomeLab07 is a personal homelab platform.
 
-The evaluation must be performed from the perspective of a personal laboratory, not from the perspective of Snow Cone, a company, or a large organization with hundreds of users.
+The evaluation must be performed from the perspective of a personal laboratory, not from the perspective of a company, a customer environment, or a large organization with hundreds of users.
 
 HomeLab07 prioritizes:
 
