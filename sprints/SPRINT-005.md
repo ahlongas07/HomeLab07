@@ -155,9 +155,18 @@ This is a permanent engineering rule for OwnCloud in HomeLab07 unless a future s
 
 # Database Provisioning
 
-Database creation remains manual during this sprint.
+Database creation is handled through the HomeLab07 operation layer during this sprint.
 
-Automation is intentionally deferred.
+The operation scripts read private values from `HomeLab07.private/`.
+
+Required scripts:
+
+```text
+operation/owncloud-db-create.sh
+operation/owncloud-db-drop.sh
+```
+
+The drop script must require interactive confirmation.
 
 SQL must use placeholders only.
 
@@ -169,7 +178,7 @@ Example:
 
 ```sql
 CREATE DATABASE owncloud
-CHARACTER SET utf8mb4
+CHARACTER SET <owncloud-database-charset>
 COLLATE <validated-owncloud-collation>;
 
 CREATE USER 'owncloud'@'%'

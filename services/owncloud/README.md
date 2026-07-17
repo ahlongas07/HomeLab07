@@ -148,6 +148,9 @@ Required values include:
 - `OWNCLOUD_DB_NAME`
 - `OWNCLOUD_DB_USERNAME`
 - `OWNCLOUD_DB_PASSWORD`
+- `OWNCLOUD_DB_PREFIX`
+- `OWNCLOUD_DB_CHARSET`
+- `OWNCLOUD_DB_COLLATION`
 - `OWNCLOUD_ADMIN_USERNAME`
 - `OWNCLOUD_ADMIN_PASSWORD`
 - `OWNCLOUD_REDIS_HOST`
@@ -162,17 +165,45 @@ Repository examples must use placeholders only.
 
 OwnCloud uses the shared HomeLab07 MariaDB platform service.
 
-Database creation remains manual during Sprint 005.
+Database provisioning is managed through the HomeLab07 operation layer during Sprint 005.
 
 Validate the recommended collation for OwnCloud Server 10.16.3 before creating the database.
 
 Do not hardcode the collation until validation is complete.
 
-Example SQL:
+The operation scripts read private values from:
+
+```text
+HomeLab07.private/env/mariadb.env
+HomeLab07.private/env/owncloud.env
+```
+
+Create or update the OwnCloud database and user:
+
+```bash
+./operation/owncloud-db-create.sh
+```
+
+Drop the OwnCloud database and user:
+
+```bash
+./operation/owncloud-db-drop.sh
+```
+
+The drop script is destructive and requires interactive confirmation.
+
+The selected charset and collation are supplied by private configuration:
+
+```env
+OWNCLOUD_DB_CHARSET=utf8mb4
+OWNCLOUD_DB_COLLATION=replace-with-validated-owncloud-collation
+```
+
+The create script applies the equivalent of:
 
 ```sql
 CREATE DATABASE owncloud
-CHARACTER SET utf8mb4
+CHARACTER SET <owncloud-database-charset>
 COLLATE <validated-owncloud-collation>;
 
 CREATE USER 'owncloud'@'%'
@@ -188,6 +219,14 @@ FLUSH PRIVILEGES;
 MariaDB remains application agnostic.
 
 Do not introduce a dedicated MariaDB container for OwnCloud.
+
+The OwnCloud table prefix must match the database schema and generated configuration:
+
+```env
+OWNCLOUD_DB_PREFIX=oc_
+```
+
+The official image writes an `overwrite.config.php` file that reads `OWNCLOUD_DB_PREFIX`. If this variable is missing, OwnCloud can look for unprefixed tables such as `appconfig` instead of `oc_appconfig`.
 
 ---
 
