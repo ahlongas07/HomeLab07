@@ -117,12 +117,20 @@ Suggested layout:
 
 ```text
 homelab07-owncloud/
-├── config
-├── data
-└── apps
+└── <official-owncloud-runtime-layout>
 ```
 
 Persistent data must remain isolated from other platform services.
+
+The entire official OwnCloud persistent root is mounted at:
+
+```text
+${OWNCLOUD_DATA_ROOT} -> /mnt/data
+```
+
+The official image owns the internal layout. The resulting directories, ownership and permissions must be captured after first initialization and documented in the service README.
+
+No individual subdirectory mount should be introduced during Sprint 005 unless required by a demonstrated operational need.
 
 ---
 
@@ -362,6 +370,8 @@ Use placeholders in repository documentation.
 
 The approved public endpoint and real public domain belong exclusively inside `HomeLab07.private/`.
 
+This is a temporary, sprint-approved manual administrative change. Production must never become the undocumented source of truth. Every manual Nginx Proxy Manager change must have a placeholder-based, reproducible procedure in the repository.
+
 Proxy Host requirements:
 
 | Setting | Value |
@@ -393,7 +403,11 @@ OwnCloud
 Whenever administrative actions are required, prefer:
 
 ```bash
-php occ
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ
 ```
 
 over manual file editing.
@@ -438,9 +452,7 @@ The README must document the critical persistent data.
 Expected paths:
 
 ```text
-config/
-data/
-apps/
+${OWNCLOUD_DATA_ROOT}
 ```
 
 Backup implementation will be introduced during Sprint 010.
@@ -514,7 +526,25 @@ Expected:
 Validate:
 
 ```bash
-docker exec homelab07-owncloud php occ status
+docker exec homelab07-owncloud id
+docker exec homelab07-owncloud id www-data
+docker exec homelab07-owncloud ps -eo user,pid,ppid,args
+```
+
+Expected:
+
+```text
+Container initialization and web worker users are understood and documented.
+```
+
+Validate:
+
+```bash
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ status
 ```
 
 Expected:
@@ -526,7 +556,11 @@ OwnCloud reports a healthy installation.
 Validate:
 
 ```bash
-docker exec homelab07-owncloud php occ config:list system
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:list system
 ```
 
 Expected:
@@ -538,6 +572,7 @@ Expected:
 
 Validate:
 
+- Runtime storage layout and permissions.
 - Container recreation.
 - Persistent storage survives restart.
 - HTTPS remains functional.

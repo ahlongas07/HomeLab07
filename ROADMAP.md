@@ -195,6 +195,7 @@ Storage Principles
 - OwnCloud provides collaboration services on top of NAS-backed storage.
 - Applications must not become the owners of user data.
 - Persistent OwnCloud data must remain directly recoverable from NAS storage.
+- `OWNCLOUD_DATA_ROOT` points to the dedicated OwnCloud share and is mounted directly at `/mnt/data`.
 
 Encryption Policy
 
@@ -210,7 +211,7 @@ The engineering objective is to preserve direct file recoverability from the NAS
 
 Database Provisioning
 
-- Database creation remains manual during this Sprint.
+- Database provisioning is handled through the HomeLab07 operation layer during this Sprint.
 - SQL examples must use placeholders only.
 - Database collation must not be hardcoded before implementation.
 - Database collation must be validated against OwnCloud Server 10.16.3 recommendations before creating the database.
@@ -244,6 +245,7 @@ OwnCloud must not assume direct Internet exposure.
 Manual Nginx Proxy Manager Configuration
 
 - Proxy Host is created manually during Sprint 005.
+- Manual NPM configuration is a temporary approved exception with a reproducible placeholder-based procedure.
 - Domain belongs in `HomeLab07.private/` and must be documented with placeholders in the repository.
 - Forward Host: `homelab07-owncloud`
 - Forward Port: `8080`
@@ -282,7 +284,11 @@ Validation
 - OwnCloud system configuration validation:
 
 ```bash
-docker exec homelab07-owncloud php occ config:list system
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:list system
 ```
 
 Expected configuration:
@@ -299,7 +305,7 @@ Healthcheck Requirements
 
 Operational Principle
 
-- Prefer `php occ` for administrative actions over manual file editing.
+- Prefer `php occ` as `www-data` for administrative actions over manual file editing.
 - Every `occ` command executed during installation must be documented.
 
 ---

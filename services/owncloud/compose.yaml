@@ -23,7 +23,7 @@ services:
       OWNCLOUD_OVERWRITE_PROTOCOL: ${OWNCLOUD_OVERWRITE_PROTOCOL:-https}
       OWNCLOUD_TRUSTED_PROXIES: ${OWNCLOUD_TRUSTED_PROXIES:-homelab07-nginx-proxy-manager}
     volumes:
-      - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/owncloud:/mnt/data
+      - ${OWNCLOUD_DATA_ROOT:?OWNCLOUD_DATA_ROOT is required}:/mnt/data
     networks:
       - homelab07-internal
       - homelab07-proxy

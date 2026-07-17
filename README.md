@@ -35,11 +35,11 @@ The project has established:
 - MariaDB as the first shared infrastructure service.
 - Nginx Proxy Manager as the centralized public entry point.
 - HTTPS publication for the Landing Page.
-- Cloudflare Dynamic DNS as a platform enhancement in progress.
+- Cloudflare Dynamic DNS as an implemented platform enhancement.
 - Valkey as the shared in-memory data platform.
 
 Sprint 005 is planned as the first business-facing platform service.
-Implementation is in progress.
+Implementation and validation are in progress.
 
 Approved direction:
 

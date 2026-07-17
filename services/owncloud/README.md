@@ -61,20 +61,23 @@ Applications must not become the owners of user data.
 OwnCloud persistent state is mounted at:
 
 ```text
-${HOMELAB07_DATA_ROOT}/owncloud -> /mnt/data
+${OWNCLOUD_DATA_ROOT} -> /mnt/data
 ```
 
-The dedicated NAS-backed path should be treated as the OwnCloud service data root. The image manages its internal layout under `/mnt/data`.
+`OWNCLOUD_DATA_ROOT` must point to the dedicated Rockstor Share for OwnCloud.
 
-Critical persistent data includes:
+The entire official OwnCloud persistent root is mounted at `/mnt/data`.
 
-```text
-config/
-data/
-apps/
+The official image owns the internal layout. The resulting directories, ownership and permissions must be captured after first initialization and documented in this README.
+
+Capture the runtime layout with:
+
+```bash
+find <OWNCLOUD_DATA_ROOT> -maxdepth 2 \
+  -printf '%M %u:%g %p\n'
 ```
 
-The exact runtime layout must be validated after first initialization because it is owned by the official OwnCloud image.
+No individual subdirectory mount should be introduced during Sprint 005 unless required by a demonstrated operational need.
 
 ---
 
@@ -136,9 +139,9 @@ Edit only the private file:
 HomeLab07.private/env/owncloud.env
 ```
 
-Required values include:
+Container configuration variables consumed by Docker Compose and the OwnCloud image:
 
-- `HOMELAB07_DATA_ROOT`
+- `OWNCLOUD_DATA_ROOT`
 - `OWNCLOUD_DOMAIN`
 - `OWNCLOUD_TRUSTED_DOMAINS`
 - `OWNCLOUD_OVERWRITE_CLI_URL`
@@ -149,11 +152,14 @@ Required values include:
 - `OWNCLOUD_DB_USERNAME`
 - `OWNCLOUD_DB_PASSWORD`
 - `OWNCLOUD_DB_PREFIX`
-- `OWNCLOUD_DB_CHARSET`
-- `OWNCLOUD_DB_COLLATION`
 - `OWNCLOUD_ADMIN_USERNAME`
 - `OWNCLOUD_ADMIN_PASSWORD`
 - `OWNCLOUD_REDIS_HOST`
+
+Database provisioning variables consumed only by `operation/owncloud-db-create.sh`:
+
+- `OWNCLOUD_DB_CHARSET`
+- `OWNCLOUD_DB_COLLATION`
 
 Real public URLs and credentials belong exclusively inside `HomeLab07.private/`.
 
@@ -264,10 +270,29 @@ Document every `occ` command executed during installation.
 Example commands:
 
 ```bash
-docker exec homelab07-owncloud php occ config:system:set trusted_domains 1 --value="<owncloud-public-domain>"
-docker exec homelab07-owncloud php occ config:system:set trusted_proxies 0 --value="homelab07-nginx-proxy-manager"
-docker exec homelab07-owncloud php occ config:system:set overwrite.cli.url --value="https://<owncloud-public-domain>"
-docker exec homelab07-owncloud php occ config:system:set overwriteprotocol --value="https"
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:system:set trusted_domains 1 --value="<owncloud-public-domain>"
+
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:system:set trusted_proxies 0 --value="homelab07-nginx-proxy-manager"
+
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:system:set overwrite.cli.url --value="https://<owncloud-public-domain>"
+
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:system:set overwriteprotocol --value="https"
 ```
 
 If the official Docker image rejects the `php occ` form, use the image-provided `occ` wrapper and document the substituted command.
@@ -408,10 +433,24 @@ homelab07-internal
 homelab07-proxy
 ```
 
+Validate container and application users:
+
+```bash
+docker exec homelab07-owncloud id
+docker exec homelab07-owncloud id www-data
+docker exec homelab07-owncloud ps -eo user,pid,ppid,args
+```
+
+The container may initialize as `root`, but administrative OwnCloud commands must run as `www-data`.
+
 Validate OwnCloud status:
 
 ```bash
-docker exec homelab07-owncloud php occ status
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ status
 ```
 
 Expected result:
@@ -423,7 +462,11 @@ OwnCloud reports a healthy installation.
 Validate system configuration:
 
 ```bash
-docker exec homelab07-owncloud php occ config:list system
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:list system
 ```
 
 Expected configuration:
@@ -432,6 +475,15 @@ Expected configuration:
 - `memcache.locking` is configured.
 - Redis configuration is present.
 - Redis-backed configuration points to `homelab07-valkey`.
+
+Validate OwnCloud storage write permissions:
+
+```bash
+docker exec \
+  --user www-data \
+  homelab07-owncloud \
+  sh -c 'touch /mnt/data/.permission-test && rm /mnt/data/.permission-test'
+```
 
 Validate application behavior:
 
@@ -453,7 +505,7 @@ Backup automation is outside the scope of Sprint 005.
 The critical persistent data lives under:
 
 ```text
-${HOMELAB07_DATA_ROOT}/owncloud
+${OWNCLOUD_DATA_ROOT}
 ```
 
 The OwnCloud MariaDB database must also be backed up for a complete service backup.
@@ -468,10 +520,64 @@ Restore automation is outside the scope of Sprint 005.
 
 A future restore procedure must restore both:
 
-- `${HOMELAB07_DATA_ROOT}/owncloud`
+- `${OWNCLOUD_DATA_ROOT}`
 - the OwnCloud MariaDB database
 
 Restoring only files or only the database may produce an inconsistent application state.
+
+---
+
+## Implementation Record
+
+Record sanitized implementation evidence here before closing Sprint 005.
+
+Do not include real public domains, IP addresses, passwords, secrets, or private paths that must remain outside the repository.
+
+### Database
+
+- Charset: `<owncloud-database-charset>`
+- Collation: `<validated-owncloud-collation>`
+- Database creation command: `./operation/owncloud-db-create.sh`
+- Result: `<pending-validation>`
+
+### Persistent Storage
+
+- Rockstor Share: `<owncloud-share-name>`
+- Host mount path: `<OWNCLOUD_DATA_ROOT>`
+- Container mount path: `/mnt/data`
+- Runtime UID/GID: `<pending-validation>`
+- Permissions observed: `<pending-validation>`
+- Runtime layout command:
+
+```bash
+find <OWNCLOUD_DATA_ROOT> -maxdepth 2 \
+  -printf '%M %u:%g %p\n'
+```
+
+### OwnCloud Administration
+
+Commands executed:
+
+```bash
+<document-occ-commands-executed-as-www-data>
+```
+
+### Reverse Proxy
+
+- DNS record created manually: `<documented-with-placeholder>`
+- Nginx Proxy Manager Proxy Host created manually: `<pending-validation>`
+- TLS certificate issued: `<pending-validation>`
+- HTTPS publication validated: `<pending-validation>`
+
+### Runtime Validation
+
+- `docker port homelab07-owncloud`: `<pending-validation>`
+- `docker inspect homelab07-owncloud --format '{{json .NetworkSettings.Networks}}'`: `<pending-validation>`
+- `occ status`: `<pending-validation>`
+- `occ config:list system`: `<pending-validation>`
+- file upload/download: `<pending-validation>`
+- container recreation persistence: `<pending-validation>`
+- server-side encryption disabled: `<pending-validation>`
 
 ---
 
