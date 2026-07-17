@@ -196,6 +196,8 @@ Storage Principles
 - Applications must not become the owners of user data.
 - Persistent OwnCloud data must remain directly recoverable from NAS storage.
 - `OWNCLOUD_DATA_ROOT` points to the dedicated OwnCloud share and is mounted directly at `/mnt/data`.
+- OwnCloud internal volume paths are explicit: `OWNCLOUD_VOLUME_ROOT=/mnt/data` and `OWNCLOUD_VOLUME_FILES=/mnt/data/files`.
+- Existing NAS shares should be integrated later through OwnCloud External Storage instead of direct internal data tree mounts.
 
 Encryption Policy
 

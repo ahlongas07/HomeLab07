@@ -68,7 +68,7 @@ ${OWNCLOUD_DATA_ROOT} -> /mnt/data
 
 The entire official OwnCloud persistent root is mounted at `/mnt/data`.
 
-The container sets the OwnCloud internal volume paths explicitly:
+The container sets the OwnCloud internal volume paths explicitly. These values are required because the first deployment showed that relying on image defaults can leave `datadirectory` empty or inconsistent after a failed initialization:
 
 ```text
 OWNCLOUD_VOLUME_ROOT=/mnt/data
@@ -105,6 +105,14 @@ ${OWNCLOUD_DATA_ROOT}/files/.ocdata
 ```
 
 If the marker is missing after the service has already installed, reset storage and database together before re-running the first installation. Do not keep a new database with stale storage, or stale storage with a new database.
+
+Files uploaded through the UI are expected to be directly recoverable on the NAS under:
+
+```text
+${OWNCLOUD_DATA_ROOT}/files/<owncloud-user>/files/
+```
+
+Existing NAS shares should not be mounted directly into OwnCloud's internal `files/` tree during Sprint 005. The preferred future integration model for existing NAS data is OwnCloud External Storage over SMB, WebDAV, FTP, or SFTP, evaluated in a later sprint.
 
 ---
 
@@ -179,6 +187,8 @@ Container configuration variables consumed by Docker Compose and the OwnCloud im
 - `OWNCLOUD_DB_USERNAME`
 - `OWNCLOUD_DB_PASSWORD`
 - `OWNCLOUD_DB_PREFIX`
+- `OWNCLOUD_VOLUME_ROOT`
+- `OWNCLOUD_VOLUME_FILES`
 - `OWNCLOUD_ADMIN_USERNAME`
 - `OWNCLOUD_ADMIN_PASSWORD`
 - `OWNCLOUD_REDIS_HOST`
@@ -261,6 +271,8 @@ OWNCLOUD_DB_PREFIX=oc_
 
 The official image writes an `overwrite.config.php` file that reads `OWNCLOUD_DB_PREFIX`. If this variable is missing, OwnCloud can look for unprefixed tables such as `appconfig` instead of `oc_appconfig`.
 
+During the first deployment this mismatch produced `Table 'owncloud.appconfig' doesn't exist` while the database correctly contained `oc_appconfig`. Keep `OWNCLOUD_DB_PREFIX=oc_` in the private environment before initialization.
+
 ---
 
 ## Reverse Proxy
@@ -282,6 +294,8 @@ Proxy Host requirements:
 | SSL Certificate | Let's Encrypt |
 | Force SSL | enabled |
 | HTTP/2 | enabled |
+
+Cloudflare may remain DNS-only during initial validation. Cloudflare proxying can be enabled after the application validates cleanly through Nginx Proxy Manager.
 
 OwnCloud reverse proxy configuration must include:
 
@@ -384,6 +398,16 @@ View logs:
 ```bash
 ./operation/compose.sh owncloud logs
 ```
+
+If a first installation fails after writing config or database state, perform a clean retry. Stop OwnCloud, drop and recreate the database, and empty the dedicated OwnCloud storage root only after confirming it contains no user data:
+
+```bash
+./operation/compose.sh owncloud down
+./operation/owncloud-db-drop.sh
+./operation/owncloud-db-create.sh
+```
+
+Then remove stale first-run storage artifacts from `${OWNCLOUD_DATA_ROOT}` on the host, restore ownership for the container web user, and recreate the service.
 
 ---
 
@@ -511,6 +535,7 @@ docker exec \
 
 Expected configuration:
 
+- `datadirectory` is `/mnt/data/files`.
 - `memcache.local` is configured.
 - `memcache.locking` is configured.
 - Redis configuration is present.
@@ -532,6 +557,8 @@ Validate application behavior:
 - File upload succeeds.
 - File download succeeds.
 - Folder creation succeeds.
+- File sharing between users succeeds.
+- Uploaded files are visible on the NAS under `${OWNCLOUD_DATA_ROOT}/files/<owncloud-user>/files/`.
 - Transactional file locking works.
 - Files survive container recreation.
 - HTTPS access works through Cloudflare and Nginx Proxy Manager.
@@ -595,6 +622,9 @@ Do not include real public domains, IP addresses, passwords, secrets, or private
 - Rockstor Share: `<owncloud-share-name>`
 - Host mount path: `<OWNCLOUD_DATA_ROOT>`
 - Container mount path: `/mnt/data`
+- OwnCloud volume root: `/mnt/data`
+- OwnCloud files path: `/mnt/data/files`
+- OwnCloud datadirectory: `/mnt/data/files`
 - Runtime UID/GID: `<pending-validation>`
 - Permissions observed: `<pending-validation>`
 - Data marker: `<OWNCLOUD_DATA_ROOT>/files/.ocdata`
@@ -628,6 +658,8 @@ Commands executed:
 - `occ status`: `<pending-validation>`
 - `occ config:list system`: `<pending-validation>`
 - file upload/download: `<pending-validation>`
+- UI file share between users: `<pending-validation>`
+- NAS file visibility under `<OWNCLOUD_DATA_ROOT>/files/<owncloud-user>/files/`: `<pending-validation>`
 - container recreation persistence: `<pending-validation>`
 - server-side encryption disabled: `<pending-validation>`
 

@@ -64,6 +64,8 @@ Identity will be introduced in Sprint 006.
 
 Backup automation will be introduced in Sprint 010.
 
+Existing NAS shares should not be mounted directly into OwnCloud's internal data tree during Sprint 005. The preferred future integration model for existing NAS data is OwnCloud External Storage over SMB, WebDAV, FTP, or SFTP.
+
 ---
 
 # Approved Technology Stack
@@ -128,6 +130,19 @@ The entire official OwnCloud persistent root is mounted at:
 ${OWNCLOUD_DATA_ROOT} -> /mnt/data
 ```
 
+The OwnCloud container must set the internal volume paths explicitly:
+
+```text
+OWNCLOUD_VOLUME_ROOT=/mnt/data
+OWNCLOUD_VOLUME_FILES=/mnt/data/files
+```
+
+The expected OwnCloud `datadirectory` is:
+
+```text
+/mnt/data/files
+```
+
 The official image owns the internal layout. The resulting directories, ownership and permissions must be captured after first initialization and documented in the service README.
 
 No individual subdirectory mount should be introduced during Sprint 005 unless required by a demonstrated operational need.
@@ -140,6 +155,8 @@ No individual subdirectory mount should be introduced during Sprint 005 unless r
 - OwnCloud provides collaboration services on top of NAS-backed storage.
 - Applications must not become the owners of user data.
 - Persistent OwnCloud data must remain directly recoverable from NAS storage.
+- Files uploaded through OwnCloud should be recoverable from `${OWNCLOUD_DATA_ROOT}/files/<owncloud-user>/files/`.
+- Existing NAS shares require a future External Storage evaluation instead of direct internal data tree mounts.
 
 ---
 
@@ -205,6 +222,14 @@ FLUSH PRIVILEGES;
 MariaDB remains application agnostic.
 
 No OwnCloud-specific MariaDB container shall be introduced.
+
+The OwnCloud table prefix must be defined before initialization:
+
+```text
+OWNCLOUD_DB_PREFIX=oc_
+```
+
+If the prefix is missing, OwnCloud may query unprefixed tables such as `appconfig` while the schema contains `oc_appconfig`.
 
 ---
 
@@ -497,6 +522,8 @@ Validate:
 - File upload.
 - File download.
 - Folder creation.
+- File sharing between users.
+- Uploaded file visibility from the NAS under `${OWNCLOUD_DATA_ROOT}/files/<owncloud-user>/files/`.
 - Transactional file locking.
 
 ---
@@ -573,6 +600,7 @@ Expected:
 - `memcache.locking` is configured.
 - Redis configuration is present.
 - Redis-backed configuration points to `homelab07-valkey`.
+- `datadirectory` points to `/mnt/data/files`.
 
 Validate:
 
