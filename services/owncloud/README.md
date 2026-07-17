@@ -79,6 +79,20 @@ find <OWNCLOUD_DATA_ROOT> -maxdepth 2 \
 
 No individual subdirectory mount should be introduced during Sprint 005 unless required by a demonstrated operational need.
 
+Before first start or after a failed initialization, validate the host storage path with:
+
+```bash
+./operation/owncloud-storage-check.sh
+```
+
+After a successful initialization, the expected OwnCloud data marker is:
+
+```text
+${OWNCLOUD_DATA_ROOT}/files/.ocdata
+```
+
+If the marker is missing after the service has already installed, reset storage and database together before re-running the first installation. Do not keep a new database with stale storage, or stale storage with a new database.
+
 ---
 
 ## Encryption Policy
@@ -368,6 +382,7 @@ HomeLab07 operations should go through the `operation/` layer.
 ./operation/start.sh
 ./operation/status.sh
 ./operation/stop.sh
+./operation/owncloud-storage-check.sh
 ./operation/compose.sh owncloud config
 ./operation/compose.sh owncloud logs
 ```
@@ -400,6 +415,18 @@ Avoid aggressive startup probes during the first deployment.
 ## Validation
 
 Validate the following after deployment.
+
+Validate the host storage path:
+
+```bash
+./operation/owncloud-storage-check.sh
+```
+
+Expected result:
+
+- `OWNCLOUD_DATA_ROOT` is an absolute path.
+- The host path exists.
+- After successful initialization, `${OWNCLOUD_DATA_ROOT}/files/.ocdata` exists.
 
 Check that OwnCloud is running:
 
@@ -525,6 +552,16 @@ A future restore procedure must restore both:
 
 Restoring only files or only the database may produce an inconsistent application state.
 
+For a failed first installation with no production data, reset both layers together:
+
+```bash
+./operation/compose.sh owncloud down
+./operation/owncloud-db-drop.sh
+./operation/owncloud-db-create.sh
+```
+
+Then empty the dedicated OwnCloud storage path from the host only after confirming that it contains no user data.
+
 ---
 
 ## Implementation Record
@@ -547,6 +584,8 @@ Do not include real public domains, IP addresses, passwords, secrets, or private
 - Container mount path: `/mnt/data`
 - Runtime UID/GID: `<pending-validation>`
 - Permissions observed: `<pending-validation>`
+- Data marker: `<OWNCLOUD_DATA_ROOT>/files/.ocdata`
+- Storage check command: `./operation/owncloud-storage-check.sh`
 - Runtime layout command:
 
 ```bash

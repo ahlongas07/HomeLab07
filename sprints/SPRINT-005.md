@@ -172,9 +172,12 @@ Required scripts:
 ```text
 operation/owncloud-db-create.sh
 operation/owncloud-db-drop.sh
+operation/owncloud-storage-check.sh
 ```
 
 The drop script must require interactive confirmation.
+
+The storage check script must be non-destructive and validate that `OWNCLOUD_DATA_ROOT` is an absolute path, exists on the host, and contains the expected OwnCloud data marker after successful initialization.
 
 SQL must use placeholders only.
 
@@ -480,6 +483,7 @@ Validate:
 - HTTPS publication.
 - Nginx Proxy Manager routing.
 - Cloudflare publication.
+- OwnCloud host storage path through `operation/owncloud-storage-check.sh`.
 
 ---
 
