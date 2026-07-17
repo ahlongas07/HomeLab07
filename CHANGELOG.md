@@ -1,3 +1,31 @@
+## [v0.6.0-collaboration-platform] - 2026-07-17
+
+### Added
+
+- OwnCloud Server 10.16.3 as the first business-facing platform service.
+- Shared MariaDB integration for OwnCloud metadata.
+- Shared Valkey integration for OwnCloud cache and transactional file locking.
+- OwnCloud service documentation and implementation notes.
+- OwnCloud database provisioning and reset scripts in the operation layer.
+- OwnCloud storage validation helper.
+- Landing Page status update for the collaboration platform milestone.
+
+### Changed
+
+- Sprint 005 marked as completed.
+- Project README and Roadmap updated to reflect the completed collaboration platform milestone.
+- OwnCloud storage model documented with explicit internal volume paths:
+  - `OWNCLOUD_VOLUME_ROOT=/mnt/data`
+  - `OWNCLOUD_VOLUME_FILES=/mnt/data/files`
+
+### Notes
+
+- OwnCloud publishes no host ports and is reachable only through Cloudflare and Nginx Proxy Manager.
+- Server-side encryption remains disabled to preserve direct NAS recoverability.
+- Existing NAS shares are deferred to a future External Storage evaluation.
+
+---
+
 ## [v0.4.0-zero-touch-ssl] - 2026-07-15
 
 ### Added

@@ -156,7 +156,7 @@ Validation
 
 Status
 
-In Progress
+Completed
 
 Objective
 
@@ -299,6 +299,17 @@ Expected configuration:
 - `memcache.locking` is configured.
 - Redis configuration is present.
 - Redis-backed configuration points to `homelab07-valkey`.
+
+Completion Notes
+
+- OwnCloud Server 10.16.3 deployed successfully.
+- Shared MariaDB integration validated.
+- Shared Valkey usage validated through Redis-compatible cache activity.
+- HTTPS publication through Cloudflare and Nginx Proxy Manager validated.
+- Dedicated NAS-backed OwnCloud storage validated.
+- Uploaded files are recoverable from the NAS-backed OwnCloud data tree.
+- Server-side encryption remains disabled.
+- Existing NAS shares are deferred to a future External Storage evaluation.
 
 Healthcheck Requirements
 

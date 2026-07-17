@@ -2,7 +2,7 @@
 
 **Version:** v0.6.0-collaboration-platform
 
-**Status:** In Progress
+**Status:** Completed
 
 ---
 
@@ -627,6 +627,32 @@ Sprint 005 is complete when:
 - No shared platform capability required application-specific modifications.
 
 Warnings and non-blocking deprecations must be documented but do not automatically fail the sprint.
+
+---
+
+# Completion Notes
+
+Sprint 005 was completed after validating OwnCloud as the first business-facing service on top of the shared HomeLab07 platform.
+
+Validated outcomes:
+
+- OwnCloud Server 10.16.3 deployed successfully.
+- Shared MariaDB integration succeeded.
+- Shared Valkey integration succeeded.
+- Valkey usage was confirmed through Redis-compatible cache activity observed with `valkey-cli MONITOR`.
+- HTTPS publication through Cloudflare and Nginx Proxy Manager succeeded.
+- No OwnCloud host ports are published.
+- OwnCloud storage uses a dedicated NAS-backed share mounted at `/mnt/data`.
+- OwnCloud `datadirectory` is `/mnt/data/files`.
+- Uploaded files are recoverable from the NAS under `${OWNCLOUD_DATA_ROOT}/files/<owncloud-user>/files/`.
+- OwnCloud server-side encryption remains disabled.
+- Existing NAS shares remain outside the internal OwnCloud data tree and are deferred to a future External Storage evaluation.
+
+Operational lessons were captured in:
+
+```text
+services/owncloud/IMPLEMENTATION_NOTES.md
+```
 
 ---
 

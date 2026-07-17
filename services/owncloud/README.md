@@ -612,16 +612,16 @@ Then empty the dedicated OwnCloud storage path from the host only after confirmi
 
 ## Implementation Record
 
-Record sanitized implementation evidence here before closing Sprint 005.
+Sanitized implementation evidence for Sprint 005 closure.
 
 Do not include real public domains, IP addresses, passwords, secrets, or private paths that must remain outside the repository.
 
 ### Database
 
-- Charset: `<owncloud-database-charset>`
-- Collation: `<validated-owncloud-collation>`
+- Charset: `utf8mb4`
+- Collation: `utf8mb4_unicode_ci`
 - Database creation command: `./operation/owncloud-db-create.sh`
-- Result: `<pending-validation>`
+- Result: validated
 
 ### Persistent Storage
 
@@ -631,8 +631,8 @@ Do not include real public domains, IP addresses, passwords, secrets, or private
 - OwnCloud volume root: `/mnt/data`
 - OwnCloud files path: `/mnt/data/files`
 - OwnCloud datadirectory: `/mnt/data/files`
-- Runtime UID/GID: `<pending-validation>`
-- Permissions observed: `<pending-validation>`
+- Runtime UID/GID: container initializes as `root`; OwnCloud administrative commands run as `www-data`
+- Permissions observed: dedicated storage path supports OwnCloud writes
 - Data marker: `<OWNCLOUD_DATA_ROOT>/files/.ocdata`
 - Storage check command: `./operation/owncloud-storage-check.sh`
 - Runtime layout command:
@@ -647,27 +647,38 @@ find <OWNCLOUD_DATA_ROOT> -maxdepth 2 \
 Commands executed:
 
 ```bash
-<document-occ-commands-executed-as-www-data>
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ status
+
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:list system
 ```
 
 ### Reverse Proxy
 
 - DNS record created manually: `<documented-with-placeholder>`
-- Nginx Proxy Manager Proxy Host created manually: `<pending-validation>`
-- TLS certificate issued: `<pending-validation>`
-- HTTPS publication validated: `<pending-validation>`
+- Nginx Proxy Manager Proxy Host created manually: validated
+- TLS certificate issued: validated
+- HTTPS publication validated: validated
 
 ### Runtime Validation
 
-- `docker port homelab07-owncloud`: `<pending-validation>`
-- `docker inspect homelab07-owncloud --format '{{json .NetworkSettings.Networks}}'`: `<pending-validation>`
-- `occ status`: `<pending-validation>`
-- `occ config:list system`: `<pending-validation>`
-- file upload/download: `<pending-validation>`
-- UI file share between users: `<pending-validation>`
-- NAS file visibility under `<OWNCLOUD_DATA_ROOT>/files/<owncloud-user>/files/`: `<pending-validation>`
-- container recreation persistence: `<pending-validation>`
-- server-side encryption disabled: `<pending-validation>`
+- `docker port homelab07-owncloud`: no host ports published
+- `docker inspect homelab07-owncloud --format '{{json .NetworkSettings.Networks}}'`: attached to `homelab07-internal` and `homelab07-proxy`
+- `occ status`: validated
+- `occ config:list system`: validated
+- Valkey usage: validated through `valkey-cli MONITOR` Redis-compatible cache activity
+- file upload/download: validated
+- UI file share between users: validated
+- NAS file visibility under `<OWNCLOUD_DATA_ROOT>/files/<owncloud-user>/files/`: validated
+- container recreation persistence: validated
+- server-side encryption disabled: validated
 
 ---
 
