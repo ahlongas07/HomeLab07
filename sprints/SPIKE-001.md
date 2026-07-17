@@ -412,6 +412,8 @@ The spike must not be considered successful merely because OpenCloud appears eas
 
 The spike must be considered successful only if the decision is supported by technical evidence aligned with HomeLab07 principles.
 
+---
+
 ## Evaluation Principles
 
 The purpose of this spike is not to identify the platform with the largest feature set.
@@ -431,6 +433,8 @@ Additional functionality should only be considered when it does not introduce di
 
 The final recommendation must be based on these principles rather than popularity, familiarity, or personal preference.
 
+---
+
 ## Platform Independence
 
 One of the primary goals of this spike is to evaluate whether HomeLab07 has successfully separated platform capabilities from application-specific implementation.
@@ -444,6 +448,8 @@ The investigation should answer the following questions:
 - Can future collaboration platforms be integrated using the same platform services?
 
 The spike should evaluate not only OpenCloud itself, but also the architectural flexibility of HomeLab07.
+
+---
 
 ## Decision Matrix
 
@@ -467,6 +473,12 @@ The final recommendation should evaluate both platforms using the following crit
 Higher priority criteria should have greater influence on the final recommendation than lower priority criteria.
 
 The spike should explicitly justify how each platform performs against every criterion.
+
+This planning document defines the evaluation matrix only.
+
+The matrix must be completed with evidence in the future spike results or decision record, not in this planning document.
+
+---
 
 ## Long-Term Architectural Goal
 
