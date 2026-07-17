@@ -24,6 +24,8 @@ require_file "${BRANDING_ROOT}/core/img/logo-icon.svg"
 require_file "${BRANDING_ROOT}/core/img/logo.svg"
 
 docker cp "${BRANDING_ROOT}/core/img/favicon.svg" "${CONTAINER}:/var/www/owncloud/core/img/favicon.svg"
+docker cp "${BRANDING_ROOT}/core/img/favicon.svg" "${CONTAINER}:/var/www/owncloud/core/img/favicon-touch.svg"
+docker cp "${BRANDING_ROOT}/core/img/favicon.svg" "${CONTAINER}:/var/www/owncloud/core/img/favicon-mask.svg"
 docker cp "${BRANDING_ROOT}/core/img/logo-icon.svg" "${CONTAINER}:/var/www/owncloud/core/img/logo-icon.svg"
 docker cp "${BRANDING_ROOT}/core/img/logo.svg" "${CONTAINER}:/var/www/owncloud/core/img/logo.svg"
 
@@ -33,6 +35,8 @@ docker exec \
     "${CONTAINER}" \
     chown www-data:www-data \
     core/img/favicon.svg \
+    core/img/favicon-touch.svg \
+    core/img/favicon-mask.svg \
     core/img/logo-icon.svg \
     core/img/logo.svg
 

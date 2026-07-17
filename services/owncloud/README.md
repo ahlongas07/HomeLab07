@@ -452,6 +452,8 @@ The overlay copies Snow Cone assets into the running OwnCloud container:
 
 ```text
 /var/www/owncloud/core/img/favicon.svg
+/var/www/owncloud/core/img/favicon-touch.svg
+/var/www/owncloud/core/img/favicon-mask.svg
 /var/www/owncloud/core/img/logo-icon.svg
 /var/www/owncloud/core/img/logo.svg
 ```
@@ -480,6 +482,8 @@ docker cp services/owncloud/theme-snowcone/core/img/logo.svg homelab07-owncloud:
 ```
 
 If the browser keeps showing the old favicon or logo, clear browser cache or force refresh the page.
+
+OwnCloud also ships legacy PNG/ICO assets such as `logo.png`, `logo-icon-175px.png`, `favicon.png`, `favicon.ico` and `favicon-touch.png`. If a specific page keeps using those assets, generate PNG/ICO versions from the Snow Cone SVG source and extend `operation/owncloud-branding-apply.sh` to copy them as well.
 
 ---
 
