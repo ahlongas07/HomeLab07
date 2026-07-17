@@ -3,6 +3,8 @@
     <id>theme-snowcone</id>
     <name>Snow Cone Theme</name>
     <description>Snow Cone visual identity for OwnCloud.</description>
+    <summary>Snow Cone private theme.</summary>
+    <category></category>
     <licence>MIT</licence>
     <author>Snow Cone</author>
     <version>0.1.0</version>

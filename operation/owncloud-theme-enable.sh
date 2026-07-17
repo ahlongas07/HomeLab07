@@ -24,6 +24,12 @@ docker exec \
     --user www-data \
     --workdir /var/www/owncloud \
     homelab07-owncloud \
+    php occ config:system:set theme --value="${THEME_ID}"
+
+docker exec \
+    --user www-data \
+    --workdir /var/www/owncloud \
+    homelab07-owncloud \
     php occ app:list | grep -A 40 "Enabled:"
 
 print_footer

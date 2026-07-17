@@ -470,6 +470,14 @@ Apply the theme after recreating the container:
 
 The script enables the theme and adds it to the integrity ignore list because this is a private unsigned theme.
 
+The script also sets the compatibility theme value:
+
+```text
+theme=theme-snowcone
+```
+
+This keeps the deployment predictable if OwnCloud does not immediately apply the enabled theme app to the login page.
+
 Equivalent `occ` commands:
 
 ```bash
@@ -484,6 +492,12 @@ docker exec \
   --workdir /var/www/owncloud \
   homelab07-owncloud \
   php occ config:system:set integrity.ignore.missing.app.signature 0 --value="theme-snowcone"
+
+docker exec \
+  --user www-data \
+  --workdir /var/www/owncloud \
+  homelab07-owncloud \
+  php occ config:system:set theme --value="theme-snowcone"
 ```
 
 If the browser keeps showing the old favicon or logo, clear browser cache or force refresh the page.
