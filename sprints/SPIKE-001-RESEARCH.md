@@ -1,4 +1,4 @@
-# SPIKE-001 — OpenCloud Research Notes
+# SPIKE-001 — Collaboration Platform Research Notes
 
 **Status:** In Progress
 
@@ -6,25 +6,42 @@
 
 **Reviewed On:** 2026-07-17
 
+**Last Updated:** 2026-07-18
+
 ---
 
 # Purpose
 
 Capture documentation review notes for SPIKE-001.
 
-This document records current OpenCloud documentation findings and maps them to HomeLab07 evaluation questions.
+This document records documentation findings and maps them to HomeLab07 evaluation questions.
 
 This document does not approve implementation.
 
-This document does not conclude that OpenCloud is better than OwnCloud Community.
+This document does not conclude that any alternative is better than OwnCloud Community.
 
 This document is an evidence collection artifact for the future spike decision record.
+
+The spike now compares four alternatives:
+
+- OwnCloud Community;
+- oCIS;
+- OpenCloud;
+- Seafile.
+
+Current notes remain intentionally non-conclusive.
+
+OpenCloud has the deepest initial documentation review because it was the original focus of the spike.
+
+Equivalent evidence must be collected for OwnCloud Community, oCIS, and Seafile before any recommendation is made.
 
 ---
 
 # Sources Reviewed
 
 Official sources:
+
+OpenCloud:
 
 - OpenCloud Requirements: `https://docs.opencloud.eu/docs/admin/getting-started/requirements/`
 - OpenCloud Container Deployments: `https://docs.opencloud.eu/docs/admin/getting-started/container/`
@@ -37,17 +54,54 @@ Official sources:
 - OpenCloud Docker Hub image tags: `https://hub.docker.com/r/opencloudeu/opencloud/tags`
 - OpenCloud Compose repository: `https://github.com/opencloud-eu/opencloud-compose`
 - OpenCloud server image overview: `https://hub.docker.com/r/opencloudeu/opencloud`
+
+oCIS:
+
+- ownCloud Infinite Scale General Information: `https://doc.owncloud.com/ocis/latest/deployment/general/general-info.html`
+- ownCloud Infinite Scale Server Installation with Docker Compose: `https://doc.owncloud.com/ocis/latest/admin/depl-examples/ubuntu-compose/ubuntu-compose-prod.html`
+- ownCloud Infinite Scale Prerequisites: `https://doc.owncloud.com/ocis/latest/admin/prerequisites/prerequisites.html`
+- ownCloud Infinite Scale `ocis init` command: `https://doc.owncloud.com/ocis/latest/deployment/general/ocis-init.html`
+- ownCloud Infinite Scale architecture concepts: `https://doc.owncloud.com/ocis/latest/architecture/architecture.html`
+
+Seafile:
+
+- Seafile reverse proxy with non-default proxy: `https://manual.seafile.com/latest/setup/use_other_reverse_proxy/`
+- Seafile HTTPS with Nginx: `https://manual.seafile.com/12.0/setup_binary/https_with_nginx/`
+
+Platform ecosystem:
+
 - Jellyfin Container documentation: `https://jellyfin.org/docs/general/installation/container/`
 - Jellyfin Libraries documentation: `https://jellyfin.org/docs/general/server/libraries/`
 - Authentik Jellyfin integration documentation: `https://docs.goauthentik.io/integrations/services/jellyfin/`
 
-Non-official sources were not used as decision evidence in this phase.
+Pending official source review:
+
+- OwnCloud Community documentation.
+- Seafile Docker deployment dependencies and storage model.
+- oCIS client, branding, backup, and identity documentation.
+
+Non-official sources should not be used as decision evidence unless clearly marked as secondary context.
 
 ---
 
-# Documentation Observations
+# Evidence Coverage Status
 
-## Deployment Model
+| Alternative | Current Coverage | Status |
+|-------------|------------------|--------|
+| OwnCloud Community | Sprint 005 implementation experience | Baseline evidence exists, formal source review pending |
+| oCIS | Initial official documentation review | Partial |
+| OpenCloud | Initial official documentation review | Partial but most complete |
+| Seafile | Initial reverse proxy documentation review | Partial |
+
+The current evidence is not balanced enough to support a final recommendation.
+
+The next documentation pass must normalize coverage across all four alternatives.
+
+---
+
+# OpenCloud Documentation Observations
+
+## OpenCloud Deployment Model
 
 OpenCloud supports container deployments.
 
@@ -69,7 +123,7 @@ The OpenCloud Compose repository is modular and includes optional integrations s
 
 For the HomeLab07 personal lab evaluation, optional integrations should remain out of scope until the minimal service is validated.
 
-## Docker Image And Versioning
+## OpenCloud Docker Image And Versioning
 
 The Docker Hub repository `opencloudeu/opencloud` provides versioned tags.
 
@@ -99,7 +153,7 @@ opencloudeu/opencloud:<stable-patch-version>
 
 The exact tag must be selected immediately before runtime evaluation.
 
-## Database
+## OpenCloud Database
 
 OpenCloud documentation states that OpenCloud does not use a database.
 
@@ -113,7 +167,55 @@ Implication for HomeLab07 evaluation:
 
 This observation does not by itself prove that OpenCloud is operationally simpler.
 
-## Storage Requirements
+## oCIS Initial Observations
+
+ownCloud Infinite Scale is the official next-generation ownCloud architecture reference.
+
+Documentation describes it as a service-oriented architecture delivered through a single binary/container with an embedded supervisor.
+
+Relevant documented properties:
+
+- default external service port is `9200`;
+- configuration directory defaults to `/etc/ocis`;
+- base data directory defaults to `/var/lib/ocis`;
+- `OCIS_CONFIG_DIR` can set the configuration directory;
+- `OCIS_BASE_DATA_PATH` can set the base data directory;
+- oCIS does not use a traditional database for users, groups, spaces, and internal state;
+- persistent metadata and blobs are stored on filesystem paths;
+- POSIX filesystem requirements are important;
+- dedicated domain and reverse proxy configuration are expected for non-localhost deployments;
+- the `ocis init` command creates initial configuration and can be used in Compose examples.
+
+Implication for HomeLab07:
+
+- oCIS should be evaluated separately from OwnCloud Community because its architecture and state model are materially different.
+- oCIS may share many of the same storage and reverse proxy questions as OpenCloud.
+- oCIS may be the most useful reference point for understanding OpenCloud's architectural lineage.
+- oCIS memory guidance appears more demanding for production-style setups than the minimal OpenCloud requirement notes, and must be measured rather than assumed.
+
+## Seafile Initial Observations
+
+Seafile is the most mature evaluated alternative outside the ownCloud ecosystem.
+
+Documentation reviewed so far confirms that Seafile can operate behind an external reverse proxy, but the current review is incomplete.
+
+Initial implications for HomeLab07:
+
+- Seafile must be evaluated as a distinct architecture, not as an ownCloud/oCIS/OpenCloud variant.
+- Seafile storage and recovery semantics require special attention because Seafile historically manages file data in its own storage layout rather than exposing a simple normal-files tree.
+- Seafile may score well on synchronization maturity, especially desktop sync, but that must be validated against HomeLab07 recovery principles.
+- Seafile reverse proxy requirements must be mapped to Nginx Proxy Manager.
+- Seafile dependencies must be reviewed before any runtime evaluation.
+
+Open questions:
+
+- What database and cache services are required by the current recommended Seafile Docker deployment?
+- Can Seafile use HomeLab07 shared MariaDB, or does it require a dedicated database deployment?
+- How directly recoverable are files from the NAS without Seafile application metadata?
+- Does Seafile preserve the HomeLab07 requirement for simple recovery?
+- How cleanly does Seafile integrate with Authentik or another future identity provider?
+
+## OpenCloud Storage Requirements
 
 The requirements documentation identifies storage driver constraints.
 
@@ -136,7 +238,7 @@ OpenCloud should use dedicated storage for its own application state during eval
 
 Existing NAS data should be integrated only through a controlled import, synchronization, or read-only exposure mechanism unless direct use as primary OpenCloud storage is validated.
 
-## Persistent Directories
+## OpenCloud Persistent Directories
 
 Production considerations recommend mounting persistent local directories for:
 
@@ -163,7 +265,7 @@ ${OPENCLOUD_DATA_ROOT}   -> OC_DATA_DIR
 
 The exact variable names should be decided during minimal design.
 
-## Volume Permissions
+## OpenCloud Volume Permissions
 
 OpenCloud runs as a non-root user in the container.
 
@@ -181,7 +283,7 @@ Implication for HomeLab07:
 - Host storage permissions still require explicit validation.
 - The operation layer should include a storage check if OpenCloud proceeds to controlled deployment.
 
-## Configuration System
+## OpenCloud Configuration System
 
 OpenCloud configuration can be provided through configuration files and environment variables.
 
@@ -207,7 +309,7 @@ Implication for HomeLab07:
 - The spike should validate whether environment overrides remain stable after first initialization.
 - The spike should document which values are first-run only and which remain dynamic.
 
-## Initial Admin Password
+## OpenCloud Initial Admin Password
 
 The Compose documentation identifies an initial admin password variable.
 
@@ -229,7 +331,7 @@ Implication for HomeLab07:
 - The minimal Compose design must validate the correct first-run admin password variable.
 - The private environment example must not hardcode credentials.
 
-## Reverse Proxy
+## OpenCloud Reverse Proxy
 
 The external proxy documentation is directly relevant to HomeLab07.
 
@@ -256,7 +358,7 @@ Implication for HomeLab07:
 - No host ports should be published if NPM is attached to the same Docker proxy network.
 - The external proxy exposed compose variants must not be used unless the proxy runs on a different host.
 
-## TLS And Domains
+## OpenCloud TLS And Domains
 
 OpenCloud documentation examples assume public DNS and TLS.
 
@@ -271,7 +373,7 @@ Implication for HomeLab07:
 - Real public endpoint values belong in `HomeLab07.private/`.
 - Repository docs must use placeholders.
 
-## Optional Collabora
+## OpenCloud Optional Collabora
 
 External proxy documentation includes Collabora in the example.
 
@@ -283,7 +385,7 @@ Implication for HomeLab07:
 - Document editing should not be used as a first-pass comparison criterion.
 - If evaluated later, it should be a separate phase because it adds reverse proxy and service complexity.
 
-## Authentication
+## OpenCloud Authentication
 
 OpenCloud documentation references OpenID Connect and the possibility of external identity providers.
 
@@ -299,11 +401,11 @@ Implication for HomeLab07:
 - Authentik appears conceptually compatible with the OpenCloud external IdP model because Authentik provides OpenID Connect, but this requires a dedicated validation phase.
 - OpenCloud desktop and mobile clients introduce additional OIDC client discovery and client ID requirements that must be tested before adopting external identity.
 
-## Jellyfin Compatibility
+## Platform And Jellyfin Compatibility
 
-Jellyfin is not a direct OpenCloud integration target.
+Jellyfin is not a direct collaboration platform integration target.
 
-Jellyfin should be evaluated as an independent HomeLab07 service that may coexist with OpenCloud.
+Jellyfin should be evaluated as an independent HomeLab07 service that may coexist with the selected collaboration platform.
 
 Official Jellyfin container documentation supports Docker deployment with persistent config and cache directories, and bind-mounted media libraries.
 
@@ -311,45 +413,45 @@ Jellyfin supports multiple media library paths.
 
 For HomeLab07, Jellyfin media libraries should be treated as application-specific media views over NAS-backed data.
 
-Implication for OpenCloud evaluation:
+Implication for the collaboration platform evaluation:
 
-- Jellyfin and OpenCloud should not share the same application-managed storage tree.
+- Jellyfin and the selected collaboration platform should not share the same application-managed storage tree.
 - Jellyfin media libraries should be mounted read-only unless a write workflow is explicitly approved.
 - Existing NAS media data can likely remain NAS-owned and be exposed to Jellyfin as media library paths.
-- OpenCloud should not become the owner of Jellyfin media libraries.
-- If Authentik becomes the shared identity platform, Jellyfin may integrate through plugins documented by Authentik, but this is outside the OpenCloud minimal spike.
+- The selected collaboration platform should not become the owner of Jellyfin media libraries.
+- If Authentik becomes the shared identity platform, Jellyfin may integrate through plugins documented by Authentik, but this is outside the minimal collaboration platform spike.
 - Compatibility should be evaluated at the platform level: shared reverse proxy, shared identity direction, separate persistence, and NAS coexistence.
 
-## OpenCloud To Jellyfin Media Update Model
+## Collaboration Platform To Jellyfin Media Update Model
 
 The most promising integration model is not direct shared application storage.
 
 The model to evaluate is:
 
 ```text
-OpenCloud controlled upload area
+Collaboration platform controlled upload area
     -> reviewed import or synchronization process
     -> NAS media library
     -> Jellyfin read-only media library mount
 ```
 
-This model would allow OpenCloud to provide a user-facing upload/update surface while keeping Jellyfin as a media playback and indexing service.
+This model would allow the selected collaboration platform to provide a user-facing upload/update surface while keeping Jellyfin as a media playback and indexing service.
 
 Key validation questions:
 
-- Can OpenCloud provide a dedicated upload area for multimedia resources?
+- Can each evaluated platform provide a dedicated upload area for multimedia resources?
 - Can media be moved or synchronized into NAS media libraries through a controlled one-way process?
 - Can Jellyfin index the updated media library after synchronization?
 - Can partial uploads be kept away from Jellyfin library scans?
 - Can deletions be handled safely without accidental NAS data loss?
 - Can Jellyfin remain read-only against media libraries?
-- Can backups clearly separate OpenCloud state, NAS media libraries, and Jellyfin config/cache?
+- Can backups clearly separate collaboration platform state, NAS media libraries, and Jellyfin config/cache?
 
 This model should be compared against direct shared storage.
 
 Direct shared writable storage should be treated as high risk until proven safe.
 
-## Hardware Requirements
+## OpenCloud Hardware Requirements
 
 OpenCloud requirements list a minimal deployment for up to 10 users at roughly:
 
@@ -373,7 +475,7 @@ Implication for HomeLab07:
 
 ---
 
-# HomeLab07 Mapping
+# OpenCloud HomeLab07 Mapping
 
 ## Likely Reused Platform Capabilities
 
@@ -411,7 +513,7 @@ The spike must compare the reduction in dependency count against any new complex
 
 ---
 
-# Initial Risk Register
+# Initial OpenCloud Risk Register
 
 ## Storage Risk
 
@@ -451,27 +553,27 @@ HomeLab07 must pin versions for reproducibility.
 
 The following evidence is required before any decision:
 
-- selected OpenCloud image and exact tag;
-- minimal Compose file set;
-- list of required environment variables;
-- persistent config and data paths;
-- storage ownership and permission validation;
-- reverse proxy configuration for Nginx Proxy Manager;
-- first-run admin login validation;
-- file upload and download validation;
-- file recoverability validation from NAS storage;
-- evidence that OpenCloud can coexist with existing NAS data without taking ownership of the current NAS tree;
+- selected image and exact tag for each evaluated alternative;
+- minimal Compose file set for each evaluated alternative;
+- list of required environment variables for each evaluated alternative;
+- persistent config and data paths for each evaluated alternative;
+- storage ownership and permission validation for each evaluated alternative;
+- reverse proxy configuration for Nginx Proxy Manager for each evaluated alternative;
+- first-run admin login validation for each evaluated alternative;
+- file upload and download validation for each evaluated alternative;
+- file recoverability validation from NAS storage for each evaluated alternative;
+- evidence that each evaluated alternative can coexist with existing NAS data without taking ownership of the current NAS tree;
 - evaluation of controlled import, synchronization, or read-only exposure options for existing NAS data;
-- evaluation of an OpenCloud-controlled media upload area feeding NAS-backed Jellyfin media libraries;
-- validation that Jellyfin can consume media libraries read-only while OpenCloud updates are handled through a controlled workflow;
+- evaluation of a collaboration-platform-controlled media upload area feeding NAS-backed Jellyfin media libraries;
+- validation that Jellyfin can consume media libraries read-only while collaboration platform updates are handled through a controlled workflow;
 - validation that partial uploads and deletions cannot corrupt the media library workflow;
-- container recreation validation;
-- resource usage observation;
-- Windows synchronization validation;
-- mobile application access validation;
-- managed backup boundary validation;
-- branding feasibility validation;
-- comparison against the Sprint 005 OwnCloud implementation.
+- container recreation validation for each evaluated alternative;
+- resource usage observation for each evaluated alternative;
+- Windows synchronization validation for each evaluated alternative;
+- mobile application access validation for each evaluated alternative;
+- managed backup boundary validation for each evaluated alternative;
+- branding feasibility validation for each evaluated alternative;
+- comparison against the Sprint 005 OwnCloud Community implementation.
 
 ---
 
@@ -483,4 +585,4 @@ However, this is not a conclusion.
 
 The major unresolved question is whether OpenCloud's storage requirements work cleanly with the HomeLab07 NAS-backed storage model.
 
-The next phase should focus on architecture mapping and minimal deployment design before any runtime implementation.
+The next phase should normalize evidence collection across OwnCloud Community, oCIS, OpenCloud, and Seafile before any runtime implementation or recommendation.

@@ -1,4 +1,4 @@
-# SPIKE-001 — OpenCloud Evaluation
+# SPIKE-001 — Collaboration Platform Alternatives Evaluation
 
 **Status:** Planned
 
@@ -8,13 +8,27 @@
 
 # Objective
 
-Define the technical investigation required to evaluate whether OpenCloud is a better fit than OwnCloud Community for HomeLab07.
+Define the technical investigation required to compare collaboration platform alternatives for HomeLab07.
+
+The alternatives under evaluation are:
+
+- OwnCloud Community as the Sprint 005 baseline.
+- ownCloud Infinite Scale, also known as oCIS, as the official new architecture reference.
+- OpenCloud as the community evolution of that architecture.
+- Seafile as the most consolidated alternative outside the ownCloud ecosystem.
+
+| Alternative | Role In Evaluation |
+|-------------|--------------------|
+| OwnCloud Community | Baseline implemented during Sprint 005 |
+| oCIS | Official next-generation ownCloud architecture reference |
+| OpenCloud | Community evolution of the oCIS-style architecture |
+| Seafile | Mature non-ownCloud ecosystem alternative |
 
 This spike does not approve a migration.
 
-This spike does not conclude that OpenCloud is better.
+This spike does not conclude that any alternative is better.
 
-The objective is to define how HomeLab07 will validate or reject the hypothesis using objective technical evidence.
+The objective is to define how HomeLab07 will compare the alternatives using objective technical evidence.
 
 ---
 
@@ -39,7 +53,7 @@ Sprint 005 successfully deployed OwnCloud Community as the first business-facing
 
 During implementation, OwnCloud required several operational corrections around first-run state, generated configuration, storage paths, database prefixing, reverse proxy settings, and visual customization.
 
-Those findings justify a focused technical evaluation of OpenCloud as an alternative for the same HomeLab07 collaboration use case.
+Those findings justify a focused technical evaluation of multiple collaboration platform alternatives for the same HomeLab07 use case.
 
 ---
 
@@ -47,7 +61,7 @@ Those findings justify a focused technical evaluation of OpenCloud as an alterna
 
 The OwnCloud implementation is functional, but it introduced operational friction that may not align with the long-term goals of HomeLab07.
 
-The evaluation is motivated by the need to determine whether OpenCloud can reduce:
+The evaluation is motivated by the need to determine whether another platform can reduce:
 
 - first-run fragility;
 - configuration complexity;
@@ -59,13 +73,13 @@ The evaluation is motivated by the need to determine whether OpenCloud can reduc
 
 The motivation is not to replace OwnCloud based on preference.
 
-The motivation is to compare both options using measurable technical evidence.
+The motivation is to compare all evaluated options using measurable technical evidence.
 
 ---
 
 # Initial Hypothesis
 
-OpenCloud could significantly simplify the HomeLab07 collaboration service architecture and operation compared to OwnCloud Community, without losing the functionality that is actually required for a personal homelab.
+At least one alternative to OwnCloud Community could significantly simplify the HomeLab07 collaboration service architecture and operation without losing the functionality that is actually required for a personal homelab.
 
 The spike must validate or refute this hypothesis.
 
@@ -75,48 +89,48 @@ The spike must validate or refute this hypothesis.
 
 ## Architecture
 
-- OpenCloud can run as an independent Docker Compose service within the HomeLab07 platform.
-- OpenCloud requires fewer supporting services than OwnCloud Community.
-- OpenCloud can avoid application-specific changes to existing platform services.
+- Each alternative can be evaluated as an independent Docker Compose service within the HomeLab07 platform.
+- One or more alternatives may require fewer supporting services than OwnCloud Community.
+- The selected alternative can avoid application-specific changes to existing platform services.
 
 ## Storage
 
-- OpenCloud can use NAS-backed persistent storage without making the application the owner of all NAS data.
-- OpenCloud preserves simple file recovery from the NAS.
-- OpenCloud can keep configuration and user data separated clearly enough for backup and restore.
-- OpenCloud can coexist with the current NAS data model without becoming the owner of existing NAS data.
-- OpenCloud should use dedicated storage for its own application state.
-- Existing NAS data should be integrated through a controlled import, synchronization, or read-only exposure mechanism, not used as primary OpenCloud storage without validation.
+- The selected platform can use NAS-backed persistent storage without making the application the owner of all NAS data.
+- The selected platform preserves simple file recovery from the NAS.
+- The selected platform can keep configuration and user data separated clearly enough for backup and restore.
+- The selected platform can coexist with the current NAS data model without becoming the owner of existing NAS data.
+- Each evaluated platform should use dedicated storage for its own application state during testing.
+- Existing NAS data should be integrated through a controlled import, synchronization, or read-only exposure mechanism, not used as primary collaboration platform storage without validation.
 
 ## Operations
 
-- OpenCloud has a simpler first-run process than OwnCloud Community.
-- OpenCloud can be started, stopped, inspected, and validated through the HomeLab07 operation layer.
-- OpenCloud can be recreated without unexpected state drift.
+- One or more alternatives may have a simpler first-run process than OwnCloud Community.
+- Each evaluated platform can be started, stopped, inspected, and validated through the HomeLab07 operation layer.
+- The selected platform can be recreated without unexpected state drift.
 
 ## Publication
 
-- OpenCloud can be published through the existing Cloudflare and Nginx Proxy Manager path.
-- OpenCloud does not require direct host port exposure.
-- OpenCloud handles reverse proxy headers and HTTPS detection predictably.
+- Each evaluated platform can be published through the existing Cloudflare and Nginx Proxy Manager path.
+- The selected platform does not require direct host port exposure.
+- The selected platform handles reverse proxy headers and HTTPS detection predictably.
 
 ## Functionality
 
-- OpenCloud supports the collaboration features actually required by HomeLab07.
-- OpenCloud supports browser-based file upload and download.
-- OpenCloud supports folder creation.
-- OpenCloud supports basic sharing workflows.
-- OpenCloud can support the future external storage direction if needed.
-- OpenCloud can provide file sharing for the MVP use case.
-- OpenCloud can support Windows synchronization for the MVP use case.
-- OpenCloud can support mobile access for the MVP use case.
-- OpenCloud can fit into a managed backup model.
-- OpenCloud can support reproducible branding without introducing disproportionate operational complexity.
+- Each evaluated platform supports the collaboration features actually required by HomeLab07.
+- Each evaluated platform supports browser-based file upload and download.
+- Each evaluated platform supports folder creation.
+- Each evaluated platform supports basic sharing workflows.
+- The selected platform can support the future external storage direction if needed.
+- The selected platform can provide file sharing for the MVP use case.
+- The selected platform can support Windows synchronization for the MVP use case.
+- The selected platform can support mobile access for the MVP use case.
+- The selected platform can fit into a managed backup model.
+- The selected platform can support reproducible branding without introducing disproportionate operational complexity.
 
 ## Maintainability
 
-- OpenCloud is easier to document, reproduce, and recover than OwnCloud Community for the HomeLab07 use case.
-- OpenCloud introduces less operational complexity than it removes.
+- One or more alternatives may be easier to document, reproduce, and recover than OwnCloud Community for the HomeLab07 use case.
+- The selected platform introduces less operational complexity than it removes.
 
 ---
 
@@ -124,17 +138,17 @@ The spike must validate or refute this hypothesis.
 
 ## Platform Fit
 
-- What services does OpenCloud require for a minimal HomeLab07 deployment?
-- Does OpenCloud require MariaDB, Valkey, or another stateful dependency?
-- Can OpenCloud run cleanly on the existing Docker network model?
-- Does OpenCloud require changes to `homelab07-internal` or `homelab07-proxy`?
+- What services does each alternative require for a minimal HomeLab07 deployment?
+- Which alternatives require MariaDB, Valkey, PostgreSQL, object storage, or another stateful dependency?
+- Can each alternative run cleanly on the existing Docker network model?
+- Does any alternative require changes to `homelab07-internal` or `homelab07-proxy`?
 
 ## Image And Versioning
 
-- What Docker image should be evaluated?
-- What image tag is appropriate for a reproducible test?
-- Is a pinned version available and suitable?
-- Are `latest` or release candidate images avoidable?
+- What Docker image should be evaluated for each alternative?
+- What image tag is appropriate for a reproducible test for each alternative?
+- Is a pinned version available and suitable for each alternative?
+- Are `latest` or release candidate images avoidable for each alternative?
 
 ## Persistence
 
@@ -143,9 +157,9 @@ The spike must validate or refute this hypothesis.
 - Which paths contain user data?
 - Which paths are safe to back up and restore independently?
 - What ownership and permission model is required on NAS-backed storage?
-- Can OpenCloud coexist with the current NAS data model without becoming the owner of existing NAS data?
+- Can each alternative coexist with the current NAS data model without becoming the owner of existing NAS data?
 - Which integration mechanisms are viable for existing NAS data: controlled import, synchronization, or read-only exposure?
-- What risks exist if existing NAS data is used directly as primary OpenCloud storage?
+- What risks exist if existing NAS data is used directly as primary collaboration platform storage?
 
 ## Recovery
 
@@ -156,28 +170,28 @@ The spike must validate or refute this hypothesis.
 
 ## Reverse Proxy
 
-- What public URL settings are required?
-- What trusted proxy settings are required?
+- What public URL settings are required by each alternative?
+- What trusted proxy settings are required by each alternative?
 - Are WebSocket or long-lived connection settings required?
-- Does OpenCloud behave correctly behind Nginx Proxy Manager?
+- Does each alternative behave correctly behind Nginx Proxy Manager?
 
 ## Security
 
-- Can OpenCloud run without publishing host ports?
+- Can each alternative run without publishing host ports?
 - What authentication model is available in a minimal deployment?
 - What security features are required for a personal homelab?
 - Which security features should be deferred to a later identity sprint?
-- Can OpenCloud integrate with a future Authentik-based OIDC identity model without requiring architecture changes?
+- Can each alternative integrate with a future Authentik-based OIDC identity model without requiring architecture changes?
 
 ## Platform Ecosystem
 
-- Can OpenCloud coexist with Jellyfin as an independent HomeLab07 service?
-- Can OpenCloud and Jellyfin share NAS-backed source data safely without either application becoming the owner of the other's data?
-- Should media libraries remain read-only to Jellyfin and outside OpenCloud-managed storage?
-- Can OpenCloud, Jellyfin, and future services share an Authentik identity layer while keeping service data independent?
-- Can OpenCloud provide a controlled workflow for adding or updating multimedia resources that Jellyfin later indexes?
-- What synchronization or import mechanism is safest between an OpenCloud-managed upload area and NAS-backed Jellyfin media libraries?
-- Can Jellyfin refresh or rescan libraries after OpenCloud-mediated media updates without requiring manual NAS edits?
+- Can each alternative coexist with Jellyfin as an independent HomeLab07 service?
+- Can each alternative and Jellyfin share NAS-backed source data safely without either application becoming the owner of the other's data?
+- Should media libraries remain read-only to Jellyfin and outside collaboration-platform-managed storage?
+- Can the selected collaboration platform, Jellyfin, and future services share an Authentik identity layer while keeping service data independent?
+- Can the selected collaboration platform provide a controlled workflow for adding or updating multimedia resources that Jellyfin later indexes?
+- What synchronization or import mechanism is safest between a collaboration-platform-managed upload area and NAS-backed Jellyfin media libraries?
+- Can Jellyfin refresh or rescan libraries after collaboration-platform-mediated media updates without requiring manual NAS edits?
 
 ## Functionality
 
@@ -192,7 +206,7 @@ The spike must validate or refute this hypothesis.
 
 ## Resource Usage
 
-- What memory and CPU usage does OpenCloud show at idle?
+- What memory and CPU usage does each alternative show at idle?
 - What resource usage is observed during upload and download?
 - Is the resource profile simpler or lighter than OwnCloud Community for the same test workload?
 
@@ -207,7 +221,7 @@ The spike must validate or refute this hypothesis.
 
 # MVP Capability Targets
 
-The OpenCloud evaluation should validate whether the platform can support the following MVP capabilities for HomeLab07:
+The alternatives evaluation should validate whether each platform can support the following MVP capabilities for HomeLab07:
 
 | Capability | Required For MVP | Evaluation Focus |
 |------------|------------------|------------------|
@@ -225,18 +239,18 @@ Branding is required for the MVP, but it must not override higher-priority conce
 
 # Media Library Integration Evaluation
 
-The spike should evaluate a possible OpenCloud and Jellyfin coexistence model for multimedia resources.
+The spike should evaluate a possible collaboration platform and Jellyfin coexistence model for multimedia resources.
 
 Jellyfin should be treated as the media playback and indexing service.
 
-OpenCloud should be treated as a collaboration and controlled upload/update surface.
+The evaluated collaboration platform should be treated as a collaboration and controlled upload/update surface.
 
 The evaluation must avoid a model where both applications write freely to the same application-managed storage tree.
 
 ## Candidate Model
 
 ```text
-OpenCloud controlled upload area
+Collaboration platform controlled upload area
     -> reviewed import or synchronization process
     -> NAS media library
     -> Jellyfin read-only media library mount
@@ -244,30 +258,30 @@ OpenCloud controlled upload area
 
 In this model:
 
-- OpenCloud does not own the Jellyfin media library.
-- Jellyfin does not write into OpenCloud-managed storage.
+- The collaboration platform does not own the Jellyfin media library.
+- Jellyfin does not write into collaboration-platform-managed storage.
 - The NAS remains the authoritative media storage layer.
 - Media updates occur through a controlled import or synchronization workflow.
 - Jellyfin indexes media after the controlled update is complete.
 
 ## Evaluation Questions
 
-- Can OpenCloud expose a dedicated upload area for new media resources?
+- Can the selected collaboration platform expose a dedicated upload area for new media resources?
 - Can a controlled job move or synchronize approved media into the NAS media library?
-- Should synchronization be one-way only from OpenCloud upload area to NAS media library?
+- Should synchronization be one-way only from the collaboration platform upload area to NAS media library?
 - Should Jellyfin media mounts be read-only by default?
 - How are deletions handled without accidental data loss?
 - How are partial uploads prevented from being indexed by Jellyfin?
 - Can Jellyfin library scans be triggered or scheduled after updates?
 - What metadata side effects does Jellyfin create, and where are they stored?
-- Can backups clearly separate OpenCloud state, NAS media, and Jellyfin config/cache?
+- Can backups clearly separate collaboration platform state, NAS media, and Jellyfin config/cache?
 
 ## Non-Goals
 
-- OpenCloud must not become the primary media library database.
+- The collaboration platform must not become the primary media library database.
 - Jellyfin must not become a file collaboration tool.
 - The spike must not implement automatic media workflows before storage ownership is validated.
-- The spike must not expose existing NAS media libraries as writable OpenCloud primary storage without validation.
+- The spike must not expose existing NAS media libraries as writable collaboration platform primary storage without validation.
 
 ---
 
@@ -275,15 +289,15 @@ In this model:
 
 ## In Scope
 
-- Review OpenCloud documentation.
-- Identify the recommended Docker image and versioning strategy.
-- Define a minimal OpenCloud Compose deployment for HomeLab07.
+- Review documentation for OwnCloud Community, oCIS, OpenCloud, and Seafile.
+- Identify the recommended Docker image and versioning strategy for each alternative.
+- Define a minimal Compose deployment candidate for each alternative that remains plausible for HomeLab07.
 - Define required private environment variables.
 - Define persistent storage requirements.
 - Define reverse proxy requirements.
 - Define validation commands.
 - Define functional UI validation.
-- Compare operational complexity against the Sprint 005 OwnCloud implementation.
+- Compare operational complexity against the Sprint 005 OwnCloud Community implementation.
 - Document findings in repository documentation.
 
 ---
@@ -292,8 +306,8 @@ In this model:
 
 The following are out of scope for this spike:
 
-- Production migration from OwnCloud to OpenCloud.
-- Decommissioning OwnCloud.
+- Production migration from OwnCloud Community to another platform.
+- Decommissioning OwnCloud Community.
 - Customer-facing rollout.
 - Identity provider integration.
 - Authentik implementation.
@@ -316,7 +330,7 @@ The following are out of scope for this spike:
 
 ## Phase 1 — Documentation Review
 
-Review current OpenCloud documentation and identify:
+Review current documentation for each evaluated alternative and identify:
 
 - supported deployment model;
 - official Docker image;
@@ -334,7 +348,7 @@ Do not draw conclusions during this phase.
 
 ## Phase 2 — Architecture Mapping
 
-Map OpenCloud requirements to existing HomeLab07 capabilities:
+Map each alternative's requirements to existing HomeLab07 capabilities:
 
 - Docker Compose;
 - operation layer;
@@ -349,7 +363,7 @@ Identify which existing services are reused and which are not required.
 
 ## Phase 3 — Minimal Deployment Design
 
-Draft a minimal OpenCloud service design using placeholders only.
+Draft a minimal service design for each viable alternative using placeholders only.
 
 Define:
 
@@ -366,7 +380,7 @@ This phase may produce proposed files in the spike branch, but the spike must re
 
 ## Phase 4 — Controlled Runtime Evaluation
 
-If implementation is approved after the planning document is reviewed, deploy OpenCloud in parallel with OwnCloud using:
+If implementation is approved after the planning document is reviewed, deploy one candidate platform at a time in parallel with OwnCloud Community using:
 
 - separate service name;
 - separate storage root;
@@ -374,7 +388,7 @@ If implementation is approved after the planning document is reviewed, deploy Op
 - separate public endpoint placeholder;
 - no shared production data.
 
-The runtime evaluation must not modify the existing OwnCloud service.
+The runtime evaluation must not modify the existing OwnCloud Community service.
 
 ## Phase 5 — Evidence Collection
 
@@ -431,15 +445,15 @@ The spike itself is complete only after a future evidence document validates or 
 
 The spike should produce:
 
-- OpenCloud documentation review notes.
-- OpenCloud architecture mapping for HomeLab07.
-- Proposed OpenCloud service design.
-- Proposed OpenCloud validation checklist.
+- documentation review notes for each evaluated alternative.
+- architecture mapping for each evaluated alternative.
+- proposed minimal service design for each viable alternative.
+- proposed validation checklist for each viable alternative.
 - Storage and recovery assessment.
 - Reverse proxy assessment.
 - Resource usage observation.
 - Functional UI validation notes.
-- Operational comparison against OwnCloud Community.
+- Operational comparison across OwnCloud Community, oCIS, OpenCloud, and Seafile.
 - Final technical recommendation.
 
 The final recommendation must be evidence-based.
@@ -452,21 +466,21 @@ It must not be based only on preference or implementation frustration.
 
 ## Technical Risks
 
-- OpenCloud may require dependencies not currently present in HomeLab07.
-- OpenCloud may have a storage model that does not preserve simple NAS recovery.
-- OpenCloud may require a more complex reverse proxy setup than expected.
-- OpenCloud may require identity components that are not yet part of HomeLab07.
-- OpenCloud may not support all required collaboration workflows in the minimal deployment.
+- One or more alternatives may require dependencies not currently present in HomeLab07.
+- One or more alternatives may have a storage model that does not preserve simple NAS recovery.
+- One or more alternatives may require a more complex reverse proxy setup than expected.
+- One or more alternatives may require identity components that are not yet part of HomeLab07.
+- One or more alternatives may not support all required collaboration workflows in the minimal deployment.
 
 ## Operational Risks
 
-- Evaluating OpenCloud may distract from stabilizing the existing OwnCloud service.
+- Evaluating alternatives may distract from stabilizing the existing OwnCloud Community service.
 - Running two collaboration services in parallel may create confusion if endpoints or storage roots are not clearly separated.
 - A successful first-run test may hide backup, restore, upgrade, or maintenance complexity.
 
 ## Decision Risks
 
-- The evaluation may be biased by recent OwnCloud implementation friction.
+- The evaluation may be biased by recent OwnCloud Community implementation friction.
 - The evaluation may overvalue simplicity and undervalue maturity.
 - The evaluation may undervalue documentation quality, upgrade path, or community support.
 
@@ -487,22 +501,22 @@ Suggested breakdown:
 - Session 3: optional controlled deployment.
 - Session 4: evidence review and recommendation.
 
-The timeline may be extended if OpenCloud requires identity, storage, or reverse proxy components not currently available in HomeLab07.
+The timeline may be extended if any alternative requires identity, storage, or reverse proxy components not currently available in HomeLab07.
 
 ---
 
 # Success Criteria
 
-The spike succeeds if HomeLab07 can make an evidence-based decision about OpenCloud.
+The spike succeeds if HomeLab07 can make an evidence-based decision about the collaboration platform direction.
 
 A successful spike may result in any of the following outcomes:
 
 - continue with OwnCloud Community;
-- replace OwnCloud with OpenCloud in a future sprint;
-- keep both options documented;
+- replace OwnCloud Community with oCIS, OpenCloud, or Seafile in a future sprint;
+- keep multiple options documented;
 - defer the decision until identity, backup, or storage requirements are clearer.
 
-The spike must not be considered successful merely because OpenCloud appears easier or newer.
+The spike must not be considered successful merely because one alternative appears easier or newer.
 
 The spike must be considered successful only if the decision is supported by technical evidence aligned with HomeLab07 principles.
 
@@ -535,19 +549,19 @@ One of the primary goals of this spike is to evaluate whether HomeLab07 has succ
 
 The investigation should answer the following questions:
 
-- Can OpenCloud replace OwnCloud without requiring architectural changes to HomeLab07?
+- Can an evaluated alternative replace OwnCloud Community without requiring architectural changes to HomeLab07?
 - Which existing platform services can be reused without modification?
 - Which assumptions inside HomeLab07 currently couple the platform to OwnCloud?
 - Which assumptions should become generic platform capabilities instead of application-specific implementations?
 - Can future collaboration platforms be integrated using the same platform services?
 
-The spike should evaluate not only OpenCloud itself, but also the architectural flexibility of HomeLab07.
+The spike should evaluate not only the applications themselves, but also the architectural flexibility of HomeLab07.
 
 ---
 
 ## Decision Matrix
 
-The final recommendation should evaluate both platforms using the following criteria.
+The final recommendation should evaluate all four alternatives using the following criteria.
 
 | Criterion | Priority |
 |-----------|----------|
