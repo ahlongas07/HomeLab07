@@ -84,6 +84,9 @@ The spike must validate or refute this hypothesis.
 - OpenCloud can use NAS-backed persistent storage without making the application the owner of all NAS data.
 - OpenCloud preserves simple file recovery from the NAS.
 - OpenCloud can keep configuration and user data separated clearly enough for backup and restore.
+- OpenCloud can coexist with the current NAS data model without becoming the owner of existing NAS data.
+- OpenCloud should use dedicated storage for its own application state.
+- Existing NAS data should be integrated through a controlled import, synchronization, or read-only exposure mechanism, not used as primary OpenCloud storage without validation.
 
 ## Operations
 
@@ -104,6 +107,11 @@ The spike must validate or refute this hypothesis.
 - OpenCloud supports folder creation.
 - OpenCloud supports basic sharing workflows.
 - OpenCloud can support the future external storage direction if needed.
+- OpenCloud can provide file sharing for the MVP use case.
+- OpenCloud can support Windows synchronization for the MVP use case.
+- OpenCloud can support mobile access for the MVP use case.
+- OpenCloud can fit into a managed backup model.
+- OpenCloud can support reproducible branding without introducing disproportionate operational complexity.
 
 ## Maintainability
 
@@ -135,6 +143,9 @@ The spike must validate or refute this hypothesis.
 - Which paths contain user data?
 - Which paths are safe to back up and restore independently?
 - What ownership and permission model is required on NAS-backed storage?
+- Can OpenCloud coexist with the current NAS data model without becoming the owner of existing NAS data?
+- Which integration mechanisms are viable for existing NAS data: controlled import, synchronization, or read-only exposure?
+- What risks exist if existing NAS data is used directly as primary OpenCloud storage?
 
 ## Recovery
 
@@ -156,6 +167,17 @@ The spike must validate or refute this hypothesis.
 - What authentication model is available in a minimal deployment?
 - What security features are required for a personal homelab?
 - Which security features should be deferred to a later identity sprint?
+- Can OpenCloud integrate with a future Authentik-based OIDC identity model without requiring architecture changes?
+
+## Platform Ecosystem
+
+- Can OpenCloud coexist with Jellyfin as an independent HomeLab07 service?
+- Can OpenCloud and Jellyfin share NAS-backed source data safely without either application becoming the owner of the other's data?
+- Should media libraries remain read-only to Jellyfin and outside OpenCloud-managed storage?
+- Can OpenCloud, Jellyfin, and future services share an Authentik identity layer while keeping service data independent?
+- Can OpenCloud provide a controlled workflow for adding or updating multimedia resources that Jellyfin later indexes?
+- What synchronization or import mechanism is safest between an OpenCloud-managed upload area and NAS-backed Jellyfin media libraries?
+- Can Jellyfin refresh or rescan libraries after OpenCloud-mediated media updates without requiring manual NAS edits?
 
 ## Functionality
 
@@ -164,6 +186,9 @@ The spike must validate or refute this hypothesis.
 - Can folders be created and shared?
 - Are deleted files recoverable through the UI?
 - Are files still available after container recreation?
+- Can files be synchronized from Windows clients?
+- Is mobile access available and usable for the personal lab MVP?
+- Can the service support a managed backup workflow?
 
 ## Resource Usage
 
@@ -177,6 +202,72 @@ The spike must validate or refute this hypothesis.
 - Does customization require modifying container internals?
 - Does customization survive container recreation?
 - Does customization introduce integrity or upgrade risks?
+
+---
+
+# MVP Capability Targets
+
+The OpenCloud evaluation should validate whether the platform can support the following MVP capabilities for HomeLab07:
+
+| Capability | Required For MVP | Evaluation Focus |
+|------------|------------------|------------------|
+| File sharing | Yes | Browser upload, download, folder creation, sharing workflow |
+| Windows synchronization | Yes | Availability, configuration effort, reliability, recovery behavior |
+| Mobile application access | Yes | Availability, login, file browsing, upload and download |
+| Managed backups | Yes | Clear backup boundaries, restore procedure, NAS recoverability |
+| Branding | Yes | Reproducibility, upgrade impact, operational maintenance |
+
+Managed backups are a differentiating requirement because HomeLab07 must remain recoverable and maintainable without relying on application-specific manual recovery steps.
+
+Branding is required for the MVP, but it must not override higher-priority concerns such as simplicity, reproducibility, and recoverability.
+
+---
+
+# Media Library Integration Evaluation
+
+The spike should evaluate a possible OpenCloud and Jellyfin coexistence model for multimedia resources.
+
+Jellyfin should be treated as the media playback and indexing service.
+
+OpenCloud should be treated as a collaboration and controlled upload/update surface.
+
+The evaluation must avoid a model where both applications write freely to the same application-managed storage tree.
+
+## Candidate Model
+
+```text
+OpenCloud controlled upload area
+    -> reviewed import or synchronization process
+    -> NAS media library
+    -> Jellyfin read-only media library mount
+```
+
+In this model:
+
+- OpenCloud does not own the Jellyfin media library.
+- Jellyfin does not write into OpenCloud-managed storage.
+- The NAS remains the authoritative media storage layer.
+- Media updates occur through a controlled import or synchronization workflow.
+- Jellyfin indexes media after the controlled update is complete.
+
+## Evaluation Questions
+
+- Can OpenCloud expose a dedicated upload area for new media resources?
+- Can a controlled job move or synchronize approved media into the NAS media library?
+- Should synchronization be one-way only from OpenCloud upload area to NAS media library?
+- Should Jellyfin media mounts be read-only by default?
+- How are deletions handled without accidental data loss?
+- How are partial uploads prevented from being indexed by Jellyfin?
+- Can Jellyfin library scans be triggered or scheduled after updates?
+- What metadata side effects does Jellyfin create, and where are they stored?
+- Can backups clearly separate OpenCloud state, NAS media, and Jellyfin config/cache?
+
+## Non-Goals
+
+- OpenCloud must not become the primary media library database.
+- Jellyfin must not become a file collaboration tool.
+- The spike must not implement automatic media workflows before storage ownership is validated.
+- The spike must not expose existing NAS media libraries as writable OpenCloud primary storage without validation.
 
 ---
 
@@ -205,8 +296,11 @@ The following are out of scope for this spike:
 - Decommissioning OwnCloud.
 - Customer-facing rollout.
 - Identity provider integration.
+- Authentik implementation.
 - LDAP.
 - SSO.
+- Jellyfin implementation.
+- Media library migration.
 - High availability.
 - Clustering.
 - Performance tuning beyond basic resource observation.

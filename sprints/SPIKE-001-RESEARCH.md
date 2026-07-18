@@ -33,9 +33,13 @@ Official sources:
 - OpenCloud Production Considerations: `https://docs.opencloud.eu/docs/next/admin/getting-started/container/docker-compose/docker-compose-production-considerations/`
 - OpenCloud Volume Permissions: `https://docs.opencloud.eu/docs/admin/getting-started/container/docker-compose/docker-compose-volume-permissions/`
 - OpenCloud Configuration System: `https://docs.opencloud.eu/docs/next/dev/server/configuration/config-system/`
+- OpenCloud External OpenID Connect Identity Provider: `https://docs.opencloud.eu/docs/admin/configuration/authentication-and-user-management/external-idp/`
 - OpenCloud Docker Hub image tags: `https://hub.docker.com/r/opencloudeu/opencloud/tags`
 - OpenCloud Compose repository: `https://github.com/opencloud-eu/opencloud-compose`
 - OpenCloud server image overview: `https://hub.docker.com/r/opencloudeu/opencloud`
+- Jellyfin Container documentation: `https://jellyfin.org/docs/general/installation/container/`
+- Jellyfin Libraries documentation: `https://jellyfin.org/docs/general/server/libraries/`
+- Authentik Jellyfin integration documentation: `https://docs.goauthentik.io/integrations/services/jellyfin/`
 
 Non-official sources were not used as decision evidence in this phase.
 
@@ -125,6 +129,12 @@ Implication for HomeLab07:
 - The Rockstor-backed filesystem and mount options must be checked against OpenCloud storage requirements.
 - Direct recoverability must be validated empirically, not assumed.
 - OpenCloud storage may be simpler than OwnCloud only if the NAS mount satisfies the documented filesystem requirements.
+
+The spike must explicitly evaluate whether OpenCloud can coexist with the current NAS data model without becoming the owner of existing NAS data.
+
+OpenCloud should use dedicated storage for its own application state during evaluation.
+
+Existing NAS data should be integrated only through a controlled import, synchronization, or read-only exposure mechanism unless direct use as primary OpenCloud storage is validated.
 
 ## Persistent Directories
 
@@ -279,11 +289,65 @@ OpenCloud documentation references OpenID Connect and the possibility of externa
 
 The Docker image overview states that OpenCloud authenticates users via OpenID Connect using either an external IdP or an embedded LibreGraph Connect identity provider.
 
+OpenCloud's external IdP documentation lists requirements for OpenID Connect providers, including authorization code flow with PKCE, client discovery through WebFinger, required claims, and role assignment behavior.
+
 Implication for HomeLab07:
 
 - Authentication must be explicitly evaluated.
 - Identity integration should remain out of scope for the minimal spike unless required for OpenCloud to function.
 - Sprint 006 identity work may influence the final OpenCloud decision.
+- Authentik appears conceptually compatible with the OpenCloud external IdP model because Authentik provides OpenID Connect, but this requires a dedicated validation phase.
+- OpenCloud desktop and mobile clients introduce additional OIDC client discovery and client ID requirements that must be tested before adopting external identity.
+
+## Jellyfin Compatibility
+
+Jellyfin is not a direct OpenCloud integration target.
+
+Jellyfin should be evaluated as an independent HomeLab07 service that may coexist with OpenCloud.
+
+Official Jellyfin container documentation supports Docker deployment with persistent config and cache directories, and bind-mounted media libraries.
+
+Jellyfin supports multiple media library paths.
+
+For HomeLab07, Jellyfin media libraries should be treated as application-specific media views over NAS-backed data.
+
+Implication for OpenCloud evaluation:
+
+- Jellyfin and OpenCloud should not share the same application-managed storage tree.
+- Jellyfin media libraries should be mounted read-only unless a write workflow is explicitly approved.
+- Existing NAS media data can likely remain NAS-owned and be exposed to Jellyfin as media library paths.
+- OpenCloud should not become the owner of Jellyfin media libraries.
+- If Authentik becomes the shared identity platform, Jellyfin may integrate through plugins documented by Authentik, but this is outside the OpenCloud minimal spike.
+- Compatibility should be evaluated at the platform level: shared reverse proxy, shared identity direction, separate persistence, and NAS coexistence.
+
+## OpenCloud To Jellyfin Media Update Model
+
+The most promising integration model is not direct shared application storage.
+
+The model to evaluate is:
+
+```text
+OpenCloud controlled upload area
+    -> reviewed import or synchronization process
+    -> NAS media library
+    -> Jellyfin read-only media library mount
+```
+
+This model would allow OpenCloud to provide a user-facing upload/update surface while keeping Jellyfin as a media playback and indexing service.
+
+Key validation questions:
+
+- Can OpenCloud provide a dedicated upload area for multimedia resources?
+- Can media be moved or synchronized into NAS media libraries through a controlled one-way process?
+- Can Jellyfin index the updated media library after synchronization?
+- Can partial uploads be kept away from Jellyfin library scans?
+- Can deletions be handled safely without accidental NAS data loss?
+- Can Jellyfin remain read-only against media libraries?
+- Can backups clearly separate OpenCloud state, NAS media libraries, and Jellyfin config/cache?
+
+This model should be compared against direct shared storage.
+
+Direct shared writable storage should be treated as high risk until proven safe.
 
 ## Hardware Requirements
 
@@ -396,8 +460,17 @@ The following evidence is required before any decision:
 - first-run admin login validation;
 - file upload and download validation;
 - file recoverability validation from NAS storage;
+- evidence that OpenCloud can coexist with existing NAS data without taking ownership of the current NAS tree;
+- evaluation of controlled import, synchronization, or read-only exposure options for existing NAS data;
+- evaluation of an OpenCloud-controlled media upload area feeding NAS-backed Jellyfin media libraries;
+- validation that Jellyfin can consume media libraries read-only while OpenCloud updates are handled through a controlled workflow;
+- validation that partial uploads and deletions cannot corrupt the media library workflow;
 - container recreation validation;
 - resource usage observation;
+- Windows synchronization validation;
+- mobile application access validation;
+- managed backup boundary validation;
+- branding feasibility validation;
 - comparison against the Sprint 005 OwnCloud implementation.
 
 ---
