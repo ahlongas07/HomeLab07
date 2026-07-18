@@ -561,7 +561,27 @@ The spike should evaluate not only the applications themselves, but also the arc
 
 ## Decision Matrix
 
-The final recommendation should evaluate all four alternatives using the following criteria.
+The final recommendation should evaluate all four alternatives using a weighted decision matrix.
+
+The weights reflect HomeLab07 priorities for a personal homelab: simplicity, recovery, low operational effort, and platform fit have more influence than customization or raw resource usage.
+
+| Criterion | Weight |
+|-----------|--------|
+| Simplicity | 25% |
+| Recovery | 20% |
+| Operation | 20% |
+| HomeLab07 integration | 15% |
+| Clients | 10% |
+| Branding | 5% |
+| Resources | 5% |
+
+The total weight must equal 100%.
+
+Each alternative should be scored against every weighted criterion using evidence collected during the spike.
+
+The score must be justified in prose, not only represented numerically.
+
+Supporting evidence should include the following detailed criteria.
 
 | Criterion | Priority |
 |-----------|----------|
