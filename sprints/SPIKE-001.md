@@ -1,6 +1,10 @@
-# SPIKE-001 — Collaboration Platform Alternatives Evaluation
+# SPIKE-001 — oCIS Architecture Validation
 
-**Status:** Planned
+**Phase:** Phase 2 — Architecture Validation
+
+**Status:** Architecture review complete; proof of concept required
+
+**Decision date:** 2026-07-18
 
 **Branch:** `spike/opencloud-sprint-005-alternative`
 
@@ -8,629 +12,532 @@
 
 # Objective
 
-Define the technical investigation required to compare collaboration platform alternatives for HomeLab07.
+Validate whether ownCloud Infinite Scale (oCIS) supports the storage and
+operational architecture approved for HomeLab07.
 
-The goal of this spike is not to identify the platform with the largest feature set.
+This phase evaluates architectural compatibility only. It does not compare
+features, clients, branding, OpenCloud, Seafile, or other collaboration
+platforms.
 
-The goal is to identify the platform that best aligns with HomeLab07 architectural principles while minimizing long-term operational complexity.
+The question this phase must answer is:
 
-The alternatives under evaluation are:
-
-- OwnCloud Community as the Sprint 005 baseline.
-- ownCloud Infinite Scale, also known as oCIS, as the official new architecture reference.
-- OpenCloud as the community evolution of that architecture.
-- Seafile as the most consolidated alternative outside the ownCloud ecosystem.
-
-| Alternative | Role In Evaluation |
-|-------------|--------------------|
-| OwnCloud Community | Baseline implemented during Sprint 005 |
-| oCIS | Official next-generation ownCloud architecture reference |
-| OpenCloud | Community evolution of the oCIS-style architecture |
-| Seafile | Mature non-ownCloud ecosystem alternative |
-
-This spike does not approve a migration.
-
-This spike does not conclude that any alternative is better.
-
-The objective is to define how HomeLab07 will compare the alternatives using objective technical evidence.
-
-Feature count must not override simplicity, recoverability, reproducibility, or operational sustainability.
+> Is there any architectural impediment to adopting oCIS as the logical owner
+> of files while preserving the HomeLab07 storage, read-only consumption,
+> backup, and administrative access model?
 
 ---
 
-# Context
-
-HomeLab07 is a personal homelab platform.
-
-The evaluation must be performed from the perspective of a personal laboratory, not from the perspective of a company, a customer environment, or a large organization with hundreds of users.
-
-HomeLab07 prioritizes:
-
-- simplicity;
-- reproducibility;
-- low maintenance;
-- Docker Compose;
-- decoupled persistence;
-- simple recovery;
-- declarative infrastructure;
-- independent services.
-
-Sprint 005 successfully deployed OwnCloud Community as the first business-facing collaboration service.
-
-During implementation, OwnCloud required several operational corrections around first-run state, generated configuration, storage paths, database prefixing, reverse proxy settings, and visual customization.
-
-Those findings justify a focused technical evaluation of multiple collaboration platform alternatives for the same HomeLab07 use case.
-
----
-
-# Motivation
-
-The OwnCloud implementation is functional, but it introduced operational friction that may not align with the long-term goals of HomeLab07.
-
-The evaluation is motivated by the need to determine whether another platform can reduce:
-
-- first-run fragility;
-- configuration complexity;
-- dependency count;
-- maintenance effort;
-- storage and recovery ambiguity;
-- reverse proxy complexity;
-- customization friction.
-
-The motivation is not to replace OwnCloud based on preference.
-
-The motivation is to compare all evaluated options using measurable technical evidence.
-
----
-
-# Initial Hypothesis
-
-At least one alternative to OwnCloud Community could significantly simplify the HomeLab07 collaboration service architecture and operation without losing the functionality that is actually required for a personal homelab.
-
-The spike must validate or refute this hypothesis.
-
----
-
-# Hypotheses To Validate
-
-## Architecture
-
-- Each alternative can be evaluated as an independent Docker Compose service within the HomeLab07 platform.
-- One or more alternatives may require fewer supporting services than OwnCloud Community.
-- The selected alternative can avoid application-specific changes to existing platform services.
-
-## Storage
-
-- The selected platform can use NAS-backed persistent storage without making the application the owner of all NAS data.
-- The selected platform preserves simple file recovery from the NAS.
-- The selected platform can keep configuration and user data separated clearly enough for backup and restore.
-- The selected platform can coexist with the current NAS data model without becoming the owner of existing NAS data.
-- Each evaluated platform should use dedicated storage for its own application state during testing.
-- Existing NAS data should be integrated through a controlled import, synchronization, or read-only exposure mechanism, not used as primary collaboration platform storage without validation.
-
-## Operations
-
-- One or more alternatives may have a simpler first-run process than OwnCloud Community.
-- Each evaluated platform can be started, stopped, inspected, and validated through the HomeLab07 operation layer.
-- The selected platform can be recreated without unexpected state drift.
-
-## Publication
-
-- Each evaluated platform can be published through the existing Cloudflare and Nginx Proxy Manager path.
-- The selected platform does not require direct host port exposure.
-- The selected platform handles reverse proxy headers and HTTPS detection predictably.
-
-## Functionality
-
-- Each evaluated platform supports the collaboration features actually required by HomeLab07.
-- Each evaluated platform supports browser-based file upload and download.
-- Each evaluated platform supports folder creation.
-- Each evaluated platform supports basic sharing workflows.
-- The selected platform can support the future external storage direction if needed.
-- The selected platform can provide file sharing for the MVP use case.
-- The selected platform can support Windows synchronization for the MVP use case.
-- The selected platform can support mobile access for the MVP use case.
-- The selected platform can fit into a managed backup model.
-- The selected platform can support reproducible branding without introducing disproportionate operational complexity.
-
-## Maintainability
-
-- One or more alternatives may be easier to document, reproduce, and recover than OwnCloud Community for the HomeLab07 use case.
-- The selected platform introduces less operational complexity than it removes.
-
----
-
-# Research Questions
-
-## Platform Fit
-
-- What services does each alternative require for a minimal HomeLab07 deployment?
-- Which alternatives require MariaDB, Valkey, PostgreSQL, object storage, or another stateful dependency?
-- Can each alternative run cleanly on the existing Docker network model?
-- Does any alternative require changes to `homelab07-internal` or `homelab07-proxy`?
-
-## Image And Versioning
-
-- What Docker image should be evaluated for each alternative?
-- What image tag is appropriate for a reproducible test for each alternative?
-- Is a pinned version available and suitable for each alternative?
-- Are `latest` or release candidate images avoidable for each alternative?
-
-## Persistence
-
-- What directories must be persisted?
-- Which paths contain configuration?
-- Which paths contain user data?
-- Which paths are safe to back up and restore independently?
-- What ownership and permission model is required on NAS-backed storage?
-- Can each alternative coexist with the current NAS data model without becoming the owner of existing NAS data?
-- Which integration mechanisms are viable for existing NAS data: controlled import, synchronization, or read-only exposure?
-- What risks exist if existing NAS data is used directly as primary collaboration platform storage?
-
-## Recovery
-
-- Can files be recovered directly from the NAS without application-managed encryption?
-- What state is required for a complete restore?
-- What happens if only files are restored?
-- What happens if only configuration is restored?
-
-## Reverse Proxy
-
-- What public URL settings are required by each alternative?
-- What trusted proxy settings are required by each alternative?
-- Are WebSocket or long-lived connection settings required?
-- Does each alternative behave correctly behind Nginx Proxy Manager?
-
-## Security
-
-- Can each alternative run without publishing host ports?
-- What authentication model is available in a minimal deployment?
-- What security features are required for a personal homelab?
-- Which security features should be deferred to a later identity sprint?
-- Can each alternative integrate with a future Authentik-based OIDC identity model without requiring architecture changes?
-
-## Platform Ecosystem
-
-- Can each alternative coexist with Jellyfin as an independent HomeLab07 service?
-- Can each alternative and Jellyfin share NAS-backed source data safely without either application becoming the owner of the other's data?
-- Should media libraries remain read-only to Jellyfin and outside collaboration-platform-managed storage?
-- Can the selected collaboration platform, Jellyfin, and future services share an Authentik identity layer while keeping service data independent?
-- Can the selected collaboration platform provide a controlled workflow for adding or updating multimedia resources that Jellyfin later indexes?
-- What synchronization or import mechanism is safest between a collaboration-platform-managed upload area and NAS-backed Jellyfin media libraries?
-- Can Jellyfin refresh or rescan libraries after collaboration-platform-mediated media updates without requiring manual NAS edits?
-
-## Functionality
-
-- Can an administrator log in after first deployment?
-- Can a user upload, download, rename, move, and delete files?
-- Can folders be created and shared?
-- Are deleted files recoverable through the UI?
-- Are files still available after container recreation?
-- Can files be synchronized from Windows clients?
-- Is mobile access available and usable for the personal lab MVP?
-- Can the service support a managed backup workflow?
-
-## Resource Usage
-
-- What memory and CPU usage does each alternative show at idle?
-- What resource usage is observed during upload and download?
-- Is the resource profile simpler or lighter than OwnCloud Community for the same test workload?
-
-## Customization
-
-- Can branding be applied reproducibly?
-- Does customization require modifying container internals?
-- Does customization survive container recreation?
-- Does customization introduce integrity or upgrade risks?
-
----
-
-# MVP Capability Targets
-
-The alternatives evaluation should validate whether each platform can support the following MVP capabilities for HomeLab07:
-
-| Capability | Required For MVP | Evaluation Focus |
-|------------|------------------|------------------|
-| File sharing | Yes | Browser upload, download, folder creation, sharing workflow |
-| Windows synchronization | Yes | Availability, configuration effort, reliability, recovery behavior |
-| Mobile application access | Yes | Availability, login, file browsing, upload and download |
-| Managed backups | Yes | Clear backup boundaries, restore procedure, NAS recoverability |
-| Branding | Yes | Reproducibility, upgrade impact, operational maintenance |
-
-Managed backups are a differentiating requirement because HomeLab07 must remain recoverable and maintainable without relying on application-specific manual recovery steps.
-
-Branding is required for the MVP, but it must not override higher-priority concerns such as simplicity, reproducibility, and recoverability.
-
----
-
-# Media Library Integration Evaluation
-
-The spike should evaluate a possible collaboration platform and Jellyfin coexistence model for multimedia resources.
-
-Jellyfin should be treated as the media playback and indexing service.
-
-The evaluated collaboration platform should be treated as a collaboration and controlled upload/update surface.
-
-The evaluation must avoid a model where both applications write freely to the same application-managed storage tree.
-
-## Candidate Model
+# Approved Architecture
+
+The following decisions are inputs to this validation. They are not options to
+be scored:
+
+- The NAS remains the storage platform and physical authority for persistent
+  data.
+- oCIS is the logical owner of files stored in its managed tree.
+- Jellyfin is a read-only consumer of selected media stored in that tree.
+- Backups originate on the NAS and are transferred to Amazon S3 with AWS CLI.
+- An administrator can access the filesystem as `root` for maintenance,
+  recovery, and migration.
+- Application-managed encryption of file contents is not part of the proposed
+  design.
 
 ```text
-Collaboration platform controlled upload area
-    -> reviewed import or synchronization process
-    -> NAS media library
-    -> Jellyfin read-only media library mount
+                    HomeLab07 NAS
+                          │
+                 oCIS-managed POSIX tree
+                    │               │
+                    │               └── Jellyfin (read-only)
+                    │
+                    ├── Administrator root access
+                    │
+                    └── Backup artifact creation
+                                  │
+                                  ▼
+                              AWS CLI
+                                  │
+                                  ▼
+                              Amazon S3
 ```
 
-In this model:
-
-- The collaboration platform does not own the Jellyfin media library.
-- Jellyfin does not write into collaboration-platform-managed storage.
-- The NAS remains the authoritative media storage layer.
-- Media updates occur through a controlled import or synchronization workflow.
-- Jellyfin indexes media after the controlled update is complete.
-
-## Evaluation Questions
-
-- Can the selected collaboration platform expose a dedicated upload area for new media resources?
-- Can a controlled job move or synchronize approved media into the NAS media library?
-- Should synchronization be one-way only from the collaboration platform upload area to NAS media library?
-- Should Jellyfin media mounts be read-only by default?
-- How are deletions handled without accidental data loss?
-- How are partial uploads prevented from being indexed by Jellyfin?
-- Can Jellyfin library scans be triggered or scheduled after updates?
-- What metadata side effects does Jellyfin create, and where are they stored?
-- Can backups clearly separate collaboration platform state, NAS media, and Jellyfin config/cache?
-
-## Non-Goals
-
-- The collaboration platform must not become the primary media library database.
-- Jellyfin must not become a file collaboration tool.
-- The spike must not implement automatic media workflows before storage ownership is validated.
-- The spike must not expose existing NAS media libraries as writable collaboration platform primary storage without validation.
+The NAS is the physical storage authority. Logical ownership means that oCIS
+controls application-level identities, spaces, permissions, shares, and
+metadata. Root access does not override those logical invariants safely.
 
 ---
 
-# Scope
+# Evidence Rules
+
+Findings use the following evidence classes:
+
+- **Official:** current ownCloud or AWS documentation.
+- **Community:** public issue reports used only to identify PoC tests and not to
+  establish supported behavior.
+- **Inference:** an engineering conclusion derived from official behavior that
+  must be confirmed during the PoC.
+
+Documentation was reviewed on 2026-07-18. All product behavior must be
+revalidated against the exact pinned oCIS version selected for the PoC.
+
+---
+
+# 1. PosixFS And Data Ownership
+
+## Finding
+
+PosixFS is the only documented oCIS storage driver intended for shared access
+by oCIS and ordinary filesystem users or services. It therefore matches the
+shape of the approved architecture better than the default private `ocis`
+driver.
+
+It is not currently a production-approved foundation. The official
+documentation explicitly identifies PosixFS as experimental and states that it
+should not be used in production.
+
+## Storage Semantics
+
+With PosixFS:
+
+- file content remains in a directly accessible POSIX filesystem tree;
+- personal spaces default to paths derived from usernames;
+- project spaces default to paths derived from space identifiers;
+- oCIS stores required metadata in extended attributes;
+- a filesystem watcher notifies oCIS of changes made outside the application;
+- the filesystem must fully support required POSIX behavior and extended
+  attributes;
+- `nats-js-kv` is required as the identifier cache store;
+- the storage root must be writable and traversable by the oCIS runtime user or
+  group.
+
+## Current Limitations
+
+The official PosixFS documentation identifies these limitations:
+
+- PosixFS is experimental and not recommended for production.
+- File versioning is not supported.
+- Spaces are represented by directories whose names may be UUIDs rather than
+  display names.
+- Only `inotify` and supported GPFS notification mechanisms are documented.
+- SMB, NFSv3, and several mounted filesystem arrangements are not supported.
+- NFSv4.2 may work when it provides the required extended attributes.
+- Post-processing such as antivirus scanning is not triggered for changes that
+  bypass oCIS.
+- Shared access requires a deliberate UID, GID, group, and umask design.
+
+Rockstor uses BTRFS, which is listed as a supported local POSIX filesystem by
+oCIS. This does not by itself validate the container mount, extended attribute
+namespaces, watcher behavior, ownership mapping, or snapshot restore behavior.
+Those remain PoC gates.
+
+## Official Recommendation
+
+The official storage guidance associates shared filesystem access with
+PosixFS, but labels it experimental. Consequently, the documentation does not
+provide an official recommendation to use this mode as a production storage
+foundation for an environment such as HomeLab07.
+
+## Conclusion
+
+PosixFS is architecturally aligned but operationally immature. It may be used
+for a controlled PoC. It must not be treated as approved for HomeLab07
+production use until the experimental status and the PoC gates are resolved.
+
+Sources:
+
+- [PosixFS documentation](https://doc.owncloud.com/ocis/latest/admin/deployment/storage/posixfs.html)
+- [oCIS filesystem prerequisites](https://doc.owncloud.com/ocis/latest/admin/prerequisites/prerequisites.html)
+- [General storage considerations](https://doc.owncloud.com/ocis/latest/admin/deployment/storage/general-considerations.html)
+- [Storage-users configuration](https://doc.owncloud.com/ocis/next/deployment/services/s-list/storage-users.html)
+
+---
+
+# 2. Changes Made Outside oCIS
+
+## Detection Model
+
+For a HomeLab07 BTRFS PoC, the documented watcher candidate is `inotifywait`.
+The watcher observes the configured tree and causes oCIS to scan after a
+configurable debounce delay. oCIS then adds or updates the metadata required in
+extended attributes and propagates state used for ETag-based change discovery.
+
+The documented configuration surface includes:
+
+```text
+STORAGE_USERS_DRIVER=posix
+STORAGE_USERS_POSIX_ROOT=<managed-storage-root>
+STORAGE_USERS_POSIX_WATCH_TYPE=inotifywait
+STORAGE_USERS_ID_CACHE_STORE=nats-js-kv
+STORAGE_USERS_POSIX_USE_SPACE_GROUPS=true
+```
+
+This is an architectural example only. Environment-specific paths belong in
+`HomeLab07.private/`.
+
+## Operation Assessment
+
+| External operation | Expected detection | Classification | Required validation |
+|---|---|---|---|
+| Copy a completed file into a managed space | Watcher event followed by scan | Requires synchronization | File appears once, receives required xattrs, and becomes usable through oCIS |
+| Move within the same watched tree | Move events | Requires synchronization | Identity, path, shares, and client ETags remain consistent |
+| Rename within the watched tree | Move events | Requires synchronization | Rename is represented once without duplicate or lost nodes |
+| Delete a file directly | Delete event | Not recommended | oCIS removes the node consistently and does not promise normal trash-bin semantics |
+| Restore while oCIS is stopped | No live watcher event | Not supported without a validated reconciliation procedure | Restored files, xattrs, caches, and oCIS state converge after startup |
+| Roll back the live tree underneath running oCIS | Event history and stored state can diverge | Prohibited | No PoC is required because the operation violates consistency boundaries |
+| Modify oCIS-owned xattrs | Metadata corruption | Prohibited | None |
+
+## Reindexing And Reconciliation
+
+The reviewed documentation describes event-driven scanning after watcher
+notifications. It does not document a general administrator command equivalent
+to a guaranteed full `files:scan --all` reconciliation procedure for PosixFS.
+
+Therefore:
+
+- normal external changes must rely on an active and healthy watcher;
+- a watcher outage can create a missed-event risk;
+- a snapshot rollback performed while oCIS is stopped cannot be assumed to
+  generate the events needed for reconciliation;
+- restarting oCIS must not be assumed to perform a complete authoritative scan;
+- a full rescan or rebuild procedure is an unresolved PoC requirement.
+
+A community bug report describes high CPU usage, dropped NATS messages, and
+stalled processing in a PosixFS deployment with `inotifywait`. This is not
+proof of general failure, but it justifies stress testing bulk changes and
+watcher recovery.
+
+Community evidence:
+
+- [PosixFS watcher and NATS issue](https://github.com/owncloud/ocis/issues/10825)
+- [Recursive PosixFS lock-file issue](https://github.com/owncloud/ocis/issues/11093)
+
+## Snapshot Restore Rule
+
+A BTRFS snapshot is suitable only when it captures the complete consistent
+oCIS state required by the selected deployment, including filesystem contents
+and extended attributes. A data-tree-only rollback is not a complete oCIS
+restore.
+
+The service must be stopped before restoring. Configuration, system state,
+metadata, file contents, and persistent stores must be restored to a mutually
+consistent recovery point.
+
+---
+
+# 3. Read-Only Consumers
+
+## Finding
+
+The PosixFS design explicitly permits other users or services to access the
+underlying files through the filesystem. A read-only Jellyfin mount is
+therefore compatible with the intended shared-access model in principle.
+
+No official ownCloud guidance specific to Jellyfin was found. The conclusion
+is an architectural inference from the documented PosixFS shared-access model.
+
+## Required Boundary
+
+Jellyfin must:
+
+- mount only the selected media subtree;
+- mount that subtree read-only at the container boundary;
+- store its database, cache, thumbnails, subtitles, and transcode state in its
+  own persistent paths;
+- never modify oCIS extended attributes;
+- never rename, move, delete, or create content inside the oCIS-managed tree;
+- tolerate a file disappearing or changing while a library scan is running.
+
+Jellyfin can index ordinary readable files without understanding oCIS metadata.
+Read-only traversal does not require watcher synchronization because it does
+not alter the tree.
+
+## Known Limitations And PoC Questions
+
+- Project-space directory names may be UUIDs and unsuitable for manual library
+  selection without documented mappings.
+- Permissions and ACLs must allow Jellyfin to traverse directories and read
+  files without granting write access.
+- A file being uploaded or replaced while Jellyfin scans could be observed in
+  an intermediate state. Library scans should target stable content and the
+  behavior must be tested with asynchronous uploads.
+- oCIS may create internal or temporary entries that Jellyfin should ignore.
+- A logical oCIS delete becomes a missing media item at the next Jellyfin scan.
+
+Community reports are not sufficient to declare this combination supported.
+The PoC must validate it directly using representative files and concurrent
+operations.
+
+---
+
+# 4. Backup Strategy
+
+## Decision
+
+Backing up only regular file contents is not sufficient for a complete oCIS
+restore.
+
+Official oCIS guidance requires a consistent backup of configuration, system
+data, metadata, and blobs. For PosixFS specifically, required metadata is
+stored in extended attributes and those attributes must be included in the
+backup strategy.
+
+## AWS CLI Constraint
+
+`aws s3 sync <local-path> s3://<bucket>/<prefix>` transfers files as S3
+objects. Its documented options do not preserve arbitrary local POSIX extended
+attributes, ownership, ACLs, empty directories, or complete filesystem
+semantics on a later download.
+
+Consequently:
+
+> Direct AWS CLI synchronization of the live PosixFS tree is a content copy,
+> not a complete restorable oCIS backup.
+
+AWS CLI may remain the approved transport to S3, but it must upload a backup
+artifact that already preserves the required filesystem semantics. The exact
+artifact format is deferred to the backup design and must be proven by restore
+testing. It must preserve at least file contents, directory structure, extended
+attributes, ownership, permissions, and any ACLs required by the deployment.
+
+## Required Backup Sets
+
+The PoC must identify and include:
+
+| Backup set | Requirement |
+|---|---|
+| Version-controlled deployment configuration | Required from the repository |
+| Private runtime configuration and secrets | Required from approved private backup handling |
+| oCIS configuration data | Required |
+| oCIS system data and persistent stores | Required |
+| PosixFS file tree | Required |
+| PosixFS extended attributes | Required |
+| Ownership, permissions, and applicable ACLs | Required |
+| Search index | Optional only if a documented rebuild is validated |
+| Thumbnails | Optional only if regeneration is validated |
+| Jellyfin state | Separate backup set; outside the oCIS restore boundary |
+
+## Consistent Backup Procedure
+
+The official oCIS guidance requires stopping Infinite Scale to obtain a
+consistent filesystem backup. The architecture-validation procedure is:
+
+1. Stop all writers to the managed tree.
+2. Stop oCIS through the HomeLab07 operation layer.
+3. Create a consistent BTRFS snapshot or backup artifact covering all required
+   oCIS state and PosixFS xattrs.
+4. Restart oCIS after the local recovery point is complete.
+5. Transfer the immutable artifact to S3 with AWS CLI.
+6. Verify checksums, retention, and restore eligibility.
+
+Snapshot atomicity across separate BTRFS subvolumes is not assumed. If oCIS
+state is split across subvolumes, the service remains stopped until all
+required snapshots or artifacts are complete.
+
+## Complete Restore Procedure
+
+1. Stop oCIS and every writer to the managed tree.
+2. Restore the pinned deployment configuration and required private values.
+3. Restore configuration, system data, persistent stores, PosixFS contents,
+   xattrs, ownership, permissions, and ACLs from one consistent recovery point.
+4. Verify paths and runtime UID/GID mappings.
+5. Start the same pinned oCIS version used to create the backup.
+6. Validate spaces, permissions, shares, file access, watcher health, and
+   checksums.
+7. Upgrade only as a separate, subsequent operation.
+
+Sources:
+
+- [oCIS backup guidance](https://doc.owncloud.com/ocis/next/maintenance/b-r/backup.html)
+- [oCIS restore guidance](https://doc.owncloud.com/ocis/latest/admin/maintenance/b-r/restore.html)
+- [oCIS backup-set considerations](https://doc.owncloud.com/ocis/next/maintenance/b-r/backup_considerations.html)
+- [AWS CLI `s3 sync` reference](https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html)
+
+---
+
+# 5. Administrative Access Classification
+
+Root access is a recovery capability, not a supported alternative oCIS client.
+Least privilege still applies even when the administrator technically has full
+filesystem access.
+
+## Safe
+
+- Read file contents and directory names while respecting operational privacy.
+- Inspect ownership, permissions, ACLs, and extended attributes without
+  modifying them.
+- Calculate checksums.
+- Create read-only storage snapshots using the validated consistency procedure.
+- Mount or copy a stopped, immutable snapshot for forensic inspection.
+- Allow a read-only consumer to traverse an explicitly approved subtree.
+
+## Require Synchronization And PoC Validation
+
+- Copy complete files into a managed space while the watcher is healthy.
+- Move or rename files inside the same managed space.
+- Restore selected files using a documented procedure.
+- Perform bulk imports.
+- Change POSIX ownership or group membership as part of an approved permissions
+  procedure.
+
+These operations are not approved merely because the watcher exists. They
+require evidence that metadata, ETags, caches, clients, and shares converge.
+
+## Not Recommended
+
+- Delete files outside oCIS.
+- Modify a file in place while oCIS or Jellyfin may be reading it.
+- Perform large external mutations without monitoring watcher and NATS health.
+- Expose the complete oCIS storage root to Jellyfin.
+- Treat project-space UUID directories as a stable human-facing contract.
+- Restore only regular files while omitting xattrs and persistent state.
+
+## Prohibited
+
+- Modify or delete oCIS-managed extended attributes.
+- Write to the managed tree from Jellyfin.
+- Roll back the live filesystem while oCIS is running.
+- Restore data and metadata from different recovery points.
+- Run concurrent backup restoration and application writes.
+- Use direct `aws s3 sync` of the live tree as the sole disaster-recovery copy.
+- Change internal identifiers, space mappings, or application metadata by hand.
+
+---
+
+# 6. Open Risks
+
+| Risk | Impact | Probability | Mitigation | Evidence |
+|---|---|---:|---|---|
+| PosixFS remains experimental | High: unsupported behavior or breaking changes | High | Do not approve production adoption until status changes or HomeLab07 explicitly accepts and proves the risk | Official PosixFS documentation |
+| AWS CLI content sync loses xattrs and filesystem semantics | Critical: content may survive but complete oCIS restore fails | High | Upload a filesystem-preserving artifact; perform destructive restore test | oCIS xattr requirement and AWS CLI sync behavior |
+| Watcher misses events during outage or bulk mutation | High: stale or inconsistent oCIS view | Medium | Health monitoring, mutation controls, bulk-change tests, validated full reconciliation procedure | Event-driven PosixFS design; community issue reports |
+| No documented general full-rescan recovery path | High: snapshot or missed events may not converge | Medium | Obtain upstream confirmation and prove a reconciliation runbook in PoC | No supported command found in reviewed official documentation |
+| Snapshot restores data without matching application state | Critical: metadata, caches, and files diverge | Medium | Stop oCIS and restore all required sets from one recovery point | Official restore guidance |
+| Jellyfin observes partial or transient files | Medium: failed indexing or incorrect media entries | Medium | Read-only mount, stable subtree, delayed/scheduled scans, concurrent upload test | Architectural inference requiring PoC |
+| UID/GID or ACL mismatch blocks access or grants writes | High: outage or boundary violation | Medium | Declarative identity mapping and read-only container mount | Official group/umask guidance |
+| Project spaces use UUID directory names | Medium: fragile library mappings and operations | High | Use documented stable personal/media subtree or explicit mapping validated in PoC | Official PosixFS limitation |
+| External delete bypasses expected application workflows | Medium: loss without trash/version recovery | Medium | Deletions through oCIS only; BTRFS recovery procedure | PosixFS has no versioning; external changes bypass application flow |
+| Root modifies xattrs accidentally | Critical: logical metadata corruption | Low | Read-only procedures by default; backup xattrs; prohibit manual metadata edits | Official metadata model |
+| PosixFS behavior changes across upgrades | High: maintenance and migration risk | Medium | Pin versions and run upgrade/rollback tests before deployment | Experimental feature status |
+
+---
+
+# 7. Recommendation
+
+## Answer
+
+**Yes. There are currently architectural impediments to adopting the exact
+proposed model as a production HomeLab07 service.**
+
+The impediments are not that oCIS encrypts the data or that Jellyfin cannot
+read ordinary files. They are:
+
+1. The required shared-filesystem driver, PosixFS, is officially experimental
+   and not recommended for production.
+2. The proposed direct AWS CLI synchronization does not preserve the extended
+   attributes and filesystem semantics required for a complete PosixFS/oCIS
+   restore.
+3. A supported, deterministic reconciliation procedure after missed watcher
+   events or a stopped snapshot rollback has not been established.
+
+The architecture is suitable for a controlled PoC if the wording is refined:
+
+- oCIS is the sole writer and logical owner under normal operation.
+- Jellyfin is a strictly read-only consumer of a limited subtree.
+- root access is read-only by default and filesystem mutation is exceptional,
+  classified, and procedural.
+- AWS CLI transports an immutable filesystem-preserving backup artifact rather
+  than synchronizing the live PosixFS tree directly.
+- adoption remains blocked until a complete destructive restore succeeds and
+  PosixFS risk is explicitly resolved or accepted.
+
+This finding does not reject oCIS. It defines the evidence required before an
+implementation sprint can approve it.
+
+---
+
+# PoC Entry Criteria
+
+The PoC may begin only with:
+
+- a pinned stable oCIS image;
+- isolated non-production BTRFS storage;
+- no existing HomeLab07 user or media data;
+- validated extended attribute support through every mount layer;
+- explicit container UID/GID mapping;
+- Jellyfin mounted read-only to a limited test subtree;
+- sanitized placeholder configuration;
+- rollback and cleanup procedures.
+
+# PoC Exit Criteria
+
+The architecture can be reconsidered for adoption only when all of the
+following pass:
+
+- files created by oCIS remain directly readable from the NAS;
+- external copy, move, rename, and delete behavior is documented with watcher
+  evidence;
+- watcher interruption and restart behavior is understood;
+- a supported full reconciliation method is identified or its absence is
+  accepted explicitly;
+- BTRFS snapshot restore behavior is validated while oCIS is stopped;
+- Jellyfin indexes representative media without write access;
+- the backup artifact preserves xattrs, ownership, permissions, ACLs, and file
+  contents;
+- a clean host restores the complete oCIS instance from S3;
+- restored file checksums, spaces, permissions, and shares match the source;
+- an upgrade between two pinned versions preserves PosixFS data and metadata;
+- no secrets, production paths, private addresses, or public domains enter the
+  repository.
+
+---
+
+# Scope Boundaries
 
 ## In Scope
 
-- Review documentation for OwnCloud Community, oCIS, OpenCloud, and Seafile.
-- Identify the recommended Docker image and versioning strategy for each alternative.
-- Define a minimal Compose deployment candidate for each alternative that remains plausible for HomeLab07.
-- Define required private environment variables.
-- Define persistent storage requirements.
-- Define reverse proxy requirements.
-- Define validation commands.
-- Define functional UI validation.
-- Compare operational complexity against the Sprint 005 OwnCloud Community implementation.
-- Document findings in repository documentation.
+- PosixFS architectural compatibility.
+- External filesystem change detection and reconciliation.
+- Read-only Jellyfin access.
+- NAS-to-S3 backup transport and complete restoration requirements.
+- Root administrative access classification.
+- Architecture risks and PoC gates.
 
----
+## Out Of Scope
 
-# Exclusions
-
-The following are out of scope for this spike:
-
-- Production migration from OwnCloud Community to another platform.
-- Decommissioning OwnCloud Community.
-- Customer-facing rollout.
-- Identity provider integration.
-- Authentik implementation.
-- LDAP.
-- SSO.
+- Comparison with OpenCloud, Seafile, or ownCloud Classic.
+- Collaboration feature evaluation.
+- Client, mobile, or branding evaluation.
+- Production migration or deployment.
+- Identity provider implementation.
 - Jellyfin implementation.
-- Media library migration.
-- High availability.
-- Clustering.
-- Performance tuning beyond basic resource observation.
 - Backup automation implementation.
-- Monitoring implementation.
-- External Storage implementation.
-- Object storage implementation.
-- Branding implementation beyond feasibility evaluation.
+- Performance tuning beyond behavior needed to validate watcher reliability.
 
 ---
 
-# Methodology
+# Decision Record
 
-## Phase 1 — Documentation Review
-
-Review current documentation for each evaluated alternative and identify:
-
-- supported deployment model;
-- official Docker image;
-- recommended versioning approach;
-- required environment variables;
-- required persistent paths;
-- reverse proxy requirements;
-- storage and recovery guidance;
-- authentication model;
-- upgrade guidance.
-
-Record sources and dates reviewed.
-
-Do not draw conclusions during this phase.
-
-## Phase 2 — Architecture Mapping
-
-Map each alternative's requirements to existing HomeLab07 capabilities:
-
-- Docker Compose;
-- operation layer;
-- `homelab07-internal`;
-- `homelab07-proxy`;
-- Nginx Proxy Manager;
-- Cloudflare Dynamic DNS;
-- NAS-backed persistence;
-- `HomeLab07.private/`.
-
-Identify which existing services are reused and which are not required.
-
-## Phase 3 — Minimal Deployment Design
-
-Draft a minimal service design for each viable alternative using placeholders only.
-
-Define:
-
-- service directory;
-- Compose file shape;
-- `.env.example` requirements;
-- storage mount;
-- network attachment;
-- healthcheck expectations;
-- operation layer integration;
-- validation commands.
-
-This phase may produce proposed files in the spike branch, but the spike must remain explicitly marked as evaluation work.
-
-## Phase 4 — Controlled Runtime Evaluation
-
-If implementation is approved after the planning document is reviewed, deploy one candidate platform at a time in parallel with OwnCloud Community using:
-
-- separate service name;
-- separate storage root;
-- separate private environment file;
-- separate public endpoint placeholder;
-- no shared production data.
-
-The runtime evaluation must not modify the existing OwnCloud Community service.
-
-## Phase 5 — Evidence Collection
-
-Collect evidence for:
-
-- first-run experience;
-- container health;
-- storage layout;
-- file recoverability;
-- reverse proxy behavior;
-- upload and download workflows;
-- sharing workflows;
-- container recreation;
-- resource usage;
-- customization feasibility;
-- backup and restore implications.
-
-Evidence must be sanitized before being committed.
-
-## Phase 6 — Decision Record
-
-After the evidence is collected, produce a decision record that either:
-
-- validates the hypothesis;
-- refutes the hypothesis;
-- or identifies unresolved questions that prevent a decision.
-
-The decision record is not part of this initial spike document.
+| Decision | Status | Rationale |
+|---|---|---|
+| NAS remains the physical storage platform | Approved input | HomeLab07 Storage First principle |
+| oCIS is the logical owner and normal writer | Approved input | Preserves application invariants |
+| PosixFS is the PoC storage candidate | Conditional | Only documented driver for shared filesystem access; experimental |
+| Jellyfin consumes a limited subtree read-only | Conditional | Architecturally compatible; must be proven |
+| Administrator root access remains available | Approved with controls | Recovery capability, not a parallel write interface |
+| AWS CLI remains the S3 transport | Conditional | Must transport a filesystem-preserving artifact |
+| Direct live-tree `aws s3 sync` is a complete backup | Rejected | Does not preserve required PosixFS metadata semantics |
+| Production adoption of oCIS | Not approved | Blocked by PosixFS maturity, backup, and reconciliation evidence |
 
 ---
 
-# Acceptance Criteria
-
-This spike planning document is complete when:
-
-- the objective is documented;
-- the HomeLab07 personal lab context is explicit;
-- the initial hypothesis is documented without being treated as a conclusion;
-- hypotheses to validate are listed;
-- research questions are listed;
-- scope and exclusions are documented;
-- methodology is documented;
-- acceptance criteria are documented;
-- expected deliverables are documented;
-- risks are documented;
-- an estimated timeline is documented;
-- the document contains no production secrets, real public URLs, private IPs, or environment-specific values.
-
-The spike itself is complete only after a future evidence document validates or refutes the hypothesis.
-
----
-
-# Expected Deliverables
-
-The spike should produce:
-
-- documentation review notes for each evaluated alternative.
-- architecture mapping for each evaluated alternative.
-- proposed minimal service design for each viable alternative.
-- proposed validation checklist for each viable alternative.
-- Storage and recovery assessment.
-- Reverse proxy assessment.
-- Resource usage observation.
-- Functional UI validation notes.
-- Operational comparison across OwnCloud Community, oCIS, OpenCloud, and Seafile.
-- Final technical recommendation.
-
-The final recommendation must be evidence-based.
-
-It must not be based only on preference or implementation frustration.
-
----
-
-# Risks
-
-## Technical Risks
-
-- One or more alternatives may require dependencies not currently present in HomeLab07.
-- One or more alternatives may have a storage model that does not preserve simple NAS recovery.
-- One or more alternatives may require a more complex reverse proxy setup than expected.
-- One or more alternatives may require identity components that are not yet part of HomeLab07.
-- One or more alternatives may not support all required collaboration workflows in the minimal deployment.
-
-## Operational Risks
-
-- Evaluating alternatives may distract from stabilizing the existing OwnCloud Community service.
-- Running two collaboration services in parallel may create confusion if endpoints or storage roots are not clearly separated.
-- A successful first-run test may hide backup, restore, upgrade, or maintenance complexity.
-
-## Decision Risks
-
-- The evaluation may be biased by recent OwnCloud Community implementation friction.
-- The evaluation may overvalue simplicity and undervalue maturity.
-- The evaluation may undervalue documentation quality, upgrade path, or community support.
-
----
-
-# Estimated Timeline
-
-Suggested spike duration:
-
-```text
-2 to 4 focused engineering sessions
-```
-
-Suggested breakdown:
-
-- Session 1: documentation review and architecture mapping.
-- Session 2: minimal design and validation plan.
-- Session 3: optional controlled deployment.
-- Session 4: evidence review and recommendation.
-
-The timeline may be extended if any alternative requires identity, storage, or reverse proxy components not currently available in HomeLab07.
-
----
-
-# Success Criteria
-
-The spike succeeds if HomeLab07 can make an evidence-based decision about the collaboration platform direction.
-
-A successful spike may result in any of the following outcomes:
-
-- continue with OwnCloud Community;
-- replace OwnCloud Community with oCIS, OpenCloud, or Seafile in a future sprint;
-- keep multiple options documented;
-- defer the decision until identity, backup, or storage requirements are clearer.
-
-The spike must not be considered successful merely because one alternative appears easier or newer.
-
-The spike must be considered successful only if the decision is supported by technical evidence aligned with HomeLab07 principles.
-
----
-
-## Evaluation Principles
-
-The purpose of this spike is not to identify the platform with the largest feature set.
-
-The purpose is to determine which platform best aligns with the architectural principles of HomeLab07.
-
-When evaluating alternatives, the following principles take precedence:
-
-1. Simplicity over feature count.
-2. Declarative infrastructure over manual configuration.
-3. Reproducibility over convenience.
-4. Low operational maintenance over advanced customization.
-5. Recoverability over application complexity.
-6. Platform independence over application-specific optimizations.
-
-Additional functionality should only be considered when it does not introduce disproportionate operational complexity.
-
-The final recommendation must be based on these principles rather than popularity, familiarity, or personal preference.
-
----
-
-## Platform Independence
-
-One of the primary goals of this spike is to evaluate whether HomeLab07 has successfully separated platform capabilities from application-specific implementation.
-
-The investigation should answer the following questions:
-
-- Can an evaluated alternative replace OwnCloud Community without requiring architectural changes to HomeLab07?
-- Which existing platform services can be reused without modification?
-- Which assumptions inside HomeLab07 currently couple the platform to OwnCloud?
-- Which assumptions should become generic platform capabilities instead of application-specific implementations?
-- Can future collaboration platforms be integrated using the same platform services?
-
-The spike should evaluate not only the applications themselves, but also the architectural flexibility of HomeLab07.
-
----
-
-## Decision Matrix
-
-The final recommendation should evaluate all four alternatives using a weighted decision matrix.
-
-The weights reflect HomeLab07 priorities for a personal homelab: simplicity, recovery, low operational effort, and platform fit have more influence than customization or raw resource usage.
-
-| Criterion | Weight |
-|-----------|--------|
-| Simplicity | 25% |
-| Recovery | 20% |
-| Operation | 20% |
-| HomeLab07 integration | 15% |
-| Clients | 10% |
-| Branding | 5% |
-| Resources | 5% |
-
-The total weight must equal 100%.
-
-Each alternative should be scored against every weighted criterion using evidence collected during the spike.
-
-The score must be justified in prose, not only represented numerically.
-
-Supporting evidence should include the following detailed criteria.
-
-| Criterion | Priority |
-|-----------|----------|
-| Deployment simplicity | High |
-| Operational simplicity | High |
-| Recovery simplicity | High |
-| Docker Compose integration | High |
-| Persistent storage clarity | High |
-| Upgrade simplicity | High |
-| Reverse proxy integration | Medium |
-| Documentation quality | Medium |
-| Community maturity | Medium |
-| Resource consumption | Medium |
-| Branding flexibility | Low |
-| Advanced enterprise functionality | Low |
-
-Higher priority criteria should have greater influence on the final recommendation than lower priority criteria.
-
-The spike should explicitly justify how each platform performs against every criterion.
-
-This planning document defines the evaluation matrix only.
-
-The matrix must be completed with evidence in the future spike results or decision record, not in this planning document.
-
----
-
-## Long-Term Architectural Goal
-
-This spike is part of a broader architectural objective.
-
-HomeLab07 should provide reusable platform capabilities that allow individual applications to be replaced without requiring changes to the underlying infrastructure.
-
-Examples of reusable platform capabilities include:
-
-- Reverse proxy
-- DNS
-- TLS certificates
-- Docker networking
-- Persistent storage
-- Backup strategy
-- Monitoring
-- Operational tooling
-
-The success of this spike is not measured solely by selecting the better application.
-
-It is also measured by validating that HomeLab07 has achieved sufficient architectural decoupling to support future application replacement with minimal platform impact.
+# Related Requirements
+
+- `FR-002` — Persistent Storage
+- `FR-007` — Configuration Management
+- `FR-008` — Recovery
+- `NFR-001` — Reproducibility
+- `NFR-002` — Maintainability
+- `NFR-003` — Reliability
+- `NFR-010` — Recoverability
+
+This phase is a Platform Enhancement and Documentation Improvement. It does not
+authorize implementation or migration.
