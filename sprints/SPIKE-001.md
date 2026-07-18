@@ -10,6 +10,10 @@
 
 Define the technical investigation required to compare collaboration platform alternatives for HomeLab07.
 
+The goal of this spike is not to identify the platform with the largest feature set.
+
+The goal is to identify the platform that best aligns with HomeLab07 architectural principles while minimizing long-term operational complexity.
+
 The alternatives under evaluation are:
 
 - OwnCloud Community as the Sprint 005 baseline.
@@ -29,6 +33,8 @@ This spike does not approve a migration.
 This spike does not conclude that any alternative is better.
 
 The objective is to define how HomeLab07 will compare the alternatives using objective technical evidence.
+
+Feature count must not override simplicity, recoverability, reproducibility, or operational sustainability.
 
 ---
 

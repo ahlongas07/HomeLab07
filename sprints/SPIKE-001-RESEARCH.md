@@ -22,6 +22,10 @@ This document does not conclude that any alternative is better than OwnCloud Com
 
 This document is an evidence collection artifact for the future spike decision record.
 
+The goal of this spike is not to identify the platform with the largest feature set.
+
+The goal is to identify the platform that best aligns with HomeLab07 architectural principles while minimizing long-term operational complexity.
+
 The spike now compares four alternatives:
 
 - OwnCloud Community;
@@ -96,6 +100,38 @@ Non-official sources should not be used as decision evidence unless clearly mark
 The current evidence is not balanced enough to support a final recommendation.
 
 The next documentation pass must normalize coverage across all four alternatives.
+
+---
+
+# Common Evaluation Structure
+
+Every evaluated platform should eventually be documented using the same structure.
+
+This keeps the spike neutral and prevents the final recommendation from being biased by the order in which evidence was collected.
+
+The common structure is:
+
+- deployment model;
+- Docker image and versioning;
+- required dependencies;
+- persistent directories;
+- storage transparency;
+- volume permissions;
+- configuration model;
+- first-run process;
+- reverse proxy behavior;
+- TLS and domain handling;
+- authentication model;
+- Windows synchronization;
+- mobile clients;
+- branding;
+- resource usage;
+- backup and restore behavior;
+- exit strategy.
+
+The OpenCloud sections below contain the most complete initial evidence because OpenCloud was reviewed first.
+
+Equivalent sections must be added for OwnCloud Community, oCIS, and Seafile before Phase 1 can be considered complete.
 
 ---
 
@@ -451,6 +487,31 @@ This model should be compared against direct shared storage.
 
 Direct shared writable storage should be treated as high risk until proven safe.
 
+---
+
+# Storage Transparency
+
+Storage transparency is one of the highest-priority architectural concerns for this spike.
+
+The purpose of this evaluation is to determine whether the application owns the data or whether the NAS remains the authoritative storage layer.
+
+For HomeLab07, a platform that hides user data behind application-specific formats, proprietary metadata, or hard-to-recover state may be operationally risky even if the user interface is strong.
+
+Each evaluated platform must answer the following questions:
+
+- Are files directly accessible from the filesystem?
+- Can user data be restored without the application?
+- Can NAS snapshots recover user files without a complete application restore?
+- Can the application be replaced without migrating the storage format?
+- Does the application introduce proprietary metadata dependencies?
+- Can partial recovery be performed for one user, folder, or file set?
+- Which data remains useful if the database, index, or metadata store is lost?
+- Which data becomes unrecoverable without application-specific metadata?
+- Does the platform preserve original filenames, directory structure, timestamps, and file contents?
+- Does the platform require application-managed encryption, chunking, object storage, or deduplication that affects direct recovery?
+
+Storage transparency should receive strong influence in the final decision matrix because it directly affects disaster recovery, maintainability, and platform independence.
+
 ## OpenCloud Hardware Requirements
 
 OpenCloud requirements list a minimal deployment for up to 10 users at roughly:
@@ -549,6 +610,29 @@ HomeLab07 must pin versions for reproducibility.
 
 ---
 
+# Exit Strategy
+
+Every evaluated platform must include an exit strategy assessment.
+
+The objective is to avoid long-term vendor, ecosystem, or platform lock-in.
+
+The exit strategy evaluation should answer:
+
+- How difficult is migration away from the platform?
+- Can metadata be exported?
+- Can permissions be migrated?
+- Can users be migrated?
+- Are client applications portable?
+- Can HomeLab07 roll back to another platform?
+- Can data be recovered without running the original application?
+- Can shared links, versions, comments, tags, or activity history be exported or safely abandoned?
+- Does the platform use standard protocols that reduce migration risk?
+- What would a rollback plan look like after a failed controlled deployment?
+
+A platform with an unclear exit strategy should not be recommended for adoption without explicit risk acceptance.
+
+---
+
 # Evidence Required Next
 
 The following evidence is required before any decision:
@@ -577,12 +661,108 @@ The following evidence is required before any decision:
 
 ---
 
-# Preliminary Non-Conclusive Assessment
+# Decision Matrix
 
-Documentation review suggests that OpenCloud may align well with HomeLab07's goals because it appears to reduce database dependency and provides a container-native deployment model.
+The purpose of this matrix is not to recommend a platform yet.
 
-However, this is not a conclusion.
+Its purpose is to define the evaluation framework that will be used once all runtime evidence has been collected.
 
-The major unresolved question is whether OpenCloud's storage requirements work cleanly with the HomeLab07 NAS-backed storage model.
+All platform score cells must remain empty until runtime validation is completed.
+
+The Evidence column should reference the documentation section or runtime validation that justifies each future score.
+
+| Criterion | Weight | OwnCloud Community | oCIS | OpenCloud | Seafile | Evidence |
+|-----------|--------|--------------------|------|-----------|---------|----------|
+| Deployment simplicity | 10% | | | | | Documentation review and minimal Compose validation |
+| Operational simplicity | 15% | | | | | First-run, restart, recreation, upgrade, and operation layer validation |
+| Storage transparency | 15% | | | | | Storage Transparency evaluation and filesystem recovery tests |
+| Disaster recovery | 15% | | | | | Backup and restore validation |
+| HomeLab07 platform integration | 10% | | | | | Network, proxy, persistence, private env, and operation layer mapping |
+| Docker Compose quality | 8% | | | | | Compose readability, pinning, dependency count, and reproducibility review |
+| Reverse proxy compatibility | 7% | | | | | Nginx Proxy Manager publication and header validation |
+| Windows synchronization | 5% | | | | | Windows client validation |
+| Mobile client quality | 5% | | | | | Mobile application validation |
+| Branding feasibility | 3% | | | | | Branding reproducibility and upgrade-risk validation |
+| Identity platform compatibility | 4% | | | | | Authentik or OIDC compatibility review |
+| Resource consumption | 3% | | | | | Idle, upload, download, and recreation resource observations |
+
+The total weight must equal 100%.
+
+The proposed weights reflect HomeLab07 architectural priorities rather than feature count.
+
+## Criterion Rationale
+
+Deployment simplicity matters because the service must be reproducible from repository assets and private placeholders.
+
+Operational simplicity matters because HomeLab07 should remain low-maintenance after the initial deployment succeeds.
+
+Storage transparency matters because the NAS should remain the authoritative storage layer and recovery should not depend entirely on one application.
+
+Disaster recovery matters because the platform must survive container recreation, storage restore, and application replacement scenarios.
+
+HomeLab07 platform integration matters because the selected platform should reuse existing networking, proxy, persistence, and operations patterns.
+
+Docker Compose quality matters because HomeLab07 favors declarative infrastructure over upstream stacks that are difficult to understand or trim.
+
+Reverse proxy compatibility matters because public access must flow through Cloudflare and Nginx Proxy Manager without direct application exposure.
+
+Windows synchronization matters because desktop sync is an MVP requirement.
+
+Mobile client quality matters because mobile access is an MVP requirement.
+
+Branding feasibility matters because the MVP includes customization, but branding must not dominate architectural concerns.
+
+Identity platform compatibility matters because future Authentik integration should remain possible without redesigning the service.
+
+Resource consumption matters because the server has finite memory and CPU, but resource efficiency is less important than recovery and operational correctness.
+
+---
+
+# Scoring Rules
+
+No criterion may receive a score without supporting evidence.
+
+Documentation review alone is insufficient where runtime validation is required.
+
+Scores must be traceable to official documentation or empirical testing.
+
+Unknown information must remain unscored rather than inferred.
+
+Evidence must be sanitized before being committed.
+
+Scores must not be based on preference, popularity, novelty, or recent implementation frustration.
+
+When evidence conflicts, the conflict must be documented instead of resolved by assumption.
+
+The objective is to keep the decision reproducible.
+
+---
+
+# Recommendation Framework
+
+The final recommendation should classify each evaluated platform into one of the following categories:
+
+- Recommended for Proof of Concept
+- Promising but requires additional validation
+- Not recommended at this time
+
+No platform is classified in this research note.
+
+Classification may happen only after all required documentation and runtime evidence has been collected.
+
+The final recommendation should explain:
+
+- which criteria drove the classification;
+- which evidence supports the classification;
+- which risks remain unresolved;
+- whether the platform preserves HomeLab07 storage and recovery principles;
+- whether the platform can be adopted without weakening platform independence;
+- whether additional spike work is required before implementation.
+
+The recommendation should prefer the platform that best aligns with HomeLab07 architectural principles, not the platform with the largest feature set.
+
+---
+
+# Current Non-Conclusive Status
 
 The next phase should normalize evidence collection across OwnCloud Community, oCIS, OpenCloud, and Seafile before any runtime implementation or recommendation.
