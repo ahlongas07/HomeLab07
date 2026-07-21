@@ -11,11 +11,18 @@
 
 - The operation-layer lifecycle selects Nextcloud instead of OwnCloud for the
   controlled PoC window.
+- Removed pre-installation `NEXTCLOUD_INIT_HTACCESS` execution after runtime
+  validation showed it caused a restart loop before initial setup completed.
+- Require an IP or CIDR for Nextcloud trusted proxies after runtime checks
+  rejected the Nginx Proxy Manager container hostname.
 
 ### Notes
 
 - OwnCloud configuration and state remain preserved for rollback.
-- Runtime acceptance and any production migration decision remain pending.
+- POC-001 closed with Nextcloud approved as a candidate for a future
+  implementation sprint.
+- Production migration remains blocked on documented recovery, rollback and
+  data-integrity validation.
 
 ---
 

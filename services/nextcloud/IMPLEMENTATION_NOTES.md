@@ -25,6 +25,21 @@ the repository as the rollback service.
 - Existing HomeLab07 logo, favicon and background assets are mounted read-only
   and remain managed in the repository rather than patched into the image.
 
+## First-Run Correction
+
+`NEXTCLOUD_INIT_HTACCESS=true` was removed after runtime validation showed that
+the image attempted `maintenance:update:htaccess` before the initial install
+was complete. The command was unavailable in that state, causing the web
+container to restart continuously. The Apache image supplies its standard
+`.htaccess`; any later refresh must be an explicit post-installation `occ`
+operation.
+
+Runtime setup checks also proved that a Docker service name is invalid in
+Nextcloud's `trusted_proxies` array. The repository now requires an explicit
+target-environment IP or CIDR supplied through private configuration. The
+proxy-network CIDR was selected for container-recreation stability; membership
+of that network must remain controlled.
+
 ## Version Verification
 
 The `33.0.6-apache` tag was confirmed available in the official image registry
@@ -40,7 +55,18 @@ docker image inspect nextcloud:33.0.6-apache \
 Do not silently replace the pinned version. A digest or version change requires
 a reviewed repository update.
 
-## Runtime Evidence Pending
+## Runtime Evidence
+
+Observed during the controlled deployment on 2026-07-21:
+
+- the web container reached normal Apache operation;
+- `/status.php` returned HTTP 200 through the container health check;
+- the UI loaded through Nginx Proxy Manager;
+- the NAS data path reported numeric ownership `33:33`;
+- removing pre-installation htaccess refresh resolved the restart loop;
+- using the proxy-network CIDR resolved the invalid trusted-proxy model.
+
+## Evidence Carried Forward
 
 Repository implementation cannot prove target-environment behavior. Record the
 following here during the controlled PoC:
@@ -58,5 +84,5 @@ following here during the controlled PoC:
 - Proxy Host cutover and rollback evidence;
 - OwnCloud state checks before and after the PoC.
 
-Until those results exist, POC-001 is implemented in the repository but not
-accepted as a successful runtime PoC or approved migration.
+POC-001 is closed and the candidate is approved for a future implementation
+sprint. These remaining results are mandatory before production migration.

@@ -63,6 +63,19 @@ cp services/nextcloud/.env.example ../HomeLab07.private/env/nextcloud.env
 Replace every placeholder. Real paths, domains and credentials must remain in
 `HomeLab07.private/`.
 
+Nextcloud requires `trusted_proxies` to contain IP addresses or CIDR ranges;
+Docker service names are not accepted. Obtain the private proxy-network CIDR
+on the target host:
+
+```bash
+docker network inspect homelab07-proxy \
+  --format '{{(index .IPAM.Config 0).Subnet}}'
+```
+
+Store that result only in the private environment file as
+`NEXTCLOUD_TRUSTED_PROXIES`. Trusting the shared proxy network assumes that
+membership of `homelab07-proxy` remains controlled by the platform.
+
 Create `${NEXTCLOUD_ROOT}/html` and `${NEXTCLOUD_ROOT}/data` on the dedicated
 Rockstor share. Do not point either path at OwnCloud data or an existing NAS
 share.

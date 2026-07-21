@@ -41,9 +41,9 @@ The project has established:
 
 Sprint 005 completed the collaboration platform milestone.
 
-POC-001 now has a repository implementation for a controlled Nextcloud Files
-evaluation. Runtime validation is pending; this does not approve a production
-migration or decommission OwnCloud.
+POC-001 closed with Nextcloud accepted as the candidate for a future
+implementation sprint. Production migration remains unapproved until recovery,
+rollback and data-integrity gates pass; OwnCloud remains preserved.
 
 Implemented direction:
 
