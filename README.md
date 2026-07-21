@@ -41,6 +41,10 @@ The project has established:
 
 Sprint 005 completed the collaboration platform milestone.
 
+POC-001 now has a repository implementation for a controlled Nextcloud Files
+evaluation. Runtime validation is pending; this does not approve a production
+migration or decommission OwnCloud.
+
 Implemented direction:
 
 - OwnCloud Server using `owncloud/server:10.16.3`.
@@ -48,6 +52,8 @@ Implemented direction:
 - NAS-backed storage remains the authoritative user data layer.
 - OwnCloud server-side encryption remains disabled to preserve direct file recoverability from NAS storage.
 - Public endpoint values and environment-specific configuration belong only in `HomeLab07.private/`.
+- Nextcloud PoC uses `nextcloud:33.0.6-apache` with shared MariaDB and Valkey,
+  dedicated NAS-backed state, and a separate cron container.
 
 ## Documentation
 

@@ -1,0 +1,62 @@
+services:
+  nextcloud:
+    image: nextcloud:33.0.6-apache
+    container_name: homelab07-nextcloud
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      MYSQL_HOST: ${NEXTCLOUD_DB_HOST:-homelab07-mariadb}
+      MYSQL_DATABASE: ${NEXTCLOUD_DB_NAME:?NEXTCLOUD_DB_NAME is required}
+      MYSQL_USER: ${NEXTCLOUD_DB_USERNAME:?NEXTCLOUD_DB_USERNAME is required}
+      MYSQL_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:?NEXTCLOUD_DB_PASSWORD is required}
+      NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USERNAME:?NEXTCLOUD_ADMIN_USERNAME is required}
+      NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD:?NEXTCLOUD_ADMIN_PASSWORD is required}
+      NEXTCLOUD_DATA_DIR: /var/www/html/data
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS:?NEXTCLOUD_TRUSTED_DOMAINS is required}
+      NEXTCLOUD_INIT_HTACCESS: "true"
+      REDIS_HOST: ${NEXTCLOUD_REDIS_HOST:-homelab07-valkey}
+      REDIS_HOST_PORT: ${NEXTCLOUD_REDIS_PORT:-6379}
+      TRUSTED_PROXIES: ${NEXTCLOUD_TRUSTED_PROXIES:-homelab07-nginx-proxy-manager}
+      OVERWRITEHOST: ${NEXTCLOUD_OVERWRITE_HOST:?NEXTCLOUD_OVERWRITE_HOST is required}
+      OVERWRITEPROTOCOL: ${NEXTCLOUD_OVERWRITE_PROTOCOL:-https}
+      OVERWRITECLIURL: ${NEXTCLOUD_OVERWRITE_CLI_URL:?NEXTCLOUD_OVERWRITE_CLI_URL is required}
+      PHP_MEMORY_LIMIT: ${NEXTCLOUD_PHP_MEMORY_LIMIT:-512M}
+      PHP_UPLOAD_LIMIT: ${NEXTCLOUD_PHP_UPLOAD_LIMIT:-16G}
+    volumes:
+      - ${NEXTCLOUD_ROOT:?NEXTCLOUD_ROOT is required}/html:/var/www/html
+      - ${NEXTCLOUD_ROOT:?NEXTCLOUD_ROOT is required}/data:/var/www/html/data
+      - ../landing-page/html/assets:/opt/homelab07-branding:ro
+    networks:
+      - homelab07-internal
+      - homelab07-proxy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1/status.php >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 180s
+
+  nextcloud-cron:
+    image: nextcloud:33.0.6-apache
+    container_name: homelab07-nextcloud-cron
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    entrypoint: /cron.sh
+    depends_on:
+      nextcloud:
+        condition: service_started
+    volumes:
+      - ${NEXTCLOUD_ROOT:?NEXTCLOUD_ROOT is required}/html:/var/www/html
+      - ${NEXTCLOUD_ROOT:?NEXTCLOUD_ROOT is required}/data:/var/www/html/data
+    networks:
+      - homelab07-internal
+
+networks:
+  homelab07-internal:
+    name: homelab07-internal
+    external: true
+  homelab07-proxy:
+    name: homelab07-proxy
+    external: true

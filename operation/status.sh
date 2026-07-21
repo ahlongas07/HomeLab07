@@ -27,10 +27,10 @@ echo
 compose_service nginx-proxy-manager ps
 
 echo
-echo "  OwnCloud"
+echo "  Nextcloud PoC"
 echo
 
-compose_service owncloud ps
+compose_service nextcloud ps
 
 echo
 echo "  Cloudflare Dynamic DNS"

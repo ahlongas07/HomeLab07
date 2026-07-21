@@ -21,9 +21,9 @@ echo "Starting Nginx Proxy Manager..."
 compose nginx-proxy-manager up -d
 
 echo
-echo "Starting OwnCloud..."
+echo "Starting Nextcloud PoC..."
 
-compose owncloud up -d
+compose nextcloud up -d
 
 echo
 echo "Starting Cloudflare Dynamic DNS..."

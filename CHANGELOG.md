@@ -1,3 +1,24 @@
+## [Unreleased]
+
+### Added
+
+- POC-001 Nextcloud Files service definition with a dedicated cron container.
+- Independent Nextcloud database provisioning and destructive reset commands.
+- Non-destructive Nextcloud storage validation.
+- Deployment, validation, backup, restore and rollback documentation.
+
+### Changed
+
+- The operation-layer lifecycle selects Nextcloud instead of OwnCloud for the
+  controlled PoC window.
+
+### Notes
+
+- OwnCloud configuration and state remain preserved for rollback.
+- Runtime acceptance and any production migration decision remain pending.
+
+---
+
 ## [v0.6.0-collaboration-platform] - 2026-07-17
 
 ### Added
