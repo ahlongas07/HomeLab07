@@ -6,7 +6,8 @@ Provide the first published service of HomeLab07.
 
 This service validates the complete deployment workflow and serves as the reference implementation for future services published through Nginx Proxy Manager.
 
-It also presents the current public platform status. During Sprint 005, the page was updated to reflect the collaboration platform milestone and OwnCloud availability.
+It also presents the current public platform status and active Nextcloud
+collaboration service.
 
 ---
 
@@ -57,8 +58,8 @@ The command must complete without errors.
 Validate that the rendered page reflects the current platform milestone:
 
 ```text
-v0.6.0-collaboration-platform
-OwnCloud enabled
+Nextcloud platform
+Nextcloud enabled
 ```
 
 ---

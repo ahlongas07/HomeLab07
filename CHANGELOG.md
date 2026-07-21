@@ -9,20 +9,25 @@
 
 ### Changed
 
-- The operation-layer lifecycle selects Nextcloud instead of OwnCloud for the
-  controlled PoC window.
+- The operation-layer lifecycle selects Nextcloud as the active collaboration
+  service.
 - Removed pre-installation `NEXTCLOUD_INIT_HTACCESS` execution after runtime
   validation showed it caused a restart loop before initial setup completed.
 - Require an IP or CIDR for Nextcloud trusted proxies after runtime checks
   rejected the Nginx Proxy Manager container hostname.
+- Promote Nextcloud from PoC candidate to the active collaboration service.
+- Update current platform documentation and landing-page status for Nextcloud.
+
+### Removed
+
+- OwnCloud service definition and service-specific operation scripts from the
+  active repository. The implementation remains reproducible from the
+  `v0.6.0-collaboration-platform` tag.
 
 ### Notes
 
-- OwnCloud configuration and state remain preserved for rollback.
-- POC-001 closed with Nextcloud approved as a candidate for a future
-  implementation sprint.
-- Production migration remains blocked on documented recovery, rollback and
-  data-integrity validation.
+- This change does not delete the OwnCloud database, NAS data, private
+  configuration or historical Git tag.
 
 ---
 

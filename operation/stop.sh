@@ -16,7 +16,7 @@ echo "Stopping Cloudflare Dynamic DNS..."
 compose cloudflare-ddns down
 
 echo
-echo "Stopping Nextcloud PoC..."
+echo "Stopping Nextcloud..."
 
 compose nextcloud down
 

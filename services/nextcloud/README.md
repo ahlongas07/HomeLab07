@@ -2,9 +2,8 @@
 
 ## Purpose
 
-Nextcloud validates a Files-focused collaboration service using the shared
-HomeLab07 platform. It is a controlled replacement candidate for OwnCloud, not
-an approved production migration.
+Nextcloud provides the active Files-focused collaboration service using the
+shared HomeLab07 platform.
 
 ## Responsibilities
 
@@ -90,10 +89,9 @@ SHOW COLLATION LIKE 'utf8mb4_general_ci';
 
 ## Deployment
 
-OwnCloud must be stopped and preserved. Provisioning remains explicit:
+Provisioning remains explicit:
 
 ```bash
-./operation/compose.sh owncloud down
 ./operation/nextcloud-storage-check.sh
 ./operation/compose.sh mariadb up -d
 ./operation/nextcloud-db-create.sh
@@ -199,7 +197,6 @@ Expected security properties:
 - cron joins only the internal network;
 - server-side encryption reports disabled;
 - APCu is local cache and Valkey is distributed cache and file locking;
-- OwnCloud remains stopped.
 
 For a controlled external addition while Nextcloud is stopped, place a
 synthetic file inside one PoC user's `files/` directory, restore ownership,
@@ -228,7 +225,7 @@ User files alone are not a complete Nextcloud backup.
 
 ## Restore
 
-1. Keep OwnCloud and Nextcloud stopped.
+1. Keep Nextcloud stopped.
 2. Restore `html`, `data` and the independent Nextcloud database from one
    consistent recovery point.
 3. Deploy the same pinned image version.
@@ -240,16 +237,13 @@ User files alone are not a complete Nextcloud backup.
 Restore testing uses disposable PoC data only. Backup automation belongs to
 Sprint 010.
 
-## Rollback
+## Historical Recovery
 
-```bash
-./operation/compose.sh nextcloud down
-```
-
-Restore the existing collaboration Proxy Host to
-`homelab07-owncloud:8080`, switch the lifecycle scripts back to OwnCloud in a
-reviewed repository change, then start OwnCloud. Do not drop or alter either
-application's state as part of routing rollback.
+The retired OwnCloud repository implementation is preserved by the
+`v0.6.0-collaboration-platform` tag. Restoring that version is a reviewed
+redeployment operation; it must not reuse or modify Nextcloud state. OwnCloud
+database, NAS and private configuration retirement are separate operations and
+are not performed by this repository change.
 
 ## Security
 

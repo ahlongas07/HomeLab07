@@ -37,22 +37,23 @@ The project has established:
 - HTTPS publication for the Landing Page.
 - Cloudflare Dynamic DNS as an implemented platform enhancement.
 - Valkey as the shared in-memory data platform.
-- OwnCloud as the first business-facing collaboration service.
+- Nextcloud as the active business-facing collaboration service.
 
 Sprint 005 completed the collaboration platform milestone.
 
-POC-001 closed with Nextcloud accepted as the candidate for a future
-implementation sprint. Production migration remains unapproved until recovery,
-rollback and data-integrity gates pass; OwnCloud remains preserved.
+POC-001 closed with Nextcloud selected as the active collaboration service.
+The previous OwnCloud implementation remains recoverable from the
+`v0.6.0-collaboration-platform` tag; its database, NAS data and private
+configuration are outside this repository change.
 
 Implemented direction:
 
-- OwnCloud Server using `owncloud/server:10.16.3`.
 - Shared MariaDB, Valkey, Nginx Proxy Manager, and Cloudflare Dynamic DNS.
 - NAS-backed storage remains the authoritative user data layer.
-- OwnCloud server-side encryption remains disabled to preserve direct file recoverability from NAS storage.
+- Nextcloud server-side and end-to-end encryption remain disabled to preserve
+  direct file recoverability from NAS storage.
 - Public endpoint values and environment-specific configuration belong only in `HomeLab07.private/`.
-- Nextcloud PoC uses `nextcloud:33.0.6-apache` with shared MariaDB and Valkey,
+- Nextcloud uses `nextcloud:33.0.6-apache` with shared MariaDB and Valkey,
   dedicated NAS-backed state, and a separate cron container.
 
 ## Documentation

@@ -292,7 +292,8 @@ Introduce Valkey as the shared in-memory platform service.
 
 ## Sprint 005 — Collaboration Platform
 
-Deploy OwnCloud as the first business-facing platform service.
+Deploy and evolve the collaboration platform as the first business-facing
+platform service.
 
 ## Sprint 006 — Identity Platform
 

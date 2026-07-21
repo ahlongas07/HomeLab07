@@ -158,6 +158,10 @@ Status
 
 Completed
 
+Historical implementation: OwnCloud. Superseded in the active repository by
+Nextcloud after POC-001. The original implementation remains available from
+the `v0.6.0-collaboration-platform` tag.
+
 Objective
 
 Deploy the first business-facing platform service.
@@ -352,7 +356,7 @@ Consumes
 
 Integrates With
 
-- OwnCloud
+- Nextcloud
 
 Validation
 

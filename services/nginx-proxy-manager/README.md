@@ -512,6 +512,6 @@ Examples include:
 - Landing Page
 - Authentik
 - Paperless-ngx
-- OwnCloud
+- Nextcloud
 
 This architecture ensures a single, centralized, and secure entry point for all HomeLab07 services.

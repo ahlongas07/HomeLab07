@@ -27,7 +27,7 @@ echo
 compose_service nginx-proxy-manager ps
 
 echo
-echo "  Nextcloud PoC"
+echo "  Nextcloud"
 echo
 
 compose_service nextcloud ps

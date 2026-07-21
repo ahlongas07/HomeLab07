@@ -38,9 +38,9 @@ Nginx Proxy Manager
   Database: npm_db
   User: npm_user
 
-OwnCloud
-  Database: owncloud_db
-  User: owncloud_user
+Nextcloud
+  Database: nextcloud
+  User: nextcloud
 
 Authentik
   Database: authentik_db

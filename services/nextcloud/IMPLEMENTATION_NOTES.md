@@ -4,10 +4,12 @@
 
 The POC-001 repository implementation reuses MariaDB, Valkey, Nginx Proxy
 Manager, Cloudflare Dynamic DNS, the shared Docker networks and the operation
-layer. It does not modify OwnCloud service files, database scripts or state.
+layer.
 
-The lifecycle selects Nextcloud exclusively for the PoC. OwnCloud remains in
-the repository as the rollback service.
+After PoC closure, Nextcloud became the active collaboration service. The
+superseded OwnCloud implementation was removed from the active tree and remains
+available from the `v0.6.0-collaboration-platform` tag. Its database, NAS data
+and private configuration are outside this repository change.
 
 ## Decisions
 
@@ -82,7 +84,8 @@ following here during the controlled PoC:
 - container recreation result;
 - complete backup and clean restore evidence;
 - Proxy Host cutover and rollback evidence;
-- OwnCloud state checks before and after the PoC.
+- historical-recovery validation from the tagged OwnCloud implementation, if
+  rollback is required;
 
 POC-001 is closed and the candidate is approved for a future implementation
 sprint. These remaining results are mandatory before production migration.
