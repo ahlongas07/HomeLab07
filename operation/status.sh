@@ -33,6 +33,12 @@ echo
 compose_service nextcloud ps
 
 echo
+echo "  Paperless-ngx"
+echo
+
+compose_service paperless-ngx ps
+
+echo
 echo "  Cloudflare Dynamic DNS"
 echo
 

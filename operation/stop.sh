@@ -16,6 +16,11 @@ echo "Stopping Cloudflare Dynamic DNS..."
 compose cloudflare-ddns down
 
 echo
+echo "Stopping Paperless-ngx..."
+
+compose paperless-ngx down
+
+echo
 echo "Stopping Nextcloud..."
 
 compose nextcloud down

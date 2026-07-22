@@ -25,7 +25,8 @@ The project emphasizes:
 
 🚧 Early Development
 
-Sprint 001, Sprint 002, Sprint 003, Sprint 004, and Sprint 005 are complete.
+Sprint 001 through Sprint 005 are complete. Sprint 006 implementation is in
+progress.
 
 The project has established:
 
@@ -38,6 +39,7 @@ The project has established:
 - Cloudflare Dynamic DNS as an implemented platform enhancement.
 - Valkey as the shared in-memory data platform.
 - Nextcloud as the active business-facing collaboration service.
+- Paperless-ngx as the Sprint 006 document-management implementation target.
 
 Sprint 005 completed the collaboration platform milestone.
 

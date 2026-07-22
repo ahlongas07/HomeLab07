@@ -26,6 +26,11 @@ echo "Starting Nextcloud..."
 compose nextcloud up -d
 
 echo
+echo "Starting Paperless-ngx..."
+
+compose paperless-ngx up -d
+
+echo
 echo "Starting Cloudflare Dynamic DNS..."
 
 compose cloudflare-ddns up -d

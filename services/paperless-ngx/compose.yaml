@@ -1,0 +1,49 @@
+services:
+  paperless-ngx:
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
+    container_name: homelab07-paperless-ngx
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      PAPERLESS_REDIS: ${PAPERLESS_REDIS_URL:-redis://homelab07-valkey:6379/1}
+      PAPERLESS_REDIS_PREFIX: ${PAPERLESS_REDIS_PREFIX:-paperless}
+      PAPERLESS_DBENGINE: mariadb
+      PAPERLESS_DBHOST: ${PAPERLESS_DB_HOST:-homelab07-mariadb}
+      PAPERLESS_DBPORT: ${PAPERLESS_DB_PORT:-3306}
+      PAPERLESS_DBNAME: ${PAPERLESS_DB_NAME:?PAPERLESS_DB_NAME is required}
+      PAPERLESS_DBUSER: ${PAPERLESS_DB_USERNAME:?PAPERLESS_DB_USERNAME is required}
+      PAPERLESS_DBPASS: ${PAPERLESS_DB_PASSWORD:?PAPERLESS_DB_PASSWORD is required}
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY:?PAPERLESS_SECRET_KEY is required}
+      PAPERLESS_URL: ${PAPERLESS_URL:?PAPERLESS_URL is required}
+      PAPERLESS_TIME_ZONE: ${PAPERLESS_TIME_ZONE:?PAPERLESS_TIME_ZONE is required}
+      PAPERLESS_OCR_LANGUAGE: ${PAPERLESS_OCR_LANGUAGE:-spa+eng}
+      PAPERLESS_CONSUMER_POLLING: ${PAPERLESS_CONSUMER_POLLING:-60}
+      PAPERLESS_EMPTY_TRASH_DIR: /usr/src/paperless/media/trash
+      USERMAP_UID: ${PAPERLESS_UID:?PAPERLESS_UID is required}
+      USERMAP_GID: ${PAPERLESS_GID:?PAPERLESS_GID is required}
+      PAPERLESS_WEBSERVER_WORKERS: ${PAPERLESS_WEBSERVER_WORKERS:-1}
+      PAPERLESS_TASK_WORKERS: ${PAPERLESS_TASK_WORKERS:-1}
+      PAPERLESS_THREADS_PER_WORKER: ${PAPERLESS_THREADS_PER_WORKER:-1}
+    volumes:
+      - ${PAPERLESS_ROOT:?PAPERLESS_ROOT is required}/data:/usr/src/paperless/data
+      - ${PAPERLESS_ROOT:?PAPERLESS_ROOT is required}/media:/usr/src/paperless/media
+      - ${PAPERLESS_ROOT:?PAPERLESS_ROOT is required}/consume:/usr/src/paperless/consume
+      - ${PAPERLESS_ROOT:?PAPERLESS_ROOT is required}/export:/usr/src/paperless/export
+    networks:
+      - homelab07-internal
+      - homelab07-proxy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:8000/ >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 180s
+
+networks:
+  homelab07-internal:
+    name: homelab07-internal
+    external: true
+  homelab07-proxy:
+    name: homelab07-proxy
+    external: true

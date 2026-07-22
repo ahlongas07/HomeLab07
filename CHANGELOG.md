@@ -2,6 +2,11 @@
 
 ### Added
 
+- Sprint 006 Paperless-ngx service definition using shared MariaDB and Valkey.
+- Dedicated Paperless-ngx database provisioning, reset and storage validation
+  commands.
+- NAS-backed document, application, consumption and export storage boundaries.
+- Paperless-ngx deployment, validation and recovery documentation.
 - POC-001 Nextcloud Files service definition with a dedicated cron container.
 - Independent Nextcloud database provisioning and destructive reset commands.
 - Non-destructive Nextcloud storage validation.
@@ -9,6 +14,7 @@
 
 ### Changed
 
+- Extend start, stop and status operations with Paperless-ngx.
 - The operation-layer lifecycle selects Nextcloud as the active collaboration
   service.
 - Removed pre-installation `NEXTCLOUD_INIT_HTACCESS` execution after runtime
