@@ -1,10 +1,10 @@
-# Identity Platform Research — Authentik Candidate
+# SPIKE-002 — Authentik Technical Evaluation
 
-**Status:** Deferred — retained as candidate research for Sprint 010
+**Status:** Complete — retained as candidate research
 
-**Classification:** Platform Capability
+**Classification:** Technical Evaluation
 
-**Phase:** Phase 3 — Platform Operations
+**Related Capability:** Future Identity Platform
 
 **Primary Technology Under Evaluation:** Authentik
 
@@ -14,21 +14,46 @@
 
 ---
 
+# Executive Summary
+
+Authentik was evaluated as a reusable identity provider for HomeLab07 because
+it offers mature OpenID Connect capabilities, SAML support, centralized user
+management and documented integrations with the platform's expected
+application portfolio.
+
+The evaluation established that current Authentik releases require PostgreSQL
+and cannot use HomeLab07's existing MariaDB service. PostgreSQL therefore
+became part of the architectural discussion as a mandatory dependency rather
+than as an optional technology preference. The same research confirmed that
+current Authentik releases no longer require Redis, so shared Valkey would not
+be consumed by this candidate.
+
+Technical suitability does not automatically justify adoption. Introducing a
+second relational database engine changes HomeLab07's backup, recovery,
+upgrade and operational-maintenance boundaries. Because the platform currently
+has a limited number of users and identity consumers, operational cost is a
+primary decision criterion alongside protocol and integration capability.
+
+This evaluation preserves the evidence needed for a future comparative
+Identity Platform decision. It does not select Authentik or authorize an
+implementation.
+
+---
+
 # Objective
 
-Design a reusable identity platform for HomeLab07 using Authentik as the
-candidate identity provider.
+Evaluate how Authentik could provide a reusable identity platform for
+HomeLab07 and document its technical, operational and recovery implications.
 
 The identity platform must provide one central authentication authority that
 applications consume through standard protocols. Nextcloud is the first
 planned consumer, but neither the deployment nor its configuration may make
 identity a Nextcloud-owned capability.
 
-This research produces an implementation-ready Authentik candidate plan only. It does not deploy
-Authentik, PostgreSQL, an identity integration, or production SSO. Runtime
-implementation and evidence belong to a future PoC. The final Sprint 010
-technology decision must compare this design with the capabilities then
-available in Authelia and Keycloak.
+This research provides implementation-ready evidence for the Authentik
+candidate only. It does not deploy Authentik, PostgreSQL, an identity
+integration or production SSO. Final technology selection is intentionally
+deferred and belongs to a separate comparative evaluation.
 
 ---
 
@@ -58,16 +83,6 @@ Authentik is evaluated because it provides OAuth2/OpenID Connect, SAML and
 other provider types from one platform. Its documented Docker Compose model is
 appropriate for test and small production deployments, matching HomeLab07's
 single-host architecture.
-
-## Sprint Deferral
-
-Identity Platform is deferred to Sprint 010 so that Paperless-ngx, Media
-Platform, Platform Operations and Backup & Recovery can first demonstrate the
-platform's actual authentication requirements. This document is retained on
-the `identity` branch as Authentik-specific research; it is not an approved
-technology decision or active implementation plan.
-
----
 
 # Research Findings
 
@@ -110,7 +125,7 @@ The official documentation currently supports PostgreSQL 14 through 18. The
 candidate HomeLab07 baseline is the PostgreSQL 17 release line because it is
 within the supported range and has been used by recent upstream deployment
 defaults. The exact patch tag and digest must be selected and pinned during PoC
-entry validation rather than guessed in this planning document.
+entry validation rather than guessed in this evaluation.
 
 Official references:
 
@@ -127,16 +142,16 @@ MariaDB would be unsupported and would violate reliability, reproducibility
 and upgrade guidance.
 
 The new PostgreSQL dependency is therefore technically required. To preserve
-the HomeLab07 shared-service architecture, PostgreSQL must be introduced as an
-application-agnostic platform capability rather than hidden inside the
-Authentik service definition.
+the HomeLab07 shared-service architecture, PostgreSQL would need to be
+introduced as an application-agnostic platform capability rather than hidden
+inside the Authentik service definition.
 
 MariaDB remains unchanged and continues serving applications that support it.
 PostgreSQL does not replace MariaDB platform-wide.
 
 ## Valkey Decision
 
-Authentik must not consume shared Valkey.
+An Authentik design would not consume shared Valkey.
 
 Authentik removed Redis entirely in release 2025.10. Caching, task
 coordination, embedded-outpost sessions and WebSockets now use PostgreSQL.
@@ -169,6 +184,35 @@ existing platform before production approval.
 
 ---
 
+# Decision Impact
+
+## Confirmed Findings
+
+- Authentik requires PostgreSQL; MariaDB is not a supported substitute.
+- Authentik no longer requires Redis and would not consume shared Valkey.
+- Authentik supports a reusable OpenID Connect provider architecture.
+- Authentik can integrate with Nextcloud and the expected future application
+  portfolio through OIDC or documented conditional integration paths.
+- The official container model requires separate server and worker roles using
+  the same Authentik image.
+
+## Architectural Implications
+
+- PostgreSQL would become a new platform dependency and a second relational
+  database engine.
+- Identity recovery would depend on a consistent PostgreSQL backup, Authentik
+  data and private configuration.
+- Database and Authentik upgrades would require separate, coordinated
+  procedures.
+- Backup scope, restore testing and operational maintenance would increase.
+- Shared Valkey reuse does not offset the additional database cost because
+  current Authentik releases do not use Redis-compatible storage.
+
+These implications are evidence for future selection; they are not an
+approval or rejection of Authentik.
+
+---
+
 # Protocol Decision
 
 ## OpenID Connect
@@ -192,7 +236,7 @@ Stable subject: Authentik user UUID
 ```
 
 PKCE should be enabled when the consumer supports it. Implicit, password and
-hybrid grants are not approved for the baseline. Refresh tokens and
+hybrid grants are excluded from the evaluated baseline. Refresh tokens and
 `offline_access` are enabled only when a consumer has a documented session or
 token-refresh requirement.
 
@@ -212,11 +256,11 @@ when the consumer supports OIDC.
 
 OAuth2 remains useful for future machine-to-machine or delegated API access,
 but those uses require separate clients, scopes and threat analysis. They are
-outside this Sprint.
+outside this evaluation.
 
 ## SAML
 
-Authentik and Nextcloud support SAML. SAML remains an approved fallback for a
+Authentik and Nextcloud support SAML. SAML remains a technically available fallback for a
 consumer that lacks a reliable OIDC implementation or has a documented SAML
 requirement.
 
@@ -232,7 +276,7 @@ OIDC consistently reduces per-application onboarding work.
 | OIDC Authorization Code | Authentication and claims over OAuth2 | Preferred | Discovery, signed tokens, broad consumer support and simpler onboarding |
 | OAuth2 without OIDC | Delegated authorization | Not an authentication baseline | Does not standardize identity by itself |
 | SAML 2.0 | Federated authentication | Supported fallback | Useful for SAML-only consumers but operationally heavier |
-| LDAP | Directory protocol | Out of scope | Requires an outpost and is explicitly excluded from this Sprint |
+| LDAP | Directory protocol | Out of scope | Requires an outpost and is explicitly excluded from this evaluation |
 
 ---
 
@@ -312,7 +356,7 @@ recovery and bypass procedures are validated.
 |---|---|---|
 | Identity server | `ghcr.io/goauthentik/server:2026.5.4` | Candidate pin; revalidate tag and digest at PoC entry |
 | Background processing | Same Authentik image with worker command | Required official architecture |
-| Relational database | Shared PostgreSQL 17 release line | New required platform capability; exact patch pin pending PoC entry |
+| Relational database | Shared PostgreSQL 17 release line | Would be a new required platform capability; exact patch pin pending PoC entry |
 | In-memory service | None | Authentik no longer uses Redis/Valkey |
 | Protocol | OIDC Authorization Code | Preferred reusable application integration |
 | Reverse proxy | Existing Nginx Proxy Manager | Reuse shared publication capability |
@@ -320,7 +364,7 @@ recovery and bypass procedures are validated.
 | Persistence | Rockstor-backed PostgreSQL and Authentik data roots | Reuse Storage First architecture |
 | Operations | Existing HomeLab07 operation layer | Required public lifecycle interface |
 
-Not approved:
+Excluded from the evaluated baseline:
 
 - `latest` or prerelease images;
 - MariaDB for Authentik;
@@ -337,35 +381,7 @@ Not approved:
 
 # Repository Impact
 
-## Source Control Strategy
-
-Implementation must be developed in a dedicated branch created from the
-current `main` baseline:
-
-```text
-identity
-```
-
-PostgreSQL does not require a separate feature branch. Although it is a new
-shared platform capability, its introduction is a technically required and
-reviewable part of the Identity Platform scope. Keeping PostgreSQL and
-Authentik in the same Sprint branch preserves end-to-end validation while
-separate logical commits keep the dependency independently reviewable.
-
-The planned commit boundaries are:
-
-1. identity platform planning and roadmap reconciliation;
-2. shared PostgreSQL platform service and operations integration;
-3. Authentik server and worker deployment;
-4. Nextcloud OIDC consumer integration;
-5. validation evidence and final Sprint documentation.
-
-The branch must not be merged into `main` until the future PoC satisfies its
-acceptance criteria. `main` remains the stable implementation baseline, and
-the repository owner retains responsibility for commits, pushes, merges, tags
-and releases.
-
-The future PoC is expected to add:
+If Authentik advances to a future PoC, the evaluated design would add:
 
 ```text
 services/
@@ -387,7 +403,7 @@ operation/
 └── authentik-storage-check.sh
 ```
 
-The future PoC is expected to update:
+The evaluated design would update:
 
 ```text
 operation/start.sh
@@ -399,7 +415,7 @@ CHANGELOG.md
 services/nextcloud/README.md
 ```
 
-This planning Sprint creates none of those implementation files.
+This evaluation creates none of those implementation files.
 
 ## Reuse Map
 
@@ -505,11 +521,11 @@ homelab07-authentik-worker
 ## Docker Socket Decision
 
 The official Compose example mounts `/var/run/docker.sock` into the worker for
-automatic outpost management. HomeLab07 does not require an external outpost
-for OIDC or SAML in this Sprint.
+automatic outpost management. The evaluated OIDC and SAML design does not
+require an external outpost.
 
 The mount is prohibited because it grants high-impact control over the Docker
-host without providing baseline identity value. If a future Sprint requires an
+host without providing baseline identity value. If a future implementation requires an
 outpost, it must separately evaluate manual deployment or a restricted Docker
 socket proxy.
 
@@ -583,9 +599,9 @@ original HTTPS headers.
 
 ## Shared PostgreSQL Platform
 
-PostgreSQL is introduced as a reusable platform capability because it is a
-hard Authentik requirement and is likely reusable by future services. It must
-remain application agnostic.
+PostgreSQL would be introduced as a reusable platform capability because it is
+a hard Authentik requirement and is likely reusable by future services. It
+would remain application agnostic.
 
 The PostgreSQL service must not bootstrap an Authentik schema or embed
 Authentik credentials. Application provisioning belongs to Authentik-specific
@@ -750,8 +766,8 @@ Scopes: openid profile email
 Signing key: Explicit Authentik signing certificate
 ```
 
-Redirect URIs must be strict literal values. Regex or first-use learning is not
-approved for the baseline.
+Redirect URIs must be strict literal values. Regex or first-use learning is
+excluded from the evaluated baseline.
 
 Nextcloud uses its OpenID Connect user backend and the per-provider discovery
 document:
@@ -767,7 +783,7 @@ Official reference:
 ## Identity Mapping
 
 The OIDC `sub` claim must be based on the immutable Authentik user UUID.
-Mutable usernames are not approved as the primary subject.
+Mutable usernames are unsuitable as the primary subject.
 
 Baseline claims:
 
@@ -780,7 +796,7 @@ Baseline claims:
 `email_verified` must not be forced to `true` without a real email-verification
 process. Current Authentik defaults it to `false` for security reasons.
 
-This Sprint does not migrate or merge existing Nextcloud users. The first PoC
+This evaluation does not migrate or merge existing Nextcloud users. A future PoC
 must use a synthetic identity and determine whether an existing local account
 can be linked safely without changing its storage identity.
 
@@ -806,7 +822,7 @@ login bypass URL and exact recovery procedure must be validated before any
 automatic OIDC redirect is considered.
 
 The PoC must not disable multiple user backends or regular login. Production
-SSO enforcement belongs to a later approved implementation decision.
+SSO enforcement would require a later implementation decision.
 
 ---
 
@@ -879,7 +895,7 @@ private credentials and claim-policy validation.
 - Do not use the Authentik bootstrap administrator for normal use.
 - Record all administrative provider and mapping changes.
 - Do not grant administrator roles solely from an unvalidated group claim.
-- Keep MFA planning outside this Sprint; absence of MFA must remain an explicit
+- Keep MFA planning outside this evaluation; absence of MFA must remain an explicit
   risk rather than an undocumented assumption.
 
 ## Supply Chain And Upgrade Security
@@ -958,7 +974,7 @@ a usable identity restore.
 
 A raw live copy of `/var/lib/postgresql/data` is not the primary backup method.
 Use `pg_dump`/`pg_restore` or another PostgreSQL-native consistent mechanism.
-Backup automation remains outside this Sprint.
+Backup automation remains outside this evaluation.
 
 Official reference:
 
@@ -989,8 +1005,8 @@ the complete pre-upgrade recovery point.
 
 PostgreSQL major upgrades are independent maintenance operations requiring a
 logical dump, downtime, new major-version data directory, restore and
-validation. Changing only the image tag over an existing data directory is not
-approved.
+validation. Changing only the image tag over an existing data directory is
+unsafe and excluded from the evaluated upgrade model.
 
 Official reference:
 
@@ -1039,18 +1055,16 @@ platform start.
 
 ---
 
-# Implementation Sequence For The Future PoC
+# Potential Authentik PoC Validation Sequence
 
 ## Phase 1 — Dependency Preparation
 
-1. Resume the `identity` branch from the then-current stable `main` baseline.
-2. Reconcile Sprint numbering in the roadmap.
-3. Revalidate Authentik stable patch, image digest and PostgreSQL support.
-4. Select an exact PostgreSQL 17 patch tag and digest.
-5. Create dedicated NAS paths for PostgreSQL and Authentik media.
-6. Create placeholder-only example configuration.
-7. Implement the shared PostgreSQL service.
-8. Implement Authentik-specific database create/drop commands.
+1. Revalidate Authentik stable patch, image digest and PostgreSQL support.
+2. Select an exact PostgreSQL 17 patch tag and digest.
+3. Create dedicated NAS paths for PostgreSQL and Authentik media.
+4. Create placeholder-only example configuration.
+5. Implement the shared PostgreSQL service in an isolated PoC.
+6. Implement Authentik-specific database create/drop commands.
 
 ## Phase 2 — Isolated Identity Deployment
 
@@ -1071,7 +1085,7 @@ platform start.
 
 1. Preserve local Nextcloud administrator access.
 2. Create one Authentik application/provider pair.
-3. Install and pin the approved Nextcloud OIDC backend.
+3. Install and pin the selected Nextcloud OIDC backend.
 4. Configure a synthetic user and strict redirect URI.
 5. Validate login, logout, claims and session behavior.
 6. Validate that existing local users and files remain unchanged.
@@ -1139,7 +1153,7 @@ the repository.
 - Redirect URI matching is strict.
 - ID token issuer, audience, expiry and signature validate.
 - `sub` remains stable across username/display-name changes.
-- Only approved scopes and claims are returned.
+- Only explicitly configured scopes and claims are returned.
 - A user without an application binding is denied.
 - Logout behavior is documented from actual evidence.
 - Stopping Authentik prevents new OIDC login without corrupting Nextcloud.
@@ -1187,13 +1201,12 @@ No future consumer is deployed or configured.
 | PostgreSQL connection pressure after Redis removal | Identity instability | Medium | Observe connections and set evidence-based limits | Connection metrics during load |
 | Jellyfin depends on a community plugin | Upgrade fragility | High | Classify as conditional; separate integration PoC | Plugin/version compatibility record |
 | Local admin is disabled too early | Administrative lockout | Medium | Keep break-glass accounts and direct login | Recovery login succeeds |
-| Roadmap numbering remains inconsistent | Traceability confusion | High | Reconcile before implementation | Roadmap and Sprint IDs agree |
 
 ---
 
-# Acceptance Criteria
+# Evaluation Completion Criteria
 
-This planning Sprint is complete only when:
+This technical evaluation is complete only when:
 
 - Authentik is classified as a shared platform capability;
 - the required server, worker and PostgreSQL roles are documented;
@@ -1217,8 +1230,8 @@ This planning Sprint is complete only when:
 - every major recommendation traces to official documentation or a HomeLab07
   engineering principle.
 
-Planning acceptance does not approve Authentik for production use. That
-decision requires the future PoC evidence.
+Completing the evaluation does not approve Authentik for production use. Any
+adoption decision requires comparative analysis and future PoC evidence.
 
 ---
 
@@ -1242,7 +1255,7 @@ decision requires the future PoC evidence.
 
 ---
 
-# Required Research Before PoC Implementation
+# Required Revalidation Before An Authentik PoC
 
 The future PoC may begin only after completing these time-sensitive checks:
 
@@ -1261,25 +1274,47 @@ The future PoC may begin only after completing these time-sensitive checks:
    custom claims.
 10. Confirm blueprint schema/API identifiers for the pinned Authentik version.
 11. Measure target-host CPU, memory and PostgreSQL connection headroom.
-12. Revalidate the Sprint 010 schedule and candidate scope in `ROADMAP.md`.
 
 ---
 
-# Expected Decision Record
+# Architectural Conclusion
 
-After the future PoC, HomeLab07 must answer:
+The evaluation demonstrates that Authentik is a technically mature identity
+platform with strong OpenID Connect capabilities, reusable consumer patterns
+and suitable integration paths for Nextcloud and expected future services.
 
-> Does Authentik provide a recoverable, maintainable and reusable identity
-> platform whose operational cost is justified by consistent OIDC integration
-> for Nextcloud and future services?
+Authentik nevertheless introduces a mandatory PostgreSQL dependency. HomeLab07
+currently operates MariaDB as its shared relational platform, so adopting
+Authentik would add a second database engine with separate backup, restore,
+upgrade and maintenance procedures.
 
-Valid outcomes:
+For the platform's current number of users and applications, this additional
+operational cost may outweigh Authentik's architectural and feature benefits.
+The final Identity Platform decision therefore remains intentionally deferred
+until additional consumers demonstrate a clear requirement for centralized
+identity and enough value to justify its lifecycle cost.
 
-- approve an Authentik Identity Platform implementation Sprint;
-- extend the PoC for unresolved recovery, mapping or session evidence;
-- reject Authentik because the additional PostgreSQL and identity operations
-  are disproportionate to HomeLab07 requirements;
-- select another identity candidate through a separately approved spike.
+---
+
+# Future Evaluation
+
+A separate comparative spike should evaluate:
+
+- Authelia;
+- Keycloak;
+- Authentik.
+
+Every candidate must be assessed using identical criteria:
+
+- operational simplicity;
+- recoverability;
+- maintainability;
+- integration effort;
+- demonstrated platform requirements;
+- long-term project and community sustainability.
+
+This document supplies Authentik-specific evidence to that future comparison.
+It intentionally does not rank or compare the three products.
 
 Feature count, appearance and successful login alone are insufficient. Approval
 requires recovery, lockout prevention, stable identity mapping, secret
