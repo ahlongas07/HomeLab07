@@ -1,16 +1,16 @@
-# SPRINT-007 — Identity Platform Planning
+# Identity Platform Research — Authentik Candidate
 
-**Status:** Planned — technical design complete; PoC implementation required
+**Status:** Deferred — retained as candidate research for Sprint 010
 
 **Classification:** Platform Capability
 
-**Phase:** Phase 2 — Shared Platform Capabilities
+**Phase:** Phase 3 — Platform Operations
 
 **Primary Technology Under Evaluation:** Authentik
 
 **First Planned Consumer:** Nextcloud
 
-**Last Reviewed:** 2026-07-21
+**Last Reviewed:** 2026-07-22
 
 ---
 
@@ -24,9 +24,11 @@ applications consume through standard protocols. Nextcloud is the first
 planned consumer, but neither the deployment nor its configuration may make
 identity a Nextcloud-owned capability.
 
-This Sprint produces an implementation-ready plan only. It does not deploy
+This research produces an implementation-ready Authentik candidate plan only. It does not deploy
 Authentik, PostgreSQL, an identity integration, or production SSO. Runtime
-implementation and evidence belong to a future PoC.
+implementation and evidence belong to a future PoC. The final Sprint 010
+technology decision must compare this design with the capabilities then
+available in Authelia and Keycloak.
 
 ---
 
@@ -57,15 +59,13 @@ other provider types from one platform. Its documented Docker Compose model is
 appropriate for test and small production deployments, matching HomeLab07's
 single-host architecture.
 
-## Sprint Number Reconciliation
+## Sprint Deferral
 
-The current `ROADMAP.md` labels Identity Platform as Sprint 006 and Media
-Platform as Sprint 007. The approved planning request names this work
-SPRINT-007. This document follows the approved request.
-
-Before implementation, the project owner must reconcile the roadmap numbering
-without changing the technical scope. This administrative mismatch is not a
-reason to duplicate or redesign the identity capability.
+Identity Platform is deferred to Sprint 010 so that Paperless-ngx, Media
+Platform, Platform Operations and Backup & Recovery can first demonstrate the
+platform's actual authentication requirements. This document is retained on
+the `identity` branch as Authentik-specific research; it is not an approved
+technology decision or active implementation plan.
 
 ---
 
@@ -336,6 +336,34 @@ Not approved:
 ---
 
 # Repository Impact
+
+## Source Control Strategy
+
+Implementation must be developed in a dedicated branch created from the
+current `main` baseline:
+
+```text
+identity
+```
+
+PostgreSQL does not require a separate feature branch. Although it is a new
+shared platform capability, its introduction is a technically required and
+reviewable part of the Identity Platform scope. Keeping PostgreSQL and
+Authentik in the same Sprint branch preserves end-to-end validation while
+separate logical commits keep the dependency independently reviewable.
+
+The planned commit boundaries are:
+
+1. identity platform planning and roadmap reconciliation;
+2. shared PostgreSQL platform service and operations integration;
+3. Authentik server and worker deployment;
+4. Nextcloud OIDC consumer integration;
+5. validation evidence and final Sprint documentation.
+
+The branch must not be merged into `main` until the future PoC satisfies its
+acceptance criteria. `main` remains the stable implementation baseline, and
+the repository owner retains responsibility for commits, pushes, merges, tags
+and releases.
 
 The future PoC is expected to add:
 
@@ -1015,13 +1043,14 @@ platform start.
 
 ## Phase 1 — Dependency Preparation
 
-1. Reconcile Sprint numbering in the roadmap.
-2. Revalidate Authentik stable patch, image digest and PostgreSQL support.
-3. Select an exact PostgreSQL 17 patch tag and digest.
-4. Create dedicated NAS paths for PostgreSQL and Authentik media.
-5. Create placeholder-only example configuration.
-6. Implement the shared PostgreSQL service.
-7. Implement Authentik-specific database create/drop commands.
+1. Resume the `identity` branch from the then-current stable `main` baseline.
+2. Reconcile Sprint numbering in the roadmap.
+3. Revalidate Authentik stable patch, image digest and PostgreSQL support.
+4. Select an exact PostgreSQL 17 patch tag and digest.
+5. Create dedicated NAS paths for PostgreSQL and Authentik media.
+6. Create placeholder-only example configuration.
+7. Implement the shared PostgreSQL service.
+8. Implement Authentik-specific database create/drop commands.
 
 ## Phase 2 — Isolated Identity Deployment
 
@@ -1232,7 +1261,7 @@ The future PoC may begin only after completing these time-sensitive checks:
    custom claims.
 10. Confirm blueprint schema/API identifiers for the pinned Authentik version.
 11. Measure target-host CPU, memory and PostgreSQL connection headroom.
-12. Reconcile Sprint 006/007 numbering in `ROADMAP.md`.
+12. Revalidate the Sprint 010 schedule and candidate scope in `ROADMAP.md`.
 
 ---
 
