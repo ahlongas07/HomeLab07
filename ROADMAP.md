@@ -327,7 +327,7 @@ Operational Principle
 
 ---
 
-## Sprint 006 — Identity Platform
+## Sprint 006 — Document Management Platform
 
 Status
 
@@ -335,35 +335,41 @@ Planned
 
 Objective
 
-Provide centralized authentication and authorization for the platform.
+Provide searchable document ingestion, OCR, classification and archival through
+the shared platform.
 
-Platform Capability
+Business Service
 
-Authentik
-
-Provides
-
-- OpenID Connect
-- Single Sign-On
-- Identity Management
-- User Management
-- Group Management
+Paperless-ngx
 
 Consumes
 
-- PostgreSQL (if required)
+- Shared MariaDB
+- Shared Valkey
+- Shared Storage
 - Nginx Proxy Manager
+- Cloudflare Dynamic DNS
 
-Integrates With
+Deliverables
 
-- Nextcloud
+- Paperless-ngx
+- Document consumption directory
+- OCR processing
+- Searchable document archive
+- HTTPS publication
+- Platform operations integration
+- Service documentation
 
 Validation
 
-- OIDC login
-- User provisioning
-- Group synchronization
-- Identity integration
+- Document upload and consumption
+- OCR and full-text search
+- Metadata and classification
+- MariaDB integration
+- Valkey-backed task processing
+- NAS-backed persistence
+- HTTPS publication
+- Export and recovery boundary documentation
 
 ---
 
@@ -383,9 +389,9 @@ Jellyfin
 
 Consumes
 
-- Identity Platform
 - Shared Storage
 - Nginx Proxy Manager
+- Cloudflare Dynamic DNS
 
 Deliverables
 
@@ -398,51 +404,18 @@ Validation
 
 - Media playback
 - Secure remote access
-- Identity integration
-
----
-
-## Sprint 008 — Smart Home Platform
-
-Status
-
-Planned
-
-Objective
-
-Provide smart home automation services.
-
-Business Service
-
-Homebridge
-
-Consumes
-
-- Identity Platform (where applicable)
-- Nginx Proxy Manager
-
-Deliverables
-
-- Homebridge
-- HomeKit integration
-- Remote access
-- Platform documentation
-
-Validation
-
-- HomeKit connectivity
-- Remote access
 - Stable operation
 
 ---
 
 # Phase 3 — Platform Operations
 
-The objective of this phase is to operationalize and secure the platform.
+The objective of this phase is to operationalize, protect and recover the
+platform before introducing centralized identity.
 
 ---
 
-## Sprint 009 — Platform Hardening
+## Sprint 008 — Platform Operations
 
 Status
 
@@ -450,7 +423,7 @@ Planned
 
 Objective
 
-Harden the platform for production-quality operation.
+Harden and operationalize the platform for production-quality operation.
 
 Deliverables
 
@@ -469,7 +442,7 @@ Validation
 
 ---
 
-## Sprint 010 — Backup & Recovery
+## Sprint 009 — Backup & Recovery
 
 Status
 
@@ -495,6 +468,45 @@ Validation
 
 ---
 
+## Sprint 010 — Identity Platform
+
+Status
+
+Planned
+
+Objective
+
+Provide reusable centralized authentication and authorization after application
+requirements have been demonstrated by the preceding Sprints.
+
+Platform Capability
+
+Identity Provider; technology decision deferred.
+
+Candidates
+
+- Authelia
+- Keycloak
+- Authentik
+
+Deliverables
+
+- Identity platform decision record
+- OpenID Connect
+- Single Sign-On
+- User and group management appropriate to demonstrated requirements
+- Nextcloud integration
+- Compatibility validation for existing platform applications
+
+Validation
+
+- OIDC login
+- User lifecycle validation
+- Application integration
+- Recovery and local administrative access
+
+---
+
 # Future Platform Enhancements
 
 The following capabilities remain outside the current roadmap.
@@ -503,6 +515,7 @@ They should only be introduced when justified by platform requirements.
 
 Potential future enhancements include:
 
+- Smart Home Platform
 - Observability
 - Multi-node deployment
 - High Availability
@@ -518,12 +531,15 @@ Potential future enhancements include:
 
 The roadmap follows the engineering philosophy of HomeLab07.
 
-Platform capabilities are implemented before applications.
+Platform capabilities are introduced when demonstrated application requirements
+justify their operational cost.
 
 Applications consume shared platform services rather than implementing infrastructure independently.
 
 The platform should evolve by increasing reuse, reducing duplication and preserving reproducibility.
 
-Business-facing services should demonstrate the value of the platform while remaining loosely coupled to the underlying infrastructure.
+Business-facing services should demonstrate the value of the platform, inform
+future shared-capability decisions and remain loosely coupled to the underlying
+infrastructure.
 
 Every Sprint should strengthen the platform as a whole, not only the service being introduced.
