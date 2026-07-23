@@ -6,6 +6,9 @@
 
 ### Changed
 
+- Reinforce Sprint 007 storage ownership, identity deferral, future integration,
+  engineering principles and disaster-recovery boundaries after architecture
+  review.
 - Update the Landing Page to present Paperless-ngx and the completed document
   management milestone.
 - Record the Sprint 007 Intel Sandy Bridge VA-API capability decision and

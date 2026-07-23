@@ -196,6 +196,36 @@ Do not use `chmod 777`.
 
 ---
 
+# Storage Principles
+
+HomeLab07 follows a Storage First architecture.
+
+Rockstor remains the authoritative storage layer. Jellyfin provides indexing,
+metadata, playback and media-library management over NAS-backed storage.
+Source media is never owned by Jellyfin.
+
+Application state and media libraries remain separate recovery boundaries.
+Media libraries are mounted read-only by default. Writable media mounts require
+a separate architectural decision and are not approved by Sprint 007.
+
+This boundary keeps Jellyfin replaceable without transferring ownership of
+source media from the storage platform to the application.
+
+## Data Ownership
+
+| Component | Owner |
+|---|---|
+| Source media | Rockstor |
+| Metadata | Jellyfin |
+| Playback history | Jellyfin |
+| Users | Jellyfin |
+| Application configuration | Jellyfin |
+| TLS | Nginx Proxy Manager |
+| DNS | Cloudflare Dynamic DNS |
+| Platform lifecycle | HomeLab07 Operation Layer |
+
+---
+
 # Docker Architecture
 
 The baseline contains one service:
@@ -404,6 +434,37 @@ Jellyfin local authentication and must not install a community OIDC plugin.
 
 ---
 
+# Identity
+
+Sprint 007 intentionally uses Jellyfin local authentication.
+
+No OpenID Connect, OAuth2, SAML or third-party authentication plugin is part of
+this Sprint. Identity Platform evaluation belongs exclusively to Sprint 010.
+
+Future identity integration must preserve the current recovery boundary and
+local administrative access. It must not make recovery of Jellyfin dependent
+on the availability of an external identity service.
+
+---
+
+# Future Integration
+
+Future platform capabilities may integrate with Jellyfin through documented
+interfaces.
+
+Potential future integrations include:
+
+- Identity Platform;
+- shared platform monitoring;
+- backup automation;
+- centralized logging.
+
+These entries document compatibility direction only and approve no
+implementation. Media acquisition services, download managers and community
+plugins remain outside the current HomeLab07 roadmap.
+
+---
+
 # Backup And Recovery Boundary
 
 A complete recoverable Jellyfin service includes:
@@ -430,6 +491,15 @@ Recovery order:
 
 The Sprint must perform a disposable configuration restore. Recreating a fresh
 empty Jellyfin server is not sufficient recovery evidence.
+
+Recovery success is defined as follows:
+
+> A clean Jellyfin installation plus a restored configuration produces an
+> equivalent media server without modifying the original media library.
+
+Container recreation alone is not disaster recovery. It validates runtime
+replaceability but does not prove that application state can be recovered after
+loss of `/config`.
 
 ---
 
@@ -622,7 +692,7 @@ Sprint 007 is complete when:
 
 # Explicit Non-Goals
 
-- Sonarr, Radarr, Lidarr, Prowlarr, Bazarr or download clients.
+- Sonarr, Radarr, Lidarr, Prowlarr, Bazarr, Overseerr or download clients.
 - Automatic acquisition, renaming or deletion of media.
 - Writable media libraries or sidecar metadata.
 - DLNA and host networking.
@@ -636,6 +706,39 @@ Sprint 007 is complete when:
 - Monitoring or alerting.
 - High availability or multiple Jellyfin nodes.
 - Changing the shared MariaDB or Valkey platforms.
+
+---
+
+# Engineering Principles
+
+Sprint 007 introduces no new platform capability. Its objective is to validate
+that a business-facing application can consume existing platform services
+without increasing infrastructure complexity.
+
+Operational simplicity takes precedence over feature count. The NAS remains
+the permanent storage platform. Applications remain replaceable consumers of
+shared platform capabilities.
+
+The implementation must reinforce reusable operations, explicit ownership and
+recoverability rather than introduce application-specific infrastructure.
+
+---
+
+# Completion Notes
+
+This section will be completed after implementation. It must summarize:
+
+- successful deployment;
+- playback validation;
+- HTTPS validation;
+- direct play validation;
+- hardware acceleration validation, if retained after runtime evidence;
+- recovery validation;
+- container recreation validation;
+- confirmation that source media remained unchanged.
+
+Completion notes must record results without including private paths, domains,
+credentials, personal metadata or copyrighted test assets.
 
 ---
 
