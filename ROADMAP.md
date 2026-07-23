@@ -425,7 +425,8 @@ Architecture Decisions
 - Dedicated durable `/config` and replaceable `/cache` boundaries.
 - No MariaDB or Valkey dependency.
 - Bridge networking and proxy-only publication; DLNA excluded.
-- Hardware acceleration requires target-host evidence and scoped device access.
+- Limited Intel VA-API acceleration is approved for validated H.264,
+  MPEG-2 and VC-1 profiles through scoped render-device access.
 
 ---
 

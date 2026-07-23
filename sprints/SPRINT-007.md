@@ -93,7 +93,7 @@ host.
 | Publication | Existing Nginx Proxy Manager | HTTPS and WebSockets |
 | DNS | Existing Cloudflare Dynamic DNS | Environment-specific record remains private |
 | Authentication | Jellyfin local users | Identity Platform remains Sprint 010 |
-| Transcoding | Software baseline, hardware PoC gate | Avoid device privileges before target-host validation |
+| Transcoding | VA-API on Intel Sandy Bridge plus software fallback | Scoped H.264 acceleration validated before implementation |
 
 Not approved in the baseline:
 
@@ -238,9 +238,9 @@ enhancement with explicit firewall, port and discovery behavior.
 
 ## Direct Play First
 
-The first goal is direct play. Test representative codecs and clients before
-granting GPU access. Direct play reduces CPU use, cache writes and playback
-complexity.
+The first goal remains direct play. Hardware acceleration is used only when a
+client requires transcoding. Direct play reduces CPU use, cache writes and
+playback complexity.
 
 The synthetic test set should cover, where legally available:
 
@@ -259,25 +259,42 @@ Software transcoding is permitted only for controlled validation. Measure CPU,
 memory, startup delay, seeking and `/cache` growth. The baseline is not accepted
 for unrestricted concurrent transcoding without target-host evidence.
 
-## Hardware Acceleration Gate
+## Validated Hardware Acceleration Baseline
 
-Hardware acceleration is optional and must not be enabled by assumption.
-Before adding a device mapping, the PoC must identify:
+Target-host discovery completed on 2026-07-23. The host provides an Intel
+Sandy Bridge Gen6 integrated GPU through the `i915` kernel driver and exposes
+`/dev/dri/renderD128`. The official Jellyfin `10.11.10` image successfully
+initialized VA-API 1.23 with the legacy Intel `i965` driver.
 
-- host CPU and GPU vendor/model;
-- supported encode/decode codecs;
-- Linux driver and container-runtime support;
-- required render-device and group IDs;
-- behavior with the official Jellyfin image;
-- fallback behavior when the device is unavailable.
+Reported VA-API capabilities are:
 
-Intel/AMD acceleration commonly requires a scoped `/dev/dri` mapping. NVIDIA
-requires a host driver and NVIDIA Container Toolkit. The exact Compose change
-depends on observed hardware and must be documented before implementation.
+| Codec/profile | Decode | Encode |
+|---|---:|---:|
+| MPEG-2 Simple/Main | yes | no |
+| H.264 Constrained Baseline/Main/High | yes | yes |
+| H.264 Stereo High | yes | no |
+| VC-1 Simple/Main/Advanced | yes | no |
+| HEVC, VP9 and AV1 | no | no |
 
-Privileged mode and broad `/dev` mounts are prohibited. Hardware acceleration
-is accepted only when logs and playback information prove the hardware path is
-used and container recreation preserves functionality.
+The modern `iHD` driver failing before successful `i965` fallback is expected
+for this pre-Broadwell platform. Jellyfin must use VA-API rather than QSV and
+must enable only the profiles reported by `vainfo`. HDR tone mapping, HEVC,
+VP9, AV1 and Intel low-power encoding are not supported by this GPU.
+
+The implementation may map only:
+
+```text
+/dev/dri/renderD128
+```
+
+It must not mount `card0`, all of `/dev/dri`, or use privileged mode. The final
+group mapping must use the target host's private numeric group configuration
+and must not be hardcoded in the repository.
+
+Hardware acceleration remains conditionally accepted until an H.264 playback
+test proves VA-API activity in Jellyfin playback information and
+`intel_gpu_top`. Software fallback, subtitle burn-in, quality and concurrent
+load must still be measured. Direct play remains preferred.
 
 ---
 
@@ -380,8 +397,7 @@ terminate at the existing Nginx Proxy Manager entry point.
 - Keep source media read-only.
 - Publish only through Nginx Proxy Manager with HTTPS.
 - Preserve a local administrative recovery path before future identity work.
-- Review exposed devices, groups and capabilities if hardware acceleration is
-  later approved.
+- Limit GPU access to the validated render device and required group only.
 
 Identity integration is explicitly deferred to Sprint 010. Sprint 007 uses
 Jellyfin local authentication and must not install a community OIDC plugin.
@@ -444,7 +460,7 @@ no database or Valkey ordering dependency.
 1. Confirm Linux host architecture and available CPU, memory and storage.
 2. Confirm exact media-library roots and read permissions.
 3. Identify expected client devices and their codec support.
-4. Identify GPU hardware and drivers without enabling device access.
+4. Preserve the completed GPU capability evidence without private group IDs.
 5. Revalidate the Jellyfin stable tag, security status and image digest.
 
 ## Phase 2 — Reproducible Baseline
@@ -472,12 +488,14 @@ no database or Valkey ordering dependency.
 4. Validate real client addresses, range requests and seeking.
 5. Validate local and approved remote clients.
 
-## Phase 5 — Hardware Decision
+## Phase 5 — Hardware Validation
 
-1. Decide whether direct play plus software fallback meets requirements.
-2. If not, document the minimum scoped device mapping for the target GPU.
-3. Validate hardware decode, encode and failure fallback with synthetic media.
-4. Reject acceleration if privileges or maintenance cost outweigh the benefit.
+1. Map only `/dev/dri/renderD128` with the required private render group.
+2. Enable VA-API for H.264, MPEG-2 and VC-1 only.
+3. Validate H.264 hardware decode and encode with synthetic media.
+4. Confirm GPU activity through playback information and `intel_gpu_top`.
+5. Compare VA-API quality, CPU use and power behavior with software fallback.
+6. Disable acceleration if runtime evidence does not justify its complexity.
 
 ## Phase 6 — Persistence And Recovery
 
@@ -593,8 +611,8 @@ Sprint 007 is complete when:
 - the container cannot modify source media;
 - state survives recreation;
 - a disposable `/config` restore recovers users, libraries and settings;
-- GPU acceleration is either validated with scoped access or explicitly
-  deferred with direct-play evidence;
+- VA-API H.264 acceleration is validated with only the scoped render device,
+  or disabled if playback evidence does not justify it;
 - DLNA and other non-goals remain excluded;
 - service documentation satisfies the repository README standard;
 - no private value, credential, personal metadata or copyrighted test asset
@@ -627,7 +645,7 @@ Sprint 007 is complete when:
 2. Record the official image digest for the target architecture.
 3. Confirm the official image UID/GID, health endpoint and file ownership
    behavior for the pinned release.
-4. Inventory target-host CPU, GPU, drivers, `/dev/dri` devices and render group.
+4. Confirm the private numeric render-group mapping without committing it.
 5. Inventory representative clients and codec support.
 6. Confirm private library paths, filesystem type and read-only bind behavior.
 7. Measure available capacity for `/config`, `/cache` and transcoding.

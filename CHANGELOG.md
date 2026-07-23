@@ -6,6 +6,8 @@
 
 ### Changed
 
+- Record the Sprint 007 Intel Sandy Bridge VA-API capability decision and
+  restrict acceleration to the validated render device and codec profiles.
 - Reconcile Identity Platform planning with its deferred Sprint 010 roadmap
   position without changing its technical scope.
 
