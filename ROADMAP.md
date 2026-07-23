@@ -386,7 +386,7 @@ Completion Notes
 
 Status
 
-Planned
+Planned — technical design complete; implementation required
 
 Objective
 
@@ -411,9 +411,21 @@ Deliverables
 
 Validation
 
-- Media playback
-- Secure remote access
-- Stable operation
+- Browser and representative-client playback
+- Direct play, seeking, subtitles and controlled transcoding
+- Read-only media and persistent configuration boundaries
+- HTTPS, WebSockets and exact trusted-proxy behavior
+- Secure remote access without a direct application host port
+- Container recreation and disposable configuration restore
+
+Architecture Decisions
+
+- Official Jellyfin image pinned to an exact stable release.
+- Source media mounted read-only from Rockstor.
+- Dedicated durable `/config` and replaceable `/cache` boundaries.
+- No MariaDB or Valkey dependency.
+- Bridge networking and proxy-only publication; DLNA excluded.
+- Hardware acceleration requires target-host evidence and scoped device access.
 
 ---
 

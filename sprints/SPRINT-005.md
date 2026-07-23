@@ -60,9 +60,9 @@ The successful completion of this sprint demonstrates that new applications can 
 - Clustering.
 - Performance tuning.
 
-Identity will be introduced in Sprint 006.
+Identity is planned for Sprint 010.
 
-Backup automation will be introduced in Sprint 010.
+Backup automation is planned for Sprint 009.
 
 Existing NAS shares should not be mounted directly into OwnCloud's internal data tree during Sprint 005. The preferred future integration model for existing NAS data is OwnCloud External Storage over SMB, WebDAV, FTP, or SFTP.
 
@@ -483,7 +483,7 @@ Expected paths:
 ${OWNCLOUD_DATA_ROOT}
 ```
 
-Backup implementation will be introduced during Sprint 010.
+Backup implementation is planned for Sprint 009.
 
 ---
 

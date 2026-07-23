@@ -42,6 +42,9 @@ The project has established:
 
 Sprint 006 completed the document-management platform milestone.
 
+Sprint 007 Media Platform is planned with Jellyfin as the approved business
+service. Implementation has not started.
+
 POC-001 closed with Nextcloud selected as the active collaboration service.
 The previous OwnCloud implementation remains recoverable from the
 `v0.6.0-collaboration-platform` tag; its database, NAS data and private

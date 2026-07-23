@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### Added
+
+- Sprint 007 Media Platform implementation plan using Jellyfin.
+
+### Changed
+
+- Reconcile Identity Platform planning with its deferred Sprint 010 roadmap
+  position without changing its technical scope.
+
 ---
 
 ## [v0.8.0-document-management-platform] - 2026-07-23
