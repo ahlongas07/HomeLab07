@@ -6,6 +6,8 @@
 
 ### Changed
 
+- Update the Landing Page to present Paperless-ngx and the completed document
+  management milestone.
 - Record the Sprint 007 Intel Sandy Bridge VA-API capability decision and
   restrict acceleration to the validated render device and codec profiles.
 - Reconcile Identity Platform planning with its deferred Sprint 010 roadmap

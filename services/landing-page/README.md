@@ -6,8 +6,8 @@ Provide the first published service of HomeLab07.
 
 This service validates the complete deployment workflow and serves as the reference implementation for future services published through Nginx Proxy Manager.
 
-It also presents the current public platform status and active Nextcloud
-collaboration service.
+It also presents the current public platform status and active Nextcloud and
+Paperless-ngx business services.
 
 ---
 
@@ -58,8 +58,8 @@ The command must complete without errors.
 Validate that the rendered page reflects the current platform milestone:
 
 ```text
-Nextcloud platform
-Nextcloud enabled
+Document platform
+Paperless-ngx enabled
 ```
 
 ---
@@ -129,3 +129,4 @@ Implemented during:
 - Sprint 001 – Foundation
 - Sprint 003 – Zero Touch SSL
 - Sprint 005 – Collaboration Platform status update
+- Sprint 006 – Document Management Platform status update
