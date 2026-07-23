@@ -26,7 +26,8 @@ JELLYFIN_UID="$(env_value JELLYFIN_UID)"
 JELLYFIN_GID="$(env_value JELLYFIN_GID)"
 JELLYFIN_RENDER_GID="$(env_value JELLYFIN_RENDER_GID)"
 MEDIA_MOVIES_ROOT="$(env_value MEDIA_MOVIES_ROOT)"
-MEDIA_SERIES_ROOT="$(env_value MEDIA_SERIES_ROOT)"
+MEDIA_MUSIC_ROOT="$(env_value MEDIA_MUSIC_ROOT)"
+MEDIA_PHOTOS_ROOT="$(env_value MEDIA_PHOTOS_ROOT)"
 
 for variable in \
     JELLYFIN_ROOT \
@@ -34,7 +35,8 @@ for variable in \
     JELLYFIN_GID \
     JELLYFIN_RENDER_GID \
     MEDIA_MOVIES_ROOT \
-    MEDIA_SERIES_ROOT; do
+    MEDIA_MUSIC_ROOT \
+    MEDIA_PHOTOS_ROOT; do
     [[ -n "${!variable}" ]] || {
         echo "Missing required value: ${variable}"
         exit 1
@@ -48,7 +50,11 @@ for variable in JELLYFIN_UID JELLYFIN_GID JELLYFIN_RENDER_GID; do
     }
 done
 
-for variable in JELLYFIN_ROOT MEDIA_MOVIES_ROOT MEDIA_SERIES_ROOT; do
+for variable in \
+    JELLYFIN_ROOT \
+    MEDIA_MOVIES_ROOT \
+    MEDIA_MUSIC_ROOT \
+    MEDIA_PHOTOS_ROOT; do
     path="${!variable}"
     [[ "${path}" == /* ]] || { echo "${variable} must be an absolute path."; exit 1; }
     [[ "${path}" != "/" ]] || { echo "${variable} must not be the filesystem root."; exit 1; }
@@ -60,12 +66,22 @@ done
     exit 1
 }
 
-[[ "${MEDIA_MOVIES_ROOT}" != "${MEDIA_SERIES_ROOT}" ]] || {
-    echo "Movie and series roots must be different directories."
-    exit 1
-}
+media_roots=(
+    "${MEDIA_MOVIES_ROOT}"
+    "${MEDIA_MUSIC_ROOT}"
+    "${MEDIA_PHOTOS_ROOT}"
+)
 
-for media_root in "${MEDIA_MOVIES_ROOT}" "${MEDIA_SERIES_ROOT}"; do
+for ((i = 0; i < ${#media_roots[@]}; i++)); do
+    for ((j = i + 1; j < ${#media_roots[@]}; j++)); do
+        [[ "${media_roots[i]}" != "${media_roots[j]}" ]] || {
+            echo "Each media root must use a different directory: ${media_roots[i]}"
+            exit 1
+        }
+    done
+done
+
+for media_root in "${media_roots[@]}"; do
     case "${media_root}/" in
         "${JELLYFIN_ROOT}/"*)
             echo "Media roots must remain outside JELLYFIN_ROOT: ${media_root}"
@@ -108,7 +124,7 @@ ls -ldn \
 
 echo
 echo "Read-only media sources (enforced by Compose mounts):"
-ls -ldn "${MEDIA_MOVIES_ROOT}" "${MEDIA_SERIES_ROOT}"
+ls -ldn "${media_roots[@]}"
 
 echo
 echo "Scoped render device:"

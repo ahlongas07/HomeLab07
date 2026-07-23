@@ -155,8 +155,8 @@ ${JELLYFIN_ROOT}/
 
 ${MEDIA_ROOT}/
 ├── movies/       source library, read-only to Jellyfin
-├── series/       source library, read-only to Jellyfin
-└── music/        optional source library, read-only to Jellyfin
+├── music/        source library, read-only to Jellyfin
+└── photos/       family photos and videos, read-only to Jellyfin
 ```
 
 The real paths and enabled libraries belong only in private configuration.
@@ -170,7 +170,8 @@ Planned container mounts:
 ${JELLYFIN_ROOT}/config -> /config
 ${JELLYFIN_ROOT}/cache  -> /cache
 ${MEDIA_MOVIES_ROOT}    -> /media/movies:ro
-${MEDIA_SERIES_ROOT}    -> /media/series:ro
+${MEDIA_MUSIC_ROOT}     -> /media/music:ro
+${MEDIA_PHOTOS_ROOT}    -> /media/photos:ro
 ```
 
 Additional libraries require explicit private variables and Compose review.
@@ -347,11 +348,14 @@ JELLYFIN_TIME_ZONE=Region/City
 JELLYFIN_UID=1000
 JELLYFIN_GID=1000
 MEDIA_MOVIES_ROOT=/path/to/media/movies
-MEDIA_SERIES_ROOT=/path/to/media/series
+MEDIA_MUSIC_ROOT=/path/to/media/music
+MEDIA_PHOTOS_ROOT=/path/to/media/photos
 ```
 
-Optional music or other library roots are introduced only when they are part
-of the approved target deployment.
+Movies, music and family media use dedicated roots. The `Photos` library
+presents photos and home videos from the same directory tree. Jellyfin does not
+ingest phone uploads, own originals or replace NAS backup. Any additional
+library root requires explicit approval.
 
 The public URL, host paths, real UID/GID values, library names and hardware
 device details are environment-specific and must not enter Git. Administrator
@@ -612,7 +616,9 @@ no database or Valkey ordering dependency.
 - HEVC behavior is recorded as direct play or an expected transcode.
 - Text subtitles display correctly.
 - A subtitle burn-in transcode is tested under controlled load.
-- Audio playback succeeds if the music library is in scope.
+- Music browsing, metadata and audio playback succeed.
+- Family-photo scanning, browsing, slideshow and representative home-video
+  playback succeed without modifying the originals.
 - One controlled concurrent-playback test records CPU, memory and cache use.
 - Playback information identifies whether each test used direct play,
   remuxing, software transcoding or approved hardware acceleration.
@@ -675,6 +681,8 @@ Sprint 007 is complete when:
 - `/config`, `/cache` and read-only media boundaries are validated;
 - MariaDB and Valkey remain application-agnostic and unused by Jellyfin;
 - at least one browser and one representative client complete playback;
+- music and family-photo libraries are validated through their dedicated
+  read-only mounts;
 - direct play, seeking, subtitles and controlled transcoding are validated;
 - resource and cache behavior are documented;
 - HTTPS, WebSockets and trusted proxy behavior work through Nginx Proxy

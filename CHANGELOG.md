@@ -8,6 +8,8 @@
 - Jellyfin storage and render-device validation through the operation layer.
 - Jellyfin deployment, playback, publication, backup, restore and security
   documentation.
+- Dedicated read-only music and family-photo libraries, preserving Rockstor as
+  the authoritative owner and backup boundary.
 
 ### Changed
 

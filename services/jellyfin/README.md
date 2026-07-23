@@ -7,7 +7,7 @@ transcoding as the Sprint 007 business service.
 
 ## Responsibilities
 
-- Index approved NAS-backed media libraries.
+- Index approved NAS-backed movie, music and family-photo libraries.
 - Provide browser and client playback.
 - Preserve users, metadata, settings and playback history under `/config`.
 - Use `/cache` for replaceable cache and transcode workspace.
@@ -48,9 +48,12 @@ ${JELLYFIN_ROOT}/
 └── cache/
 ```
 
-Private media roots are mounted independently at `/media/movies` and
-`/media/series`. They remain separate from Jellyfin state and are read-only to
-the container.
+Private media roots are mounted independently at `/media/movies`,
+`/media/music` and `/media/photos`. They remain separate from Jellyfin state
+and are read-only to the container.
+
+Jellyfin catalogs, presents and shares the photo library. It does not ingest
+phone photos, manage the authoritative originals or replace the NAS backup.
 
 ## Configuration
 
@@ -88,6 +91,11 @@ Complete initial setup interactively through HTTPS. Create a dedicated
 administrator and a separate daily-use account. Credentials must not enter Git
 or Compose environment files.
 
+Create dedicated Jellyfin libraries using the matching `Movies`, `Music` and
+`Photos` content types. The `Photos` library also presents family videos kept
+inside the same directory tree. Point each library only at its corresponding
+`/media/...` mount; do not create an unused `Shows` library.
+
 ## Validation
 
 ```bash
@@ -109,8 +117,11 @@ for write access. Validate with synthetic or legally usable media:
 3. One controlled subtitle burn-in transcode.
 4. H.264 VA-API decode and encode while observing `intel_gpu_top`.
 5. Expected software fallback for unsupported codecs.
-6. Container recreation without loss of users, settings or playback history.
-7. A disposable `/config` restore without modifying source media.
+6. Music browsing, metadata and audio playback.
+7. Family-photo scan, browsing, slideshow and representative home-video
+   playback without modifying originals.
+8. Container recreation without loss of users, settings or playback history.
+9. A disposable `/config` restore without modifying source media.
 
 ## Reverse Proxy
 

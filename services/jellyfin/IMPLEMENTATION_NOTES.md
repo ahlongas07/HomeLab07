@@ -9,6 +9,9 @@ paths, credentials, personal metadata or copyrighted media.
 - Non-root UID/GID ownership for `/config` and `/cache`.
 - Read-only media mounts and rejected container write attempts.
 - Browser and representative-client direct play.
+- Music browsing, metadata and audio playback.
+- Family-photo browsing, slideshow and representative home-video playback
+  without changes to originals.
 - Seeking, resume, WebSockets and HTTP range behavior through the proxy.
 - Controlled software transcoding and cache growth.
 - VA-API H.264 decode and encode activity.

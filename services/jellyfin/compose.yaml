@@ -15,7 +15,8 @@ services:
       - ${JELLYFIN_ROOT:?JELLYFIN_ROOT is required}/config:/config
       - ${JELLYFIN_ROOT:?JELLYFIN_ROOT is required}/cache:/cache
       - ${MEDIA_MOVIES_ROOT:?MEDIA_MOVIES_ROOT is required}:/media/movies:ro
-      - ${MEDIA_SERIES_ROOT:?MEDIA_SERIES_ROOT is required}:/media/series:ro
+      - ${MEDIA_MUSIC_ROOT:?MEDIA_MUSIC_ROOT is required}:/media/music:ro
+      - ${MEDIA_PHOTOS_ROOT:?MEDIA_PHOTOS_ROOT is required}:/media/photos:ro
     devices:
       - /dev/dri/renderD128:/dev/dri/renderD128
     expose:

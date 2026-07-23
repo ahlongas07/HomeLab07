@@ -406,12 +406,13 @@ Deliverables
 
 - Jellyfin
 - HTTPS publication
-- Media library
+- Movie, music and family-photo/video libraries
 - Streaming
 
 Validation
 
 - Browser and representative-client playback
+- Music playback and family-photo browsing
 - Direct play, seeking, subtitles and controlled transcoding
 - Read-only media and persistent configuration boundaries
 - HTTPS, WebSockets and exact trusted-proxy behavior
