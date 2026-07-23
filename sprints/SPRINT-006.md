@@ -1,12 +1,12 @@
 # Sprint 006 — Document Management Platform
 
-**Status:** Planned — implementation required
+**Status:** Completed
 
 **Classification:** Business Service
 
 **Primary Technology:** Paperless-ngx
 
-**Last Reviewed:** 2026-07-22
+**Last Reviewed:** 2026-07-23
 
 ---
 
@@ -390,6 +390,30 @@ Sprint 006 is complete when:
 - security, recovery and operational limitations are explicit;
 - no non-goal or private value enters the implementation.
 
+## Completion Evidence
+
+Sprint 006 runtime acceptance was completed on the target host on 2026-07-23
+using synthetic documents and private environment configuration.
+
+- Paperless-ngx became healthy through the operation layer with shared MariaDB
+  and Valkey.
+- PDF upload, image consumption, Spanish and English OCR, classification and
+  full-text search completed successfully.
+- NAS ownership, polling-based consumption and managed media storage were
+  validated without publishing a host port.
+- HTTPS publication through Nginx Proxy Manager was validated with the
+  canonical private application URL.
+- Scheduled tasks and document processing completed through Valkey without
+  observed protocol errors or document loss.
+- Documents, metadata and searchability survived container recreation and a
+  Valkey restart.
+- MariaDB dump, Paperless export and disposable import/restore validation
+  completed successfully.
+- `document_sanity_checker` reported no issues after validation.
+
+Environment-specific paths, domains, credentials and document contents remain
+outside the repository.
+
 ---
 
 # Required Research Before Implementation
@@ -417,4 +441,3 @@ Sprint 006 is complete when:
 - [Paperless-ngx administration and recovery](https://docs.paperless-ngx.com/administration/)
 - [Paperless-ngx advanced usage and MariaDB caveats](https://docs.paperless-ngx.com/advanced_usage/)
 - [Paperless-ngx troubleshooting](https://docs.paperless-ngx.com/troubleshooting/)
-

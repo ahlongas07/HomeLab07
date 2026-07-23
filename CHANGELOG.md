@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+---
+
+## [v0.8.0-document-management-platform] - 2026-07-23
+
 ### Added
 
 - Sprint 006 Paperless-ngx service definition using shared MariaDB and Valkey.
@@ -14,6 +18,7 @@
 
 ### Changed
 
+- Mark Sprint 006 as completed after target-host acceptance validation.
 - Extend start, stop and status operations with Paperless-ngx.
 - The operation-layer lifecycle selects Nextcloud as the active collaboration
   service.
@@ -32,6 +37,11 @@
 
 ### Notes
 
+- Paperless-ngx runtime acceptance covered synthetic PDF and image ingestion,
+  OCR, search, NAS persistence, HTTPS publication, export and disposable
+  recovery.
+- Paperless-ngx publishes no host port and consumes the shared MariaDB and
+  Valkey platform capabilities.
 - This change does not delete the OwnCloud database, NAS data, private
   configuration or historical Git tag.
 

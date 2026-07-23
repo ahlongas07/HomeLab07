@@ -28,3 +28,27 @@ deployment; do not substitute one platform digest for another.
 - Stop if Valkey produces protocol errors or silently loses documents.
 - Stop if MariaDB migrations or required queries are incompatible.
 - Do not add Redis, PostgreSQL, Tika or Gotenberg without a separate decision.
+
+## Target-Host Acceptance
+
+Acceptance validation completed on 2026-07-23 using synthetic documents and
+private environment configuration. No private paths, domains, credentials or
+document contents are recorded here.
+
+- MariaDB migrations, metadata operations and application startup succeeded.
+- Valkey carried scheduled and document-processing tasks without observed
+  protocol errors or document loss.
+- NAS ownership and 60-second polling-based consumption were validated.
+- Synthetic PDF and image ingestion, Spanish and English OCR, classification
+  and full-text search succeeded.
+- HTTPS publication through Nginx Proxy Manager succeeded without a direct
+  Paperless host-port mapping.
+- Documents and metadata survived Paperless container recreation and a Valkey
+  restart.
+- A native MariaDB dump, Paperless export and disposable import/restore were
+  validated.
+- `document_sanity_checker` reported no issues after validation.
+
+The Valkey compatibility PoC passed for the Sprint 006 workload. This evidence
+does not claim general compatibility beyond the pinned Paperless release and
+the tested HomeLab07 deployment model.

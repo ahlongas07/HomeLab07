@@ -25,8 +25,7 @@ The project emphasizes:
 
 🚧 Early Development
 
-Sprint 001 through Sprint 005 are complete. Sprint 006 implementation is in
-progress.
+Sprint 001 through Sprint 006 are complete.
 
 The project has established:
 
@@ -39,9 +38,9 @@ The project has established:
 - Cloudflare Dynamic DNS as an implemented platform enhancement.
 - Valkey as the shared in-memory data platform.
 - Nextcloud as the active business-facing collaboration service.
-- Paperless-ngx as the Sprint 006 document-management implementation target.
+- Paperless-ngx as the active document-management service.
 
-Sprint 005 completed the collaboration platform milestone.
+Sprint 006 completed the document-management platform milestone.
 
 POC-001 closed with Nextcloud selected as the active collaboration service.
 The previous OwnCloud implementation remains recoverable from the
@@ -57,6 +56,8 @@ Implemented direction:
 - Public endpoint values and environment-specific configuration belong only in `HomeLab07.private/`.
 - Nextcloud uses `nextcloud:33.0.6-apache` with shared MariaDB and Valkey,
   dedicated NAS-backed state, and a separate cron container.
+- Paperless-ngx uses the shared MariaDB and Valkey capabilities with dedicated
+  NAS-backed document storage and HTTPS publication through Nginx Proxy Manager.
 
 ## Documentation
 

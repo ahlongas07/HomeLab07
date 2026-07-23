@@ -331,7 +331,7 @@ Operational Principle
 
 Status
 
-In Progress
+Completed
 
 Objective
 
@@ -370,6 +370,15 @@ Validation
 - NAS-backed persistence
 - HTTPS publication
 - Export and recovery boundary documentation
+
+Completion Notes
+
+- Paperless-ngx deployed reproducibly through the operation layer.
+- Shared MariaDB and Valkey integration validated on the target host.
+- Synthetic PDF and image ingestion, OCR, classification and search validated.
+- NAS-backed persistence and polling behavior validated across recreation.
+- HTTPS publication validated without a direct application host port.
+- Database dump, portable export and disposable restore validated.
 
 ---
 
