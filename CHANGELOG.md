@@ -3,9 +3,17 @@
 ### Added
 
 - Sprint 007 Media Platform implementation plan using Jellyfin.
+- Jellyfin service definition using the official pinned image, non-root
+  execution, read-only media mounts and scoped Intel VA-API access.
+- Jellyfin storage and render-device validation through the operation layer.
+- Jellyfin deployment, playback, publication, backup, restore and security
+  documentation.
 
 ### Changed
 
+- Extend start, stop and status operations with Jellyfin.
+- Mark Sprint 007 implementation as in progress pending target-host acceptance.
+- Revalidate and pin Jellyfin `10.11.11` at implementation entry.
 - Reinforce Sprint 007 storage ownership, identity deferral, future integration,
   engineering principles and disaster-recovery boundaries after architecture
   review.

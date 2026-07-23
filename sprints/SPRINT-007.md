@@ -1,6 +1,6 @@
 # Sprint 007 — Media Platform
 
-**Status:** Planned — technical design complete; implementation required
+**Status:** In Progress — runtime validation required
 
 **Classification:** Business Service
 
@@ -39,10 +39,10 @@ Valkey. Adding either dependency would increase coupling without platform
 value. Source media remains owned by the NAS and is presented to Jellyfin as a
 read-only library.
 
-The planning baseline uses the official Jellyfin container. The latest stable
-release reviewed on 2026-07-23 is `10.11.10`; implementation must revalidate
-the stable release, security status and target-architecture digest immediately
-before deployment. `latest`, prerelease and rolling tags are prohibited.
+The planning baseline uses the official Jellyfin container. Implementation
+entry revalidation on 2026-07-23 selected the latest stable release,
+`10.11.11`. The target-architecture digest must be recorded immediately before
+deployment. `latest`, prerelease and rolling tags are prohibited.
 
 ---
 
@@ -85,7 +85,7 @@ host.
 
 | Capability | Planned selection | Decision |
 |---|---|---|
-| Media server | `jellyfin/jellyfin:10.11.10` | Official exact stable tag; revalidate before implementation |
+| Media server | `jellyfin/jellyfin:10.11.11` | Official exact stable tag selected at implementation entry |
 | Database | Jellyfin embedded state under `/config` | No shared database dependency |
 | Media storage | Read-only Rockstor bind mounts | NAS remains authoritative |
 | Configuration | Rockstor-backed `/config` | Required durable state |
@@ -293,8 +293,10 @@ for unrestricted concurrent transcoding without target-host evidence.
 
 Target-host discovery completed on 2026-07-23. The host provides an Intel
 Sandy Bridge Gen6 integrated GPU through the `i915` kernel driver and exposes
-`/dev/dri/renderD128`. The official Jellyfin `10.11.10` image successfully
-initialized VA-API 1.23 with the legacy Intel `i965` driver.
+`/dev/dri/renderD128`. The official Jellyfin `10.11.10` planning image
+successfully initialized VA-API 1.23 with the legacy Intel `i965` driver. The
+final `10.11.11` pin must repeat this validation before acceleration is
+accepted.
 
 Reported VA-API capabilities are:
 

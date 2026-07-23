@@ -26,6 +26,11 @@ echo "Stopping Nextcloud..."
 compose nextcloud down
 
 echo
+echo "Stopping Jellyfin..."
+
+compose jellyfin down
+
+echo
 echo "Stopping Nginx Proxy Manager..."
 
 compose nginx-proxy-manager down

@@ -1,0 +1,35 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:10.11.11
+    container_name: homelab07-jellyfin
+    restart: unless-stopped
+    user: "${JELLYFIN_UID:?JELLYFIN_UID is required}:${JELLYFIN_GID:?JELLYFIN_GID is required}"
+    group_add:
+      - "${JELLYFIN_RENDER_GID:?JELLYFIN_RENDER_GID is required}"
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      JELLYFIN_PublishedServerUrl: ${JELLYFIN_PUBLISHED_URL:?JELLYFIN_PUBLISHED_URL is required}
+      TZ: ${JELLYFIN_TIME_ZONE:?JELLYFIN_TIME_ZONE is required}
+    volumes:
+      - ${JELLYFIN_ROOT:?JELLYFIN_ROOT is required}/config:/config
+      - ${JELLYFIN_ROOT:?JELLYFIN_ROOT is required}/cache:/cache
+      - ${MEDIA_MOVIES_ROOT:?MEDIA_MOVIES_ROOT is required}:/media/movies:ro
+      - ${MEDIA_SERIES_ROOT:?MEDIA_SERIES_ROOT is required}:/media/series:ro
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    expose:
+      - "8096"
+    networks:
+      - homelab07-proxy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --noproxy localhost -Lk -fsS http://127.0.0.1:8096/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+networks:
+  homelab07-proxy:
+    name: homelab07-proxy
+    external: true

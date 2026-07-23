@@ -27,6 +27,12 @@ echo
 compose_service nginx-proxy-manager ps
 
 echo
+echo "  Jellyfin"
+echo
+
+compose_service jellyfin ps
+
+echo
 echo "  Nextcloud"
 echo
 

@@ -42,8 +42,8 @@ The project has established:
 
 Sprint 006 completed the document-management platform milestone.
 
-Sprint 007 Media Platform is planned with Jellyfin as the approved business
-service. Implementation has not started.
+Sprint 007 Media Platform implementation is in progress with Jellyfin as the
+approved business service. Runtime acceptance remains pending.
 
 POC-001 closed with Nextcloud selected as the active collaboration service.
 The previous OwnCloud implementation remains recoverable from the
@@ -61,6 +61,8 @@ Implemented direction:
   dedicated NAS-backed state, and a separate cron container.
 - Paperless-ngx uses the shared MariaDB and Valkey capabilities with dedicated
   NAS-backed document storage and HTTPS publication through Nginx Proxy Manager.
+- Jellyfin uses dedicated NAS-backed state, read-only media libraries and
+  scoped Intel VA-API access without MariaDB, Valkey or direct host ports.
 
 ## Documentation
 

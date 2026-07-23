@@ -21,6 +21,11 @@ echo "Starting Nginx Proxy Manager..."
 compose nginx-proxy-manager up -d
 
 echo
+echo "Starting Jellyfin..."
+
+compose jellyfin up -d
+
+echo
 echo "Starting Nextcloud..."
 
 compose nextcloud up -d

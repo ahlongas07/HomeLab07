@@ -386,7 +386,7 @@ Completion Notes
 
 Status
 
-Planned — technical design complete; implementation required
+In Progress — runtime validation required
 
 Objective
 
