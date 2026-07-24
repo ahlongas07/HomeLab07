@@ -22,9 +22,14 @@ paths, credentials, personal metadata or copyrighted media.
 
 The stable release was revalidated at implementation entry on 2026-07-23.
 `10.11.11` supersedes the planning candidate and is the pinned official
-`jellyfin/jellyfin` image. Record the target-host runtime digest immediately
-before deployment. Do not substitute a manifest-list digest or a digest from
-another architecture for runtime identity evidence.
+`jellyfin/jellyfin` image. The deployed target reported this repository digest:
+
+```text
+jellyfin/jellyfin@sha256:aefb67e6a7ff1debdd154a78a7bbb780fd0c873d8639210a7f6a2016ad2b35db
+```
+
+The digest was collected from the target-host image rather than copied from a
+release page or another architecture.
 
 ## Hardware Discovery
 
@@ -44,6 +49,20 @@ The modern `iHD` driver failing before successful `i965` fallback is expected
 for this pre-Broadwell platform. Jellyfin must use VA-API, not QSV, and enable
 only the validated profiles.
 
+## Hardware Playback Evidence
+
+Target-host playback validation on 2026-07-23 confirmed active Sandy Bridge
+acceleration. During a controlled transcode, `intel_gpu_top` reported sustained
+activity of approximately 58% on the Video engine and 65% on Render/3D. The
+device operated at its reported maximum clock during the sample. This confirms
+that Jellyfin reached the scoped render device and used the GPU for actual
+media processing rather than merely completing VA-API capability discovery.
+
+Media-library scanning also emitted MP3 duration-estimation and unknown-stream
+warnings. These are source-container metadata warnings and are not evidence of
+a VA-API failure. Representative audio playback was accepted with those
+warnings present.
+
 ## Decision Gates
 
 - Prefer direct play; acceleration is used only when clients require it.
@@ -55,6 +74,19 @@ only the validated profiles.
 
 ## Target-Host Acceptance
 
-Complete this section after runtime validation. Record only sanitized evidence
-for deployment, playback, publication, acceleration, persistence, recovery and
-unchanged source media.
+Target-host acceptance completed on 2026-07-23.
+
+- The pinned image deployed successfully and remained healthy.
+- Dedicated movie, music and family-media libraries indexed from read-only
+  storage boundaries.
+- HTTPS navigation and representative playback succeeded through the shared
+  reverse proxy.
+- Controlled H.264 transcoding activated the Video and Render/3D engines.
+- Application state survived container recreation.
+- A stopped-state `/config` backup was restored into a clean directory and
+  recovered the existing Jellyfin configuration and libraries.
+- Source media remained unchanged and independently recoverable.
+
+Sprint 007 acceptance retains VA-API because the measured result justifies the
+scoped render-device access. Modern unsupported codecs, writable media,
+plugins, external identity and additional platform services remain excluded.

@@ -14,7 +14,8 @@
 ### Changed
 
 - Extend start, stop and status operations with Jellyfin.
-- Mark Sprint 007 implementation as in progress pending target-host acceptance.
+- Complete Sprint 007 after deployment, playback, HTTPS, scoped VA-API,
+  container recreation and configuration-restore validation.
 - Revalidate and pin Jellyfin `10.11.11` at implementation entry.
 - Reinforce Sprint 007 storage ownership, identity deferral, future integration,
   engineering principles and disaster-recovery boundaries after architecture
@@ -23,6 +24,8 @@
   management milestone.
 - Record the Sprint 007 Intel Sandy Bridge VA-API capability decision and
   restrict acceleration to the validated render device and codec profiles.
+- Update the Landing Page to present Jellyfin and the completed media-platform
+  milestone.
 - Reconcile Identity Platform planning with its deferred Sprint 010 roadmap
   position without changing its technical scope.
 

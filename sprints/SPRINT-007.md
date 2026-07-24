@@ -1,6 +1,6 @@
 # Sprint 007 — Media Platform
 
-**Status:** In Progress — runtime validation required
+**Status:** Completed
 
 **Classification:** Business Service
 
@@ -736,19 +736,32 @@ recoverability rather than introduce application-specific infrastructure.
 
 # Completion Notes
 
-This section will be completed after implementation. It must summarize:
+Sprint 007 completed on 2026-07-23.
 
-- successful deployment;
-- playback validation;
-- HTTPS validation;
-- direct play validation;
-- hardware acceleration validation, if retained after runtime evidence;
-- recovery validation;
-- container recreation validation;
-- confirmation that source media remained unchanged.
+- Jellyfin `10.11.11` deployed reproducibly through the operation layer and
+  reached a healthy running state.
+- Movies, music and family photos plus home videos were indexed from dedicated
+  read-only Rockstor mounts.
+- Browser access, HTTPS publication, media navigation and playback were
+  accepted on the target environment.
+- Direct play remains preferred and controlled transcoding completed
+  successfully when requested by the client.
+- Intel Sandy Bridge VA-API access was validated through the scoped render
+  device. A controlled transcode produced approximately 58% Video-engine and
+  65% Render/3D activity through the legacy `i965` driver.
+- Hardware support remains limited to H.264 decode and encode plus MPEG-2 and
+  VC-1 decode. Unsupported modern codecs retain software or direct-play paths.
+- The container was recreated without loss of durable configuration.
+- A consistent `/config` backup was restored into a clean configuration
+  directory. Existing users, libraries, settings and playback remained
+  available after startup.
+- Source media remained outside Jellyfin ownership and unchanged throughout
+  deployment and recovery validation.
+- No MariaDB, Valkey, Docker socket, host network, writable media mount, plugin
+  ecosystem or identity integration was introduced.
 
-Completion notes must record results without including private paths, domains,
-credentials, personal metadata or copyrighted test assets.
+No private path, domain, credential, personal metadata or copyrighted test
+asset is included in this completion record.
 
 ---
 

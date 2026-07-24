@@ -25,7 +25,7 @@ The project emphasizes:
 
 🚧 Early Development
 
-Sprint 001 through Sprint 006 are complete.
+Sprint 001 through Sprint 007 are complete.
 
 The project has established:
 
@@ -39,11 +39,11 @@ The project has established:
 - Valkey as the shared in-memory data platform.
 - Nextcloud as the active business-facing collaboration service.
 - Paperless-ngx as the active document-management service.
+- Jellyfin as the active media service.
 
-Sprint 006 completed the document-management platform milestone.
-
-Sprint 007 Media Platform implementation is in progress with Jellyfin as the
-approved business service. Runtime acceptance remains pending.
+Sprint 007 completed the media-platform milestone with NAS-backed movies,
+music and family media, secure HTTPS publication, recoverable application
+state and validated Intel VA-API acceleration.
 
 POC-001 closed with Nextcloud selected as the active collaboration service.
 The previous OwnCloud implementation remains recoverable from the
