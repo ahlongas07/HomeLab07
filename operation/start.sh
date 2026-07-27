@@ -6,44 +6,36 @@ print_header "Start"
 
 print_project_root
 
-echo "Starting MariaDB..."
+services=(
+    mariadb
+    valkey
+    nginx-proxy-manager
+    jellyfin
+    nextcloud
+    paperless-ngx
+    homebridge
+    cloudflare-ddns
+    landing-page
+)
 
-compose mariadb up -d
+if (($# > 1)); then
+    echo "Usage: $0 [service]"
+    exit 1
+fi
 
-echo
-echo "Starting Valkey..."
+if (($# == 1)); then
+    service_label "$1" >/dev/null || {
+        echo "Unknown service: $1"
+        exit 1
+    }
+    services=("$1")
+fi
 
-compose valkey up -d
-
-echo
-echo "Starting Nginx Proxy Manager..."
-
-compose nginx-proxy-manager up -d
-
-echo
-echo "Starting Jellyfin..."
-
-compose jellyfin up -d
-
-echo
-echo "Starting Nextcloud..."
-
-compose nextcloud up -d
-
-echo
-echo "Starting Paperless-ngx..."
-
-compose paperless-ngx up -d
-
-echo
-echo "Starting Cloudflare Dynamic DNS..."
-
-compose cloudflare-ddns up -d
-
-echo
-echo "Starting Landing Page..."
-
-compose landing-page up -d
+for service in "${services[@]}"; do
+    echo "Starting $(service_label "${service}")..."
+    compose "${service}" up -d
+    echo
+done
 
 echo
 echo "HomeLab07 started successfully."

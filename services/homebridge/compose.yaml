@@ -1,0 +1,17 @@
+services:
+  homebridge:
+    image: ${HOMEBRIDGE_IMAGE:?HOMEBRIDGE_IMAGE is required}
+    container_name: homelab07-homebridge
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      HOMEBRIDGE_UI_PORT: ${HOMEBRIDGE_UI_PORT:?HOMEBRIDGE_UI_PORT is required}
+    volumes:
+      - ${HOMEBRIDGE_DATA_ROOT:?HOMEBRIDGE_DATA_ROOT is required}:/homebridge
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl --noproxy localhost -fsS http://127.0.0.1:$${HOMEBRIDGE_UI_PORT}/ >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s

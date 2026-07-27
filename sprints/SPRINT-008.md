@@ -1,6 +1,6 @@
 # Sprint 008 — Homebridge Platform
 
-**Status:** Planned — technical design complete; implementation required
+**Status:** In Progress — repository implementation complete; target-host acceptance required
 
 **Classification:** Business Service
 
@@ -387,7 +387,7 @@ The container must never receive the Docker socket or privileged mode.
 
 # Repository Impact
 
-Implementation is expected to add:
+Implementation adds:
 
 ```text
 services/homebridge/
@@ -400,18 +400,17 @@ operation/
 └── homebridge-storage-check.sh
 ```
 
-Implementation is expected to update:
+Implementation updates:
 
 ```text
 operation/start.sh
 operation/stop.sh
 operation/status.sh
+operation/lib.sh
 README.md
 ROADMAP.md
 CHANGELOG.md
 ```
-
-This planning document adds none of those runtime files.
 
 ---
 

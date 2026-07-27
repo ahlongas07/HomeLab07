@@ -25,7 +25,8 @@ The project emphasizes:
 
 🚧 Early Development
 
-Sprint 001 through Sprint 007 are complete.
+Sprint 001 through Sprint 007 are complete. Sprint 008 repository
+implementation is complete and awaits controlled target-host acceptance.
 
 The project has established:
 
@@ -40,6 +41,8 @@ The project has established:
 - Nextcloud as the active business-facing collaboration service.
 - Paperless-ngx as the active document-management service.
 - Jellyfin as the active media service.
+- Homebridge as the approved LAN-only HomeKit integration service pending
+  target-host cutover and acceptance.
 
 Sprint 007 completed the media-platform milestone with NAS-backed movies,
 music and family media, secure HTTPS publication, recoverable application
@@ -63,6 +66,9 @@ Implemented direction:
   NAS-backed document storage and HTTPS publication through Nginx Proxy Manager.
 - Jellyfin uses dedicated NAS-backed state, read-only media libraries and
   scoped Intel VA-API access without MariaDB, Valkey or direct host ports.
+- Homebridge uses a complete NAS-backed application-state boundary and a
+  service-specific host-networking exception without public DNS, reverse proxy
+  publication or shared Docker networks.
 
 ## Documentation
 

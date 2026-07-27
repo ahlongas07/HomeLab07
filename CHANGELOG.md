@@ -2,6 +2,12 @@
 
 ### Added
 
+- Sprint 008 Homebridge service definition using an official immutable image
+  reference, host networking and one NAS-backed recovery boundary.
+- Homebridge storage, image-reference and mount-conflict validation through
+  the operation layer.
+- Homebridge deployment, LAN security, plugin ownership, backup, restore and
+  controlled-cutover documentation.
 - Sprint 007 Media Platform implementation plan using Jellyfin.
 - Jellyfin service definition using the official pinned image, non-root
   execution, read-only media mounts and scoped Intel VA-API access.
@@ -16,6 +22,8 @@
 - Approve Homebridge as Sprint 008, formalize its LAN-only, host-networking,
   runtime-ownership and recovery boundaries, and reconcile subsequent Sprint
   numbers without removing planned platform capabilities.
+- Extend start, stop and status operations with Homebridge and optional
+  single-service selection while preserving the existing all-service mode.
 - Extend start, stop and status operations with Jellyfin.
 - Complete Sprint 007 after deployment, playback, HTTPS, scoped VA-API,
   container recreation and configuration-restore validation.

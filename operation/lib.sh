@@ -67,6 +67,21 @@ compose_service() {
     compose "${service}" "$@"
 }
 
+service_label() {
+    case "$1" in
+        mariadb) echo "MariaDB" ;;
+        valkey) echo "Valkey" ;;
+        nginx-proxy-manager) echo "Nginx Proxy Manager" ;;
+        jellyfin) echo "Jellyfin" ;;
+        nextcloud) echo "Nextcloud" ;;
+        paperless-ngx) echo "Paperless-ngx" ;;
+        homebridge) echo "Homebridge" ;;
+        cloudflare-ddns) echo "Cloudflare Dynamic DNS" ;;
+        landing-page) echo "Landing Page" ;;
+        *) return 1 ;;
+    esac
+}
+
 print_footer() {
     echo
     echo "Operation completed successfully."

@@ -6,44 +6,36 @@ print_header "Stop"
 
 print_project_root
 
-echo "Stopping Landing Page..."
+services=(
+    landing-page
+    cloudflare-ddns
+    homebridge
+    paperless-ngx
+    nextcloud
+    jellyfin
+    nginx-proxy-manager
+    valkey
+    mariadb
+)
 
-compose landing-page down
+if (($# > 1)); then
+    echo "Usage: $0 [service]"
+    exit 1
+fi
 
-echo
-echo "Stopping Cloudflare Dynamic DNS..."
+if (($# == 1)); then
+    service_label "$1" >/dev/null || {
+        echo "Unknown service: $1"
+        exit 1
+    }
+    services=("$1")
+fi
 
-compose cloudflare-ddns down
-
-echo
-echo "Stopping Paperless-ngx..."
-
-compose paperless-ngx down
-
-echo
-echo "Stopping Nextcloud..."
-
-compose nextcloud down
-
-echo
-echo "Stopping Jellyfin..."
-
-compose jellyfin down
-
-echo
-echo "Stopping Nginx Proxy Manager..."
-
-compose nginx-proxy-manager down
-
-echo
-echo "Stopping Valkey..."
-
-compose valkey down
-
-echo
-echo "Stopping MariaDB..."
-
-compose mariadb down
+for service in "${services[@]}"; do
+    echo "Stopping $(service_label "${service}")..."
+    compose "${service}" down
+    echo
+done
 
 echo
 echo "HomeLab07 stopped successfully."

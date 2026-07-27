@@ -9,51 +9,36 @@ print_project_root
 echo "Platform"
 echo
 
-echo "  MariaDB"
-echo
+services=(
+    mariadb
+    valkey
+    nginx-proxy-manager
+    jellyfin
+    nextcloud
+    paperless-ngx
+    homebridge
+    cloudflare-ddns
+    landing-page
+)
 
-compose_service mariadb ps
+if (($# > 1)); then
+    echo "Usage: $0 [service]"
+    exit 1
+fi
 
-echo
-echo "  Valkey"
-echo
+if (($# == 1)); then
+    service_label "$1" >/dev/null || {
+        echo "Unknown service: $1"
+        exit 1
+    }
+    services=("$1")
+fi
 
-compose_service valkey ps
-
-echo
-echo "  Nginx Proxy Manager"
-echo
-
-compose_service nginx-proxy-manager ps
-
-echo
-echo "  Jellyfin"
-echo
-
-compose_service jellyfin ps
-
-echo
-echo "  Nextcloud"
-echo
-
-compose_service nextcloud ps
-
-echo
-echo "  Paperless-ngx"
-echo
-
-compose_service paperless-ngx ps
-
-echo
-echo "  Cloudflare Dynamic DNS"
-echo
-
-compose_service cloudflare-ddns ps
-
-echo
-echo "  Landing Page"
-echo
-
-compose_service landing-page ps
+for service in "${services[@]}"; do
+    echo "  $(service_label "${service}")"
+    echo
+    compose_service "${service}" ps
+    echo
+done
 
 print_footer
