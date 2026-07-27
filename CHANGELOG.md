@@ -26,6 +26,8 @@
   single-service selection while preserving the existing all-service mode.
 - Validate Homebridge state permissions with the image's effective runtime
   user instead of incorrectly requiring write access from the shell operator.
+- Allow a stopped legacy Homebridge container to retain the state mount for
+  rollback while continuing to reject concurrent running containers.
 - Extend start, stop and status operations with Jellyfin.
 - Complete Sprint 007 after deployment, playback, HTTPS, scoped VA-API,
   container recreation and configuration-restore validation.

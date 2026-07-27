@@ -145,7 +145,7 @@ if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
         done < <(docker inspect \
             --format '{{range .Mounts}}{{println .Source}}{{end}}' \
             "${container_id}")
-    done < <(docker ps -aq)
+    done < <(docker ps -q)
 
     if ((${#conflicting_containers[@]} > 0)); then
         echo "Another container uses the Homebridge persistent root:"

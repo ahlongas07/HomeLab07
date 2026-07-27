@@ -83,7 +83,9 @@ Before cutover:
 The storage checker validates write access with a short-lived, networkless
 container using the approved image's effective runtime user. It does not start
 Homebridge or advertise a HomeKit identity. The shell operator does not need
-direct write access to application state.
+direct write access to application state. A stopped legacy container may
+retain the same mount for rollback; only running containers are treated as
+conflicting writers and advertisers.
 
 Controlled cutover:
 
