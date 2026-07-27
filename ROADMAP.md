@@ -442,7 +442,7 @@ platform before introducing centralized identity.
 
 Status
 
-In Progress
+Completed
 
 Objective
 

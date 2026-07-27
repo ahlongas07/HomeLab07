@@ -20,31 +20,44 @@ camera URLs or backup contents.
 
 ## Image And Runtime Inventory
 
-Pending target-host discovery. The committed Compose definition requires an
-official `homebridge/homebridge@sha256:<digest>` reference and rejects mutable
-tags. Record the validated digest and component compatibility set here before
-cutover without including environment-specific information.
+Target-host discovery and immutable image validation completed. The deployed
+runtime uses Homebridge `2.2.1`; the exact target-architecture digest remains
+in protected private configuration. Mutable tags are rejected by the storage
+checker and are not used by the deployed Compose runtime.
 
 ## Plugin Recovery Model
 
-Pending target-host discovery. Document whether each plugin is included in the
-image, installed under `/homebridge`, restored from persistent state or
-reinstalled from an explicit version inventory. Automatic plugin changes are
-not approved.
+The active camera runtime uses
+`@homebridge-plugins/homebridge-camera-ffmpeg` `4.1.0` and the preserved camera
+child bridge. Plugin state is protected with the complete `/homebridge`
+recovery boundary. An incompatible unused camera plugin was removed through a
+reviewed manual change after confirming that it did not provide the active
+camera integrations. Automatic plugin changes remain prohibited.
 
 ## Security Boundary Evidence
 
-Pending target-host validation. Positive LAN access alone is insufficient;
-record sanitized evidence that guest, visitor, unapproved IoT and external
-networks cannot reach the Homebridge UI or HAP listeners.
+Approved-LAN access and negative access tests from unapproved and external
+networks completed successfully. No public DNS, reverse proxy, tunnel, UPnP or
+router port forwarding exposes Homebridge.
 
 ## Recovery And Rollback Evidence
 
-Pending controlled validation. Recovery succeeds only when the immutable
-runtime plus restored complete state reproduces the same bridges, accessories,
-camera integrations and representative automations without re-pairing.
+Container recreation, backup, disposable restore and rollback completed with
+the same bridges, accessories, camera integrations and representative
+automations. Production and restored instances did not advertise the same
+HomeKit identity simultaneously.
 
 ## Target-Host Acceptance
 
-Pending. Complete this section only after controlled cutover and every Sprint
-008 acceptance criterion succeeds.
+Target-host acceptance completed on 2026-07-27.
+
+- Homebridge and its camera child bridge started successfully.
+- Existing accessories and representative automations remained operational.
+- Camera snapshots and live streaming succeeded through the active Camera
+  FFmpeg plugin.
+- State survived container recreation and controlled restore.
+- LAN isolation and absence of direct public exposure were validated.
+- The previous container remained stopped and available for rollback during
+  acceptance.
+
+No sensitive or environment-specific value is retained in this evidence.

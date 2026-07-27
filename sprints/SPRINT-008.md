@@ -1,6 +1,6 @@
 # Sprint 008 — Homebridge Platform
 
-**Status:** In Progress — repository implementation complete; target-host acceptance required
+**Status:** Completed
 
 **Classification:** Business Service
 
@@ -667,19 +667,30 @@ identity state remains a protected recovery boundary.
 
 # Completion Notes
 
-This section will be completed after implementation.
+Sprint 008 completed on 2026-07-27.
 
-It must summarize:
+- Homebridge was approved as Sprint 008. Platform Operations, Backup &
+  Recovery and Identity Platform were preserved as Sprints 009, 010 and 011.
+- The official Homebridge image was resolved to an immutable private digest
+  for the target architecture and validated before deployment.
+- The controlled cutover completed with only one Homebridge identity active at
+  a time; the previous container remained stopped and available for rollback.
+- Homebridge `2.2.1` started successfully with the existing primary bridge and
+  camera child-bridge topology.
+- The active camera integration,
+  `@homebridge-plugins/homebridge-camera-ffmpeg` `4.1.0`, loaded successfully.
+  An incompatible unused camera plugin was removed as a reviewed operational
+  change after confirming it did not own the active camera integrations.
+- Existing accessories, representative automations, camera snapshots and live
+  streaming were accepted without re-pairing.
+- Approved-LAN access and denial from unapproved and external networks were
+  validated. No reverse proxy, public DNS, tunnel or router port forwarding
+  exposes Homebridge.
+- Container recreation preserved complete application and pairing state.
+- Backup, disposable restore and rollback procedures completed successfully
+  without simultaneous advertisement of the same HomeKit identity.
+- Host networking remains the only retained architectural exception and
+  applies exclusively to Homebridge.
 
-- roadmap and Sprint-number reconciliation;
-- immutable image and component-version validation;
-- successful controlled cutover;
-- preservation of bridge and child-bridge identities;
-- accessory and automation validation;
-- camera snapshot and streaming validation;
-- LAN access and unapproved-network denial validation;
-- confirmation that no public exposure exists;
-- container recreation validation;
-- backup, restore and rollback validation;
-- resource-use observations;
-- any retained security exceptions or deferred hardening work.
+No private digest, path, address, bridge identity, pairing PIN, camera name or
+credential is included in this completion record.

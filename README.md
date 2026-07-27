@@ -25,8 +25,7 @@ The project emphasizes:
 
 🚧 Early Development
 
-Sprint 001 through Sprint 007 are complete. Sprint 008 repository
-implementation is complete and awaits controlled target-host acceptance.
+Sprint 001 through Sprint 008 are complete.
 
 The project has established:
 
@@ -41,12 +40,15 @@ The project has established:
 - Nextcloud as the active business-facing collaboration service.
 - Paperless-ngx as the active document-management service.
 - Jellyfin as the active media service.
-- Homebridge as the approved LAN-only HomeKit integration service pending
-  target-host cutover and acceptance.
+- Homebridge as the active LAN-only HomeKit integration service.
 
 Sprint 007 completed the media-platform milestone with NAS-backed movies,
 music and family media, secure HTTPS publication, recoverable application
 state and validated Intel VA-API acceleration.
+
+Sprint 008 completed the Homebridge operational-adoption milestone with an
+immutable runtime, preserved HomeKit identity, working camera integrations,
+LAN isolation and validated recovery.
 
 POC-001 closed with Nextcloud selected as the active collaboration service.
 The previous OwnCloud implementation remains recoverable from the

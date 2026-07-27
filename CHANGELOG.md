@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+---
+
+## [v0.10.0-homebridge-platform] - 2026-07-27
+
 ### Added
 
 - Sprint 008 Homebridge service definition using an official immutable image
@@ -28,6 +32,8 @@
   user instead of incorrectly requiring write access from the shell operator.
 - Allow a stopped legacy Homebridge container to retain the state mount for
   rollback while continuing to reject concurrent running containers.
+- Complete Sprint 008 after controlled cutover, HomeKit and camera validation,
+  LAN isolation tests, container recreation, restore and rollback acceptance.
 - Extend start, stop and status operations with Jellyfin.
 - Complete Sprint 007 after deployment, playback, HTTPS, scoped VA-API,
   container recreation and configuration-restore validation.
