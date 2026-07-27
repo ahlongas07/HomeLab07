@@ -99,11 +99,6 @@ resolved_root="$(realpath -e "${HOMEBRIDGE_DATA_ROOT}")"
     exit 1
 }
 
-[[ -w "${HOMEBRIDGE_DATA_ROOT}" ]] || {
-    echo "HOMEBRIDGE_DATA_ROOT is not writable by the current operator."
-    exit 1
-}
-
 for state_path in config.json persist accessories; do
     path="${HOMEBRIDGE_DATA_ROOT}/${state_path}"
     [[ -e "${path}" ]] || {
@@ -122,6 +117,13 @@ for state_path in config.json persist accessories; do
 done
 
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+    docker image inspect "${HOMEBRIDGE_IMAGE}" >/dev/null 2>&1 || {
+        echo "The approved Homebridge image is not available locally:"
+        echo "  ${HOMEBRIDGE_IMAGE}"
+        echo "Pull the immutable reference before running this check."
+        exit 1
+    }
+
     conflicting_containers=()
     while IFS= read -r container_id; do
         [[ -n "${container_id}" ]] || continue
@@ -151,13 +153,16 @@ if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
         exit 1
     fi
 
-    if docker inspect "${HOMEBRIDGE_CONTAINER}" >/dev/null 2>&1 &&
-        [[ "$(docker inspect --format '{{.State.Running}}' "${HOMEBRIDGE_CONTAINER}")" == "true" ]]; then
-        docker exec "${HOMEBRIDGE_CONTAINER}" test -w /homebridge || {
-            echo "/homebridge is not writable by the effective container user."
-            exit 1
-        }
-    fi
+    docker run --rm \
+        --network none \
+        --entrypoint /usr/bin/test \
+        --volume "${resolved_root}:/homebridge" \
+        "${HOMEBRIDGE_IMAGE}" \
+        -w /homebridge || {
+        echo "/homebridge is not writable by the image's effective runtime user."
+        echo "Review ownership and permissions; do not use chmod 777."
+        exit 1
+    }
 else
     echo "Docker daemon unavailable; container mount-conflict validation skipped."
     echo "Run this check again on the target host before cutover."

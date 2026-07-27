@@ -24,6 +24,8 @@
   numbers without removing planned platform capabilities.
 - Extend start, stop and status operations with Homebridge and optional
   single-service selection while preserving the existing all-service mode.
+- Validate Homebridge state permissions with the image's effective runtime
+  user instead of incorrectly requiring write access from the shell operator.
 - Extend start, stop and status operations with Jellyfin.
 - Complete Sprint 007 after deployment, playback, HTTPS, scoped VA-API,
   container recreation and configuration-restore validation.

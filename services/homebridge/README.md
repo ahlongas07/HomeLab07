@@ -80,6 +80,11 @@ Before cutover:
 7. Run `./operation/homebridge-storage-check.sh`.
 8. Render Compose without starting another instance.
 
+The storage checker validates write access with a short-lived, networkless
+container using the approved image's effective runtime user. It does not start
+Homebridge or advertise a HomeKit identity. The shell operator does not need
+direct write access to application state.
+
 Controlled cutover:
 
 ```bash
