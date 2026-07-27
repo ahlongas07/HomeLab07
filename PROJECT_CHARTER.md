@@ -303,17 +303,21 @@ Centralize authentication and authorization for platform services.
 
 Deploy multimedia services through the shared platform.
 
-## Sprint 008 — Smart Home Platform
+## Sprint 008 — Homebridge Platform
 
-Provide smart home automation services.
+Operationalize Homebridge as a LAN-only HomeKit integration service.
 
-## Sprint 009 — Platform Hardening
+## Sprint 009 — Platform Operations
 
 Increase security and operational maturity.
 
 ## Sprint 010 — Backup & Recovery
 
 Implement the platform recovery strategy.
+
+## Sprint 011 — Identity Platform
+
+Provide reusable centralized authentication and authorization.
 
 ---
 

@@ -13,6 +13,9 @@
 
 ### Changed
 
+- Approve Homebridge as Sprint 008, formalize its LAN-only, host-networking,
+  runtime-ownership and recovery boundaries, and reconcile subsequent Sprint
+  numbers without removing planned platform capabilities.
 - Extend start, stop and status operations with Jellyfin.
 - Complete Sprint 007 after deployment, playback, HTTPS, scoped VA-API,
   container recreation and configuration-restore validation.
@@ -26,7 +29,7 @@
   restrict acceleration to the validated render device and codec profiles.
 - Update the Landing Page to present Jellyfin and the completed media-platform
   milestone.
-- Reconcile Identity Platform planning with its deferred Sprint 010 roadmap
+- Reconcile Identity Platform planning with its deferred Sprint 011 roadmap
   position without changing its technical scope.
 
 ---

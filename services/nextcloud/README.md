@@ -235,7 +235,7 @@ User files alone are not a complete Nextcloud backup.
 6. Verify checksums, users, shares, versions, cron and branding.
 
 Restore testing uses disposable PoC data only. Backup automation belongs to
-Sprint 010.
+Sprint 011.
 
 ## Historical Recovery
 

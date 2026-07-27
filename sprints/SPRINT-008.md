@@ -1,6 +1,6 @@
-# Sprint 008 — Smart Home Platform
+# Sprint 008 — Homebridge Platform
 
-**Status:** Proposed — planning complete; roadmap reconciliation and implementation approval required
+**Status:** Planned — technical design complete; implementation required
 
 **Classification:** Business Service
 
@@ -24,24 +24,6 @@ port forwarding.
 The Sprint operationalizes the validated Homebridge workload. It does not
 redesign the smart-home environment, replace working integrations or introduce
 additional automation platforms.
-
----
-
-# Roadmap Reconciliation
-
-The active roadmap currently assigns Sprint 008 to Platform Operations and
-lists Smart Home Platform as a future enhancement. Implementation of this
-document requires an explicit roadmap decision before runtime changes begin.
-
-This planning document does not remove or silently defer the Platform
-Operations capability. The roadmap must either:
-
-- approve Smart Home Platform as the new Sprint 008 priority and reschedule
-  Platform Operations; or
-- renumber this document while preserving its technical scope.
-
-No implementation should begin while the Sprint number and priority remain
-ambiguous.
 
 ---
 
@@ -147,8 +129,17 @@ The official Homebridge Docker guidance uses host networking. HomeLab07
 approves `network_mode: host` for this service because multicast discovery and
 direct HomeKit connectivity are demonstrated requirements.
 
-The exception is limited to Homebridge and does not establish host networking
-as the default for other services.
+Host networking is approved only because HomeKit discovery and HAP
+connectivity cannot be reliably reproduced through the standard proxy-only
+Docker network model on the target environment.
+
+The exception applies only to the Homebridge container. It does not authorize
+host networking for unrelated services or establish host networking as a
+HomeLab07 default.
+
+Any future attempt to replace host networking must demonstrate equivalent
+mDNS, HomeKit controller, home-hub and camera behavior before this exception
+can be removed.
 
 Consequences:
 
@@ -223,6 +214,25 @@ evidence:
 
 Repository examples must use non-functional placeholders.
 
+## Data Ownership
+
+| Component | Owner |
+|---|---|
+| HomeKit bridge identity | Homebridge |
+| Pairing state | Homebridge |
+| Cached accessories | Homebridge |
+| Child-bridge state | Homebridge |
+| Homebridge configuration | Homebridge |
+| Camera source streams | Camera systems |
+| Camera credentials and endpoints | Private environment configuration |
+| Persistent storage platform | Rockstor |
+| Service lifecycle | HomeLab07 Operation Layer |
+| Local network access policy | Host, router and network infrastructure |
+| Public DNS and reverse proxy | Not consumed |
+
+Homebridge owns its application identity and state. It does not own camera
+systems, LAN infrastructure or the NAS platform.
+
 ---
 
 # Container Image And Version Policy
@@ -246,6 +256,29 @@ the initial operational adoption. Each update is a separate, reversible change
 with compatibility evidence.
 
 Automatic container-image updates are not approved.
+
+## Plugin And Runtime Boundary
+
+The validated Homebridge runtime includes:
+
+- Homebridge;
+- Homebridge UI;
+- Node.js;
+- FFmpeg;
+- installed plugins;
+- child-bridge configuration.
+
+These components form one compatibility set. They must be inventoried and
+restored together. An immutable container image alone is not sufficient when
+plugin versions or plugin state may change independently inside `/homebridge`.
+
+Plugin installation, removal or upgrade is a reviewed operational change and
+must not occur automatically during normal startup.
+
+Discovery must determine whether each plugin is baked into the image,
+installed under the persistent root, restored from state or reinstalled from
+an explicit version inventory. The recovery procedure must document and
+validate the actual model discovered on the target host.
 
 ---
 
@@ -297,6 +330,11 @@ remain disabled unless a future requirement explicitly approves them.
 
 Homebridge must be reachable only from approved local networks.
 
+LAN-only does not mean implicitly trusted. Because host networking may cause
+Homebridge to listen on every host LAN interface, Docker cannot enforce or by
+itself prove the access boundary. The effective security boundary depends on
+the host firewall, router, VLANs and network policy.
+
 Required controls:
 
 - no public DNS record for Homebridge;
@@ -311,9 +349,16 @@ Required controls:
 - outbound camera access limited to required local endpoints where the network
   platform supports enforcement.
 
-Home hubs may provide remote Apple Home functionality without exposing the
-Homebridge UI or HAP endpoints directly to the Internet. That behavior does not
-change the LAN-only boundary of this service.
+Guest, visitor and untrusted IoT networks are denied unless explicitly
+approved. Sprint acceptance requires positive access tests from approved
+networks and negative access tests from unapproved and external networks;
+successful local access alone is insufficient validation.
+
+Remote control through an Apple home hub is an Apple HomeKit service path. It
+does not constitute direct remote access to the Homebridge UI, HAP ports or
+container. HomeLab07 must not expose Homebridge merely to reproduce
+functionality already provided through the approved home-hub architecture.
+This behavior does not change the LAN-only boundary of the service.
 
 Guest and untrusted IoT networks are not implicitly approved LANs. If multiple
 VLANs are present, routing and mDNS reflection require a separate documented
@@ -405,12 +450,11 @@ regenerate pairing identity or update plugins automatically.
 
 ## Phase 1 — Discovery Freeze
 
-1. Reconcile the Sprint number with the active roadmap.
-2. Capture the running image ID, digest and component versions.
-3. Inventory plugins, child bridges, ports, mounts and effective user.
-4. Record container resource behavior under normal operation.
-5. Confirm router, firewall, VLAN and mDNS boundaries.
-6. Freeze image and plugin updates for the implementation window.
+1. Capture the running image ID, digest and component versions.
+2. Inventory plugins, child bridges, ports, mounts and effective user.
+3. Record container resource behavior under normal operation.
+4. Confirm router, firewall, VLAN and mDNS boundaries.
+5. Freeze image and plugin updates for the implementation window.
 
 ## Phase 2 — Recovery Point
 
@@ -510,6 +554,17 @@ regenerate pairing identity or update plugins automatically.
 - A controlled restore recovers representative state.
 - Rollback never starts two containers with the same identity simultaneously.
 
+Recovery success is defined as follows:
+
+> A clean runtime using the approved immutable image plus restored Homebridge
+> state reproduces the same bridge identity, child bridges, accessories,
+> camera integrations and representative automations without re-pairing.
+
+Container recreation alone is not disaster recovery. A fresh Homebridge
+instance with a new pairing identity is not an acceptable restore. A recovery
+test must never allow the restored instance and production instance to
+advertise the same HomeKit identity simultaneously.
+
 ---
 
 # Risks
@@ -561,6 +616,7 @@ The Sprint is complete only when:
 - the complete Homebridge state uses one private NAS-backed persistent root;
 - no sensitive or environment-specific value exists in Git;
 - host networking is documented as a limited Homebridge exception;
+- no other HomeLab07 service was moved to host networking by this Sprint;
 - no Compose ports or Docker networks are configured;
 - the UI is reachable from approved LAN clients;
 - HomeKit controllers and home hubs operate locally;
@@ -586,3 +642,45 @@ The implementation must preserve smart-home continuity, introduce no public
 exposure and leave future upgrades as explicit, independently reviewable
 changes.
 
+---
+
+# Engineering Principles
+
+Sprint 008 introduces no new shared platform capability.
+
+Homebridge consumes existing storage and operation capabilities while
+remaining intentionally independent from public DNS, reverse proxy and shared
+application networks.
+
+Host networking is an approved architectural exception for a demonstrated
+multicast and HomeKit requirement. It is not a precedent or default for other
+HomeLab07 services.
+
+LAN isolation is part of the application security model.
+
+Operational reproducibility and smart-home continuity take precedence over
+feature expansion, upgrades or topology redesign.
+
+Homebridge remains a replaceable application, while its complete pairing and
+identity state remains a protected recovery boundary.
+
+---
+
+# Completion Notes
+
+This section will be completed after implementation.
+
+It must summarize:
+
+- roadmap and Sprint-number reconciliation;
+- immutable image and component-version validation;
+- successful controlled cutover;
+- preservation of bridge and child-bridge identities;
+- accessory and automation validation;
+- camera snapshot and streaming validation;
+- LAN access and unapproved-network denial validation;
+- confirmation that no public exposure exists;
+- container recreation validation;
+- backup, restore and rollback validation;
+- resource-use observations;
+- any retained security exceptions or deferred hardening work.

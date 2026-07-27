@@ -431,14 +431,54 @@ Architecture Decisions
 
 ---
 
-# Phase 3 — Platform Operations
+# Phase 3 — Local Services And Platform Operations
 
 The objective of this phase is to operationalize, protect and recover the
 platform before introducing centralized identity.
 
 ---
 
-## Sprint 008 — Platform Operations
+## Sprint 008 — Homebridge Platform
+
+Status
+
+Planned
+
+Objective
+
+Operationalize Homebridge as a reproducible, recoverable and LAN-only
+HomeLab07 business service without redesigning the broader smart-home
+architecture.
+
+Business Service
+
+Homebridge
+
+Consumes
+
+- NAS-backed storage
+- Operation Layer
+- Private environment configuration
+
+Architecture Decisions
+
+- Host networking is a limited Homebridge exception for mDNS and HAP.
+- Homebridge consumes no public DNS, reverse proxy or shared application
+  network.
+- Pairing identity, plugins and child-bridge state form a protected recovery
+  boundary.
+
+Validation
+
+- HomeKit discovery, controllers and home hubs
+- Camera snapshots and streaming
+- Approved-LAN access and unapproved-network denial
+- Container recreation and state recovery without re-pairing
+- No direct public exposure
+
+---
+
+## Sprint 009 — Platform Operations
 
 Status
 
@@ -465,7 +505,7 @@ Validation
 
 ---
 
-## Sprint 009 — Backup & Recovery
+## Sprint 010 — Backup & Recovery
 
 Status
 
@@ -491,7 +531,7 @@ Validation
 
 ---
 
-## Sprint 010 — Identity Platform
+## Sprint 011 — Identity Platform
 
 Status
 
@@ -538,7 +578,6 @@ They should only be introduced when justified by platform requirements.
 
 Potential future enhancements include:
 
-- Smart Home Platform
 - Observability
 - Multi-node deployment
 - High Availability

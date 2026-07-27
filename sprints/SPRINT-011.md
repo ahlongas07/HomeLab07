@@ -1,4 +1,4 @@
-# SPRINT-010 — Identity Platform Planning
+# SPRINT-011 — Identity Platform Planning
 
 **Status:** Planned — technical design complete; PoC implementation required
 
@@ -60,9 +60,9 @@ single-host architecture.
 ## Sprint Number Reconciliation
 
 This design was initially recorded as `SPRINT-007`. On 2026-07-23 it was moved
-to `SPRINT-010` to match the approved roadmap sequence, which schedules Media
-Platform as Sprint 007 and defers Identity Platform until after platform
-operations and backup/recovery. The technical scope is unchanged.
+to `SPRINT-010`, then reconciled as `SPRINT-011` when Homebridge was approved
+as Sprint 008. Identity Platform remains scheduled after platform operations
+and backup/recovery. The technical scope is unchanged.
 
 ---
 

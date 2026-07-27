@@ -303,7 +303,7 @@ thumbnails and metadata and supports import into a clean instance. Export and
 import should use the same Paperless version. API tokens are not included and
 must be recreated.
 
-Backup automation belongs to Sprint 009. Sprint 006 documents commands,
+Backup automation belongs to Sprint 010. Sprint 006 documents commands,
 boundaries and a disposable restore test without scheduling production jobs.
 
 ---

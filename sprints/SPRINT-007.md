@@ -92,7 +92,7 @@ host.
 | Cache/transcodes | Dedicated `/cache` | Replaceable; capacity and cleanup must be tested |
 | Publication | Existing Nginx Proxy Manager | HTTPS and WebSockets |
 | DNS | Existing Cloudflare Dynamic DNS | Environment-specific record remains private |
-| Authentication | Jellyfin local users | Identity Platform remains Sprint 010 |
+| Authentication | Jellyfin local users | Identity Platform remains Sprint 011 |
 | Transcoding | VA-API on Intel Sandy Bridge plus software fallback | Scoped H.264 acceleration validated before implementation |
 
 Not approved in the baseline:
@@ -435,7 +435,7 @@ terminate at the existing Nginx Proxy Manager entry point.
 - Preserve a local administrative recovery path before future identity work.
 - Limit GPU access to the validated render device and required group only.
 
-Identity integration is explicitly deferred to Sprint 010. Sprint 007 uses
+Identity integration is explicitly deferred to Sprint 011. Sprint 007 uses
 Jellyfin local authentication and must not install a community OIDC plugin.
 
 ---
@@ -445,7 +445,7 @@ Jellyfin local authentication and must not install a community OIDC plugin.
 Sprint 007 intentionally uses Jellyfin local authentication.
 
 No OpenID Connect, OAuth2, SAML or third-party authentication plugin is part of
-this Sprint. Identity Platform evaluation belongs exclusively to Sprint 010.
+this Sprint. Identity Platform evaluation belongs exclusively to Sprint 011.
 
 Future identity integration must preserve the current recovery boundary and
 local administrative access. It must not make recovery of Jellyfin dependent
