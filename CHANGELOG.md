@@ -2,6 +2,9 @@
 
 ### Changed
 
+- Add the Sprint 009 Platform Operations implementation plan covering exposure
+  inventory, management isolation, WAF, rate limiting, security headers,
+  runtime hardening, security audit and Zero Trust evaluation.
 - Update the Landing Page to present Homebridge and the completed Sprint 008
   milestone while preserving its LAN-only service boundary.
 

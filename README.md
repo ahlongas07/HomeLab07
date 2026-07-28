@@ -27,6 +27,10 @@ The project emphasizes:
 
 Sprint 001 through Sprint 008 are complete.
 
+Sprint 009 Platform Operations is planned to harden public exposure,
+management access and recurring security validation without introducing a new
+security platform.
+
 The project has established:
 
 - The first operational platform service.

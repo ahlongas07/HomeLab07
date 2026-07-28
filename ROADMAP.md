@@ -490,10 +490,14 @@ Harden and operationalize the platform for production-quality operation.
 
 Deliverables
 
+- Public and management exposure inventory
 - Cloudflare WAF
 - Rate Limiting
 - Zero Trust evaluation
 - Security Headers
+- Nginx Proxy Manager administration isolation
+- Read-only platform security audit
+- Edge-policy and incident-response documentation
 - Platform security review
 - Infrastructure hardening
 
@@ -502,6 +506,9 @@ Validation
 - Security assessment
 - Public exposure review
 - Infrastructure review
+- Approved-management access and unapproved-network denial
+- Published-application compatibility after edge hardening
+- WAF, rate-limit and management-boundary rollback
 
 ---
 
