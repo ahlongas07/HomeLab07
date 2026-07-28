@@ -7,7 +7,8 @@ Provide the first published service of HomeLab07.
 This service validates the complete deployment workflow and serves as the reference implementation for future services published through Nginx Proxy Manager.
 
 It also presents the current public platform status and active Nextcloud,
-Paperless-ngx and Jellyfin business services.
+Paperless-ngx, Jellyfin and Homebridge business services. Homebridge is listed
+as a platform milestone only; the service itself remains LAN-only.
 
 ---
 
@@ -58,8 +59,8 @@ The command must complete without errors.
 Validate that the rendered page reflects the current platform milestone:
 
 ```text
-Media platform
-Jellyfin enabled
+Homebridge platform
+Homebridge LAN-only
 ```
 
 ---
@@ -131,3 +132,4 @@ Implemented during:
 - Sprint 005 – Collaboration Platform status update
 - Sprint 006 – Document Management Platform status update
 - Sprint 007 – Media Platform status update
+- Sprint 008 – Homebridge Platform status update

@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### Changed
+
+- Update the Landing Page to present Homebridge and the completed Sprint 008
+  milestone while preserving its LAN-only service boundary.
+
 ---
 
 ## [v0.10.0-homebridge-platform] - 2026-07-27
