@@ -9,6 +9,9 @@
   procedures for the manually managed Cloudflare and gateway controls.
 - Add a read-only security audit for Compose exposure, runtime privilege,
   network exceptions, private-file permissions and external validation gates.
+- Complete Sprint 009 target validation with zero required-control failures,
+  owner-only private-file permissions, successful Dynamic DNS recreation and
+  successful rendering of all service Compose definitions.
 - Update the Landing Page to present Homebridge and the completed Sprint 008
   milestone while preserving its LAN-only service boundary.
 

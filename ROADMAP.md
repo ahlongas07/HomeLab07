@@ -482,7 +482,7 @@ Validation
 
 Status
 
-In Progress
+Complete
 
 Objective
 

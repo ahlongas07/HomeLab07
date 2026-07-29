@@ -25,12 +25,12 @@ The project emphasizes:
 
 🚧 Early Development
 
-Sprint 001 through Sprint 008 are complete.
+Sprint 001 through Sprint 009 are complete.
 
-Sprint 009 Platform Operations is in progress. Its edge-security baseline has
-been validated, and the repository now defines the desired edge policy,
-incident procedures and a read-only security audit without introducing a new
-security platform.
+Sprint 009 Platform Operations completed the edge-security, management-access
+and recurring security-validation baseline. The repository defines the desired
+edge policy, incident procedures and a read-only security audit without
+introducing a new security platform.
 
 The project has established:
 
@@ -54,6 +54,10 @@ state and validated Intel VA-API acceleration.
 Sprint 008 completed the Homebridge operational-adoption milestone with an
 immutable runtime, preserved HomeKit identity, working camera integrations,
 LAN isolation and validated recovery.
+
+Sprint 009 completed the Platform Operations milestone with validated edge
+controls, origin restrictions, LAN-only proxy administration, staged HSTS,
+sanitized incident procedures and a target-tested read-only security audit.
 
 POC-001 closed with Nextcloud selected as the active collaboration service.
 The previous OwnCloud implementation remains recoverable from the

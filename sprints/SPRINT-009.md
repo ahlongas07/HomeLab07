@@ -1,6 +1,6 @@
 # Sprint 009 — Platform Operations
 
-**Status:** In Progress — edge baseline validated; repository audit implemented
+**Status:** Complete — implemented and validated
 
 **Classification:** Platform Enhancement
 
@@ -759,8 +759,23 @@ Implementation progress as of 2026-07-29:
 - `operation/security-audit.sh` provides a read-only repository and runtime
   posture audit with explicit external-validation gates.
 
-Sprint closure remains pending execution of the audit on the target host and
-resolution or acceptance of its sanitized findings.
+Target-host closure validation completed successfully:
+
+- the read-only audit reported 22 passes, six documented warnings and zero
+  required-control failures;
+- private environment and secret files were restricted to owner-only access;
+- the Dynamic DNS container was recreated successfully after the permission
+  change and remained running without restart or exit errors;
+- all nine service Compose definitions rendered successfully with private
+  target configuration;
+- the warnings map to approved exceptions or external validation gates:
+  Nginx Proxy Manager port 81, mutable image review, WAN exposure, management
+  denial, proxied-origin denial and DNS-only route validation;
+- the external gates were exercised during implementation and passed without
+  breaking approved application workflows.
+
+Sprint 009 is complete. No environment-specific domain, address, provider
+identifier, credential or certificate content was committed to the repository.
 
 It must summarize:
 
