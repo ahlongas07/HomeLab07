@@ -5,6 +5,10 @@
 - Add the Sprint 009 Platform Operations implementation plan covering exposure
   inventory, management isolation, WAF, rate limiting, security headers,
   runtime hardening, security audit and Zero Trust evaluation.
+- Add the sanitized edge-security policy, validation and incident-response
+  procedures for the manually managed Cloudflare and gateway controls.
+- Add a read-only security audit for Compose exposure, runtime privilege,
+  network exceptions, private-file permissions and external validation gates.
 - Update the Landing Page to present Homebridge and the completed Sprint 008
   milestone while preserving its LAN-only service boundary.
 

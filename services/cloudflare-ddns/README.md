@@ -244,6 +244,10 @@ HomeLab07.private/env/cloudflare-ddns.env
 
 HomeLab07 operations must go through the `operation/` layer.
 
+Dynamic DNS record updates do not determine the complete edge-security policy.
+Proxy mode, WAF, rate limiting, response headers and HSTS must match
+`docs/security/EDGE_POLICY.md`. Real record values remain private.
+
 ```bash
 ./operation/start.sh
 ./operation/status.sh

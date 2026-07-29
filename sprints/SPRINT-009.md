@@ -1,12 +1,12 @@
 # Sprint 009 — Platform Operations
 
-**Status:** Planned — technical design complete; implementation required
+**Status:** In Progress — edge baseline validated; repository audit implemented
 
 **Classification:** Platform Enhancement
 
 **Primary Focus:** Security hardening and operational assurance
 
-**Last Reviewed:** 2026-07-28
+**Last Reviewed:** 2026-07-29
 
 ---
 
@@ -740,7 +740,27 @@ truth. Retained settings must remain reviewable from repository documentation.
 
 # Completion Notes
 
-This section will be completed after implementation.
+Implementation progress as of 2026-07-29:
+
+- the Free-plan managed WAF baseline is active for proxied routes;
+- one narrow IP-based authentication rate limit blocks after 10 requests in
+  10 seconds for 10 seconds and preserves normal application workflows;
+- proxied Nginx Proxy Manager hosts accept Cloudflare source ranges and deny
+  direct-origin traffic, while the media route remains intentionally DNS-only;
+- response transforms set `X-Content-Type-Options: nosniff` and
+  `Referrer-Policy: strict-origin-when-cross-origin` exactly once;
+- HSTS is staged for 30 days without subdomains or preload;
+- WAN exposure is limited to the shared HTTP/HTTPS gateway, while Nginx Proxy
+  Manager administration is externally denied and remains available from LAN;
+- browser, upload, download, synchronization, WebDAV, media and Homebridge
+  workflows passed regression validation;
+- `docs/security/` now records sanitized desired state, validation and incident
+  procedures;
+- `operation/security-audit.sh` provides a read-only repository and runtime
+  posture audit with explicit external-validation gates.
+
+Sprint closure remains pending execution of the audit on the target host and
+resolution or acceptance of its sanitized findings.
 
 It must summarize:
 

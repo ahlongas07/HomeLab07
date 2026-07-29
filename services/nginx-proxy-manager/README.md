@@ -101,6 +101,16 @@ MariaDB belongs to the shared infrastructure layer and is not part of the public
 
 Published services, such as the Landing Page, are reached through the proxy network and do not publish their own public ports.
 
+Port `81` is a management exception. It must remain reachable only from the
+approved LAN and denied from WAN, guest and untrusted networks. The Compose
+mapping alone does not prove that boundary; validate it externally using
+`docs/security/VALIDATION.md`.
+
+Proxy hosts that traverse Cloudflare use a Cloudflare-source-only access list
+followed by deny-all. DNS-only services must not use that list because their
+traffic does not traverse the Cloudflare HTTP proxy. Desired edge state and
+rollback procedures are maintained under `docs/security/`.
+
 ---
 
 # Directory Structure

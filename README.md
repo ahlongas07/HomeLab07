@@ -27,8 +27,9 @@ The project emphasizes:
 
 Sprint 001 through Sprint 008 are complete.
 
-Sprint 009 Platform Operations is planned to harden public exposure,
-management access and recurring security validation without introducing a new
+Sprint 009 Platform Operations is in progress. Its edge-security baseline has
+been validated, and the repository now defines the desired edge policy,
+incident procedures and a read-only security audit without introducing a new
 security platform.
 
 The project has established:
@@ -75,6 +76,10 @@ Implemented direction:
 - Homebridge uses a complete NAS-backed application-state boundary and a
   service-specific host-networking exception without public DNS, reverse proxy
   publication or shared Docker networks.
+- Platform exposure, edge controls and management boundaries are defined in
+  [`docs/security/`](docs/security/); [`operation/security-audit.sh`](operation/security-audit.sh)
+  checks repository and runtime posture without changing infrastructure state
+  or exposing environment data.
 
 ## Documentation
 
@@ -82,6 +87,7 @@ Implemented direction:
 - Engineering Principles
 - Roadmap
 - Sprint documents
+- Edge security policy and validation procedures
 
 ## License
 
