@@ -138,8 +138,8 @@ if [[ ! -d "${PRIVATE_ROOT}/env" || ! -d "${PRIVATE_ROOT}/secrets" ]]; then
 else
     insecure_private_files=0
     while IFS= read -r -d '' private_file; do
-        permissions="$(stat -f '%Lp' "${private_file}" 2>/dev/null || stat -c '%a' "${private_file}" 2>/dev/null || true)"
-        if [[ -n "${permissions}" ]] && ((10#${permissions} % 100 != 0)); then
+        permissions="$(stat -c '%a' "${private_file}" 2>/dev/null || stat -f '%Lp' "${private_file}" 2>/dev/null || true)"
+        if [[ "${permissions}" =~ ^[0-7]{3,4}$ ]] && ((10#${permissions} % 100 != 0)); then
             insecure_private_files=$((insecure_private_files + 1))
         fi
     done < <(find "${PRIVATE_ROOT}/env" "${PRIVATE_ROOT}/secrets" -type f -print0 2>/dev/null || true)
