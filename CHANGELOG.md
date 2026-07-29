@@ -12,6 +12,8 @@
 - Complete Sprint 009 target validation with zero required-control failures,
   owner-only private-file permissions, successful Dynamic DNS recreation and
   successful rendering of all service Compose definitions.
+- Update the Landing Page to present the completed Sprint 009 Platform
+  Operations and validated edge-security milestone.
 - Update the Landing Page to present Homebridge and the completed Sprint 008
   milestone while preserving its LAN-only service boundary.
 
