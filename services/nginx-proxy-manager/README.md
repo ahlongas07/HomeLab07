@@ -358,6 +358,10 @@ Do not keep the default administrator credentials.
 
 Nginx Proxy Manager backup requires both persistent files and its application database.
 
+Sprint 010 performs the coordinated stopped-state capture through
+`./operation/backup.sh`. The manual sequence below remains a recovery reference,
+not the scheduled backup interface.
+
 Back up:
 
 - `${HOMELAB07_DATA_ROOT}/nginx-proxy-manager/`

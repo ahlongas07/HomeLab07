@@ -1,0 +1,12 @@
+[Unit]
+Description=Run HomeLab07 encrypted platform backup daily
+Documentation=file:///path/to/HomeLab07/docs/backup/README.md
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+RandomizedDelaySec=15m
+Persistent=true
+Unit=homelab07-backup.service
+
+[Install]
+WantedBy=timers.target

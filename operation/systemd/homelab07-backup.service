@@ -1,0 +1,22 @@
+[Unit]
+Description=HomeLab07 encrypted platform backup
+Documentation=file:///path/to/HomeLab07/docs/backup/README.md
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+User=replace-with-operator
+Group=replace-with-operator-group
+WorkingDirectory=/path/to/HomeLab07
+Environment=HOMELAB07_PRIVATE_ROOT=/path/to/HomeLab07.private
+ExecStart=/path/to/HomeLab07/operation/backup.sh
+UMask=0077
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

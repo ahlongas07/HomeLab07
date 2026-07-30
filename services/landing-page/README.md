@@ -123,6 +123,9 @@ Environment-specific configuration must never be committed to Git and belongs in
 
 The service must not expose public host ports directly.
 
+The Landing Page has no persistent runtime state. Sprint 010 protects its
+definition through the repository bundle and source snapshot.
+
 ---
 
 ## Sprint

@@ -307,6 +307,9 @@ HomeLab07.private/secrets/cloudflare-ddns-api-token
 
 Do not copy API tokens into the repository.
 
+Sprint 010 includes these private files inside the encrypted platform snapshot;
+the Restic password itself requires an independent offline recovery copy.
+
 ---
 
 ## Restore

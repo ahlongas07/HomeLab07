@@ -32,6 +32,10 @@ and recurring security-validation baseline. The repository defines the desired
 edge policy, incident procedures and a read-only security audit without
 introducing a new security platform.
 
+Sprint 010 Backup & Recovery is in progress. It introduces encrypted,
+deduplicated recovery points, explicit retention, integrity verification and
+safe disposable restore testing through the Operation Layer.
+
 The project has established:
 
 - The first operational platform service.

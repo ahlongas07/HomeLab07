@@ -304,6 +304,8 @@ Valkey stores only transient state in HomeLab07.
 
 Applications must not use Valkey as the source of truth for persistent data.
 
+Sprint 010 intentionally excludes Valkey runtime state from platform backups.
+
 ---
 
 ## Restore

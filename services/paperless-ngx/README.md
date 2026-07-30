@@ -138,6 +138,10 @@ portable export with:
 The exporter and importer should use the same Paperless version. API tokens are
 not included and must be recreated.
 
+Sprint 010 captures the database and persistent roots through
+`./operation/backup.sh`. Portable export remains an additional compatibility
+artifact, not a replacement for the consistent platform recovery point.
+
 ## Restore
 
 1. Restore private configuration and the same repository version.

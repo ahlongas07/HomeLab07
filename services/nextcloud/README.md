@@ -234,8 +234,9 @@ User files alone are not a complete Nextcloud backup.
    version's official restore guidance.
 6. Verify checksums, users, shares, versions, cron and branding.
 
-Restore testing uses disposable PoC data only. Backup automation belongs to
-Sprint 011.
+Sprint 010 centralizes encrypted backup and disposable restore through
+`./operation/backup.sh` and `./operation/restore-test.sh`. The component steps
+above remain the application-level recovery contract.
 
 ## Historical Recovery
 

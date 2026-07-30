@@ -133,6 +133,10 @@ configuration, image digest and version inventory with the state backup.
 
 Container recreation alone is not a backup or disaster-recovery test.
 
+Sprint 010 captures the complete stopped-state root through
+`./operation/backup.sh`. A disposable restore must remain isolated from the
+production HomeKit network.
+
 ## Restore
 
 1. Keep production Homebridge stopped.

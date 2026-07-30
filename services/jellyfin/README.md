@@ -171,6 +171,9 @@ A complete Jellyfin recovery point includes:
 `/cache` is replaceable and may be excluded after recreation validation.
 Container recreation is not disaster recovery.
 
+Sprint 010 captures `/config` through `./operation/backup.sh`; cache and source
+media remain outside the platform-state snapshot by policy.
+
 ## Restore
 
 1. Keep Jellyfin stopped.

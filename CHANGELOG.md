@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### Added
+
+- Add the Sprint 010 Backup & Recovery architecture and private configuration
+  contract based on encrypted Restic repositories and safe disposable restores.
+
 ### Changed
 
 - Add the Sprint 009 Platform Operations implementation plan covering exposure
