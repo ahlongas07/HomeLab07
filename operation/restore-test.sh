@@ -41,6 +41,7 @@ done
 
 production_roots=(
     "$(read_backup_private_value mariadb HOMELAB07_DATA_ROOT)"
+    "$(read_backup_private_value nginx-proxy-manager HOMELAB07_DATA_ROOT)/nginx-proxy-manager"
     "$(read_backup_private_value nextcloud NEXTCLOUD_ROOT)"
     "$(read_backup_private_value paperless-ngx PAPERLESS_ROOT)"
     "$(read_backup_private_value jellyfin JELLYFIN_ROOT)"

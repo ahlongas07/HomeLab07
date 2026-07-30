@@ -15,6 +15,8 @@
 
 - Make backup runtime restoration fail visibly for every quiesced service and
   align service recovery documentation with the operation layer.
+- Resolve Nginx Proxy Manager state from its owning private configuration and
+  validate the exact proxy state root during backup preflight.
 
 - Add the Sprint 009 Platform Operations implementation plan covering exposure
   inventory, management isolation, WAF, rate limiting, security headers,

@@ -37,12 +37,12 @@ if [[ -n "$(git -C "${PROJECT_ROOT}" status --porcelain)" ]]; then
     exit 1
 fi
 
-shared_data_root="$(read_backup_private_value mariadb HOMELAB07_DATA_ROOT)"
+npm_data_root="$(read_backup_private_value nginx-proxy-manager HOMELAB07_DATA_ROOT)"
 nextcloud_root="$(read_backup_private_value nextcloud NEXTCLOUD_ROOT)"
 paperless_root="$(read_backup_private_value paperless-ngx PAPERLESS_ROOT)"
 jellyfin_root="$(read_backup_private_value jellyfin JELLYFIN_ROOT)"
 homebridge_root="$(read_backup_private_value homebridge HOMEBRIDGE_DATA_ROOT)"
-npm_root="${shared_data_root}/nginx-proxy-manager"
+npm_root="${npm_data_root}/nginx-proxy-manager"
 
 for required_root in \
     "${npm_root}" \
