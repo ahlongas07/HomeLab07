@@ -95,7 +95,9 @@ Implemented direction:
 - Engineering Principles
 - Roadmap
 - Sprint documents
+- Shared platform control principles and architecture contracts
 - Edge security policy and validation procedures
+- Backup policy, recovery manifest and recovery matrix
 
 ## License
 

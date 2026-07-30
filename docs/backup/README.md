@@ -59,35 +59,25 @@ The operation:
 3. enables Nextcloud maintenance mode;
 4. stops stateful applications without stopping MariaDB;
 5. creates a logical MariaDB dump and Git bundle;
-6. writes an encrypted Restic snapshot;
-7. checks repository integrity;
-8. restores the previous runtime state;
-9. removes sensitive staging files.
+6. writes an encrypted platform-state snapshot;
+7. checks repository integrity and restores the previous runtime state;
+8. generates a versioned `backup-manifest.json` with checksums and results;
+9. writes a coordinated manifest snapshot referencing the data snapshot;
+10. removes sensitive staging files.
 
 An interrupted run attempts to restore the previous runtime state. Always run
 `./operation/status.sh` after an unexpected host or process failure.
 
-## Daily Automation
+## Recovery Manifest
 
-Copy the templates under `operation/systemd/` to private host-managed unit
-files, replace every placeholder and review them before installation. Do not
-commit the rendered units because they contain environment paths and operator
-identifiers.
+The machine-readable contract is defined in
+[`architecture/RECOVERY_MANIFEST.md`](../../architecture/RECOVERY_MANIFEST.md).
+The manifest is stored in its own encrypted Restic snapshot because it must
+reference the already-created platform-state snapshot ID.
 
-After installation:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now homelab07-backup.timer
-systemctl list-timers homelab07-backup.timer
-```
-
-Inspect status without copying private paths or application output into Git:
-
-```bash
-systemctl status homelab07-backup.service
-journalctl -u homelab07-backup.service --since today
-```
+The restore command resolves the manifest first, restores the referenced data
+snapshot and verifies every declared artifact checksum. Human-readable Restic
+output is never the recovery contract.
 
 ## Integrity
 
@@ -131,13 +121,20 @@ Use an empty location on a non-production filesystem:
 
 The command restores files but never starts containers or overwrites production.
 Continue with [`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md) for component-level
-validation.
+validation and [`RECOVERY_MATRIX.md`](RECOVERY_MATRIX.md) for dependency order.
 
 ## Backup Monitoring
 
-The timer exit state, last successful snapshot, repository check and restore
-test are the operational signals. A running timer alone does not prove a usable
-backup.
+The command exit state, latest coordinated manifest, repository check and
+restore test are the operational signals. Sprint 010 installs no scheduler and
+claims no automatic RPO.
+
+## Future Evolution
+
+Multiple repositories, S3-compatible backends, append-only storage, off-site
+copies, scheduler integration and failure alerts are documented as future work
+in `sprints/SPRINT-010.md`. None is represented as active protection in this
+Sprint.
 
 ## Security
 

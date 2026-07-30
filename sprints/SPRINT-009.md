@@ -574,6 +574,10 @@ adds none of those runtime or operational files.
 
 # Validation Plan
 
+This Sprint inherits the shared validation and evidence model in
+[`architecture/PLATFORM_CONTROL_PRINCIPLES.md`](../architecture/PLATFORM_CONTROL_PRINCIPLES.md).
+The checks below are specific to edge security and management boundaries.
+
 ## Static Validation
 
 - All Compose files render with placeholder-only examples.
@@ -676,6 +680,11 @@ adds none of those runtime or operational files.
 
 # Acceptance Criteria
 
+Shared platform acceptance requirements are defined in
+[`architecture/PLATFORM_CONTROL_PRINCIPLES.md`](../architecture/PLATFORM_CONTROL_PRINCIPLES.md).
+The criteria below retain the Sprint 009 capability-specific contract and
+completion evidence.
+
 Sprint 009 is complete only when:
 
 - every service and listener has a documented exposure class;
@@ -721,17 +730,11 @@ deferred decisions rather than represented as active protection.
 
 # Engineering Principles
 
-Sprint 009 introduces no new application or shared data service.
-
-Security controls follow actual traffic paths and demonstrated risks. A
-provider feature is not a platform control until it is configured, owned,
-tested and recoverable.
-
-Application compatibility and recovery access are part of security. A control
-that creates an unexplained outage is not accepted hardening.
-
-The repository records desired state and validation procedures while secrets,
-provider identifiers and environment-specific values remain private.
+Sprint 009 introduces no new application or shared data service. It applies the
+shared platform control principles to actual edge traffic paths. A provider
+feature becomes an accepted platform control only after capability-specific
+configuration, ownership, compatibility, negative testing and recovery are
+validated.
 
 Manual configuration is temporary operational execution, not architectural
 truth. Retained settings must remain reviewable from repository documentation.

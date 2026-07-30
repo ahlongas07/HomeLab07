@@ -39,7 +39,6 @@ acquire_backup_lock
 trap release_backup_lock EXIT
 
 retention_args=(
-    --tag homelab07-platform-state
     --keep-daily "${keep_daily}"
     --keep-weekly "${keep_weekly}"
     --keep-monthly "${keep_monthly}"
@@ -48,14 +47,18 @@ retention_args=(
 
 if [[ "${apply}" == false ]]; then
     echo "Retention dry-run; no snapshots will be removed."
-    restic_command forget --dry-run "${retention_args[@]}"
+    for retention_tag in homelab07-platform-state homelab07-recovery-manifest; do
+        restic_command forget --dry-run --tag "${retention_tag}" "${retention_args[@]}"
+    done
     echo
     echo "Review the result, then run with --apply to remove snapshots and prune data."
     exit 0
 fi
 
 echo "Applying reviewed retention policy and pruning unreferenced data..."
-restic_command forget --prune "${retention_args[@]}"
+for retention_tag in homelab07-platform-state homelab07-recovery-manifest; do
+    restic_command forget --prune --tag "${retention_tag}" "${retention_args[@]}"
+done
 
 echo
 echo "Verifying repository after retention..."

@@ -4,6 +4,10 @@
 
 - Add the Sprint 010 Backup & Recovery architecture and private configuration
   contract based on encrypted Restic repositories and safe disposable restores.
+- Add a versioned JSON recovery-manifest contract, coordinated data/manifest
+  snapshots, artifact checksums and manifest-driven disposable restore.
+- Add shared platform control principles, a service recovery matrix and a
+  documented future path for off-site, append-only and scheduled backups.
 
 ### Changed
 

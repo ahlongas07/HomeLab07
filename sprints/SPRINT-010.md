@@ -6,7 +6,7 @@
 
 **Primary Focus:** Recoverability and disaster recovery
 
-**Last Reviewed:** 2026-07-29
+**Last Reviewed:** 2026-07-30
 
 ---
 
@@ -39,11 +39,18 @@ Restic provides:
 HomeLab07 remains responsible for application consistency, MariaDB logical
 dumps, service quiescing, sanitized output, recovery ordering and validation.
 
+Sprint 010 inherits the permanent security, validation, rollback, evidence and
+acceptance requirements in
+[`architecture/PLATFORM_CONTROL_PRINCIPLES.md`](../architecture/PLATFORM_CONTROL_PRINCIPLES.md).
+
 Official references:
 
 - [Restic documentation](https://restic.readthedocs.io/en/stable/)
 - [Repository preparation](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html)
 - [Repository checking](https://restic.readthedocs.io/en/stable/077_troubleshooting.html)
+
+The stable recovery metadata contract is defined in
+[`architecture/RECOVERY_MANIFEST.md`](../architecture/RECOVERY_MANIFEST.md).
 
 # Recovery Model
 
@@ -57,6 +64,8 @@ MariaDB logical dumps ───┤
                          │
                          ▼
              encrypted Restic repository
+                         │
+             data snapshot + manifest snapshot
                          │
               integrity and retention
                          │
@@ -138,9 +147,10 @@ failed or compromised backup job cannot immediately remove recovery points.
 
 # Recovery Objectives
 
-Initial targets:
+Initial objectives:
 
-- **RPO:** 24 hours after daily automation is enabled.
+- **RPO:** measured from the latest successful manual recovery point. Sprint
+  010 does not claim a time-bound automatic RPO until scheduling is implemented.
 - **RTO:** documented best effort; measured during the full restore exercise.
 
 These targets apply to platform state, not the separately protected media
@@ -168,12 +178,33 @@ Expected flow:
 ./operation/backup-init.sh
 ./operation/backup.sh
 ./operation/backup-check.sh
-./operation/restore-test.sh latest
+./operation/restore-test.sh latest /path/to/empty-restore-test
 ./operation/backup-retention.sh
 ```
 
 Initialization, backup, validation, restore testing and retention remain
 separate commands so destructive retention never occurs implicitly.
+
+# Recovery Manifest
+
+Each successful backup creates two coordinated Restic snapshots:
+
+- `homelab07-platform-state` contains the protected data;
+- `homelab07-recovery-manifest` contains `backup-manifest.json` and references
+  the exact data snapshot.
+
+The versioned manifest records timestamps, Git state, operation version,
+services, databases, repository bundle, artifact checksums, processed and
+stored sizes, backup duration, Restic version, declared retention and validation
+results. Restore tooling fails closed when the contract is unsupported or an
+artifact checksum differs.
+
+# Recovery Matrix
+
+The service source, backup method, dependency order and post-restore validation
+are maintained in
+[`docs/backup/RECOVERY_MATRIX.md`](../docs/backup/RECOVERY_MATRIX.md). The matrix
+is the operational index; service READMEs retain component-specific detail.
 
 # Restore Safety
 
@@ -193,6 +224,8 @@ restore validation.
 
 # Security
 
+The shared platform control principles apply. Sprint-specific controls are:
+
 - Restic encryption is mandatory.
 - The password file must be mode `600` and remain outside Git.
 - Backup repositories are treated as sensitive even when encrypted.
@@ -206,6 +239,8 @@ restore validation.
   is required before claiming full disaster recovery.
 
 # Validation
+
+The shared validation layers apply. Sprint-specific evidence follows.
 
 ## Static
 
@@ -238,6 +273,8 @@ restore validation.
 
 # Rollback
 
+The shared rollback principles apply.
+
 Backup implementation rollback removes scheduling and stops invoking the new
 operation commands. Existing Restic snapshots are retained; rollback never
 deletes the repository. Production services continue to use their existing
@@ -254,8 +291,32 @@ persistent roots.
 - Immutable/append-only remote repository service deployment.
 - High availability or multi-node orchestration.
 - Identity Platform implementation.
+- Multiple Restic repositories or automated repository copy.
+- S3-compatible backend deployment.
+- Append-only repository service.
+- Off-site replication implementation.
+- Scheduler installation.
+- Backup failure notifications or alerting platform.
+
+# Future Evolution
+
+Future Sprints may evaluate, independently and with explicit acceptance:
+
+- multiple Restic repositories with independent credentials;
+- S3-compatible object storage backends;
+- append-only repositories resistant to client-side deletion;
+- encrypted off-site copies;
+- scheduler integration with a measurable automatic RPO;
+- alerts for missed, failed or stale backups;
+- Rockstor snapshot coordination for fast local rollback;
+- remote Rockstor replication when a second appliance exists.
+
+These are architectural directions, not active Sprint 010 controls.
 
 # Acceptance Criteria
+
+The shared platform acceptance contract applies. Sprint 010 additionally
+requires:
 
 Sprint 010 is complete only when:
 

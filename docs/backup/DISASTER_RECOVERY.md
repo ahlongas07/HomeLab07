@@ -4,6 +4,8 @@
 
 Use this procedure after hardware loss, storage corruption or a deliberately
 isolated restore exercise. Do not restore over a functioning production tree.
+Resolve the versioned manifest first and follow
+[`RECOVERY_MATRIX.md`](RECOVERY_MATRIX.md) for dependency order.
 
 ## Recovery Order
 
@@ -12,7 +14,8 @@ isolated restore exercise. Do not restore over a functioning production tree.
    offline channel.
 3. Provision Docker, required networks and empty persistent roots.
 4. Restore the selected snapshot into a disposable directory.
-5. Verify the manifest, repository revision and image identities.
+5. Verify the manifest contract, referenced snapshot, checksums, repository
+   revision and image identities.
 6. Restore MariaDB and validate application databases.
 7. Restore Nginx Proxy Manager state and certificates.
 8. Restore Nextcloud state and database while maintenance mode remains active.

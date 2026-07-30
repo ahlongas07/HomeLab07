@@ -58,7 +58,7 @@ read_private_value() {
 echo "Prerequisites"
 echo
 
-for command_name in docker git restic tar; do
+for command_name in docker git jq restic sha256sum tar; do
     if command -v "${command_name}" >/dev/null 2>&1; then
         pass "Required command is available: ${command_name}"
     else

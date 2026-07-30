@@ -3,9 +3,15 @@
 source "${BASH_SOURCE%/*}/lib.sh"
 
 readonly BACKUP_ENV_FILE="${PRIVATE_ROOT}/env/backup.env"
+readonly BACKUP_OPERATION_VERSION="1.0.0"
+readonly BACKUP_MANIFEST_VERSION="1.0.0"
 
 backup_file_mode() {
     stat -c '%a' "$1" 2>/dev/null || stat -f '%Lp' "$1" 2>/dev/null || true
+}
+
+backup_file_size() {
+    stat -c '%s' "$1" 2>/dev/null || stat -f '%z' "$1" 2>/dev/null || true
 }
 
 backup_require_owner_only_file() {

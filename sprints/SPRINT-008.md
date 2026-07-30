@@ -606,6 +606,12 @@ advertise the same HomeKit identity simultaneously.
 
 # Acceptance Criteria
 
+Permanent security, validation, rollback, evidence and acceptance principles
+now live in
+[`architecture/PLATFORM_CONTROL_PRINCIPLES.md`](../architecture/PLATFORM_CONTROL_PRINCIPLES.md).
+The criteria below retain only the Homebridge capability contract and its
+historical completion evidence.
+
 The Sprint is complete only when:
 
 - the roadmap records the approved Sprint number and priority;
