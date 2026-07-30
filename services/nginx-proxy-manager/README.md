@@ -359,105 +359,31 @@ Do not keep the default administrator credentials.
 Nginx Proxy Manager backup requires both persistent files and its application database.
 
 Sprint 010 performs the coordinated stopped-state capture through
-`./operation/backup.sh`. The manual sequence below remains a recovery reference,
-not the scheduled backup interface.
-
-Back up:
-
-- `${HOMELAB07_DATA_ROOT}/nginx-proxy-manager/`
-- MariaDB database `npm_db`
-
-1. Stop Nginx Proxy Manager before backing up its persistent files.
+`./operation/backup.sh`. This is the authoritative backup interface:
 
 ```bash
-./operation/compose.sh nginx-proxy-manager down
+./operation/backup.sh
 ```
 
-2. Back up persistent files:
-
-```
-homelab07-data/nginx-proxy-manager/
-```
-
-3. Ensure MariaDB is running before creating the logical database backup.
-
-```bash
-./operation/compose.sh mariadb up -d
-```
-
-4. Back up the Nginx Proxy Manager database:
-
-```bash
-docker exec homelab07-mariadb \
-  mariadb-dump \
-  --single-transaction \
-  --quick \
-  --lock-tables=false \
-  -uroot \
-  -p \
-  npm_db > /path/to/backups/npm_db.sql
-```
-
-5. Store backups outside the Git repository.
-
-Recommended location:
-
-```text
-HomeLab07.private/backups/nginx-proxy-manager/
-```
-
-6. Start Nginx Proxy Manager again.
-
-```bash
-./operation/compose.sh nginx-proxy-manager up -d
-```
+It stops Nginx Proxy Manager, captures its persistent tree with the coordinated
+MariaDB logical dump, verifies the Restic repository and restores the prior
+runtime state. A separate filesystem copy is not a complete recovery point.
 
 ---
 
 # Restore
 
-Nginx Proxy Manager restore requires both persistent files and its application database.
-
-Restore:
-
-- `${HOMELAB07_DATA_ROOT}/nginx-proxy-manager/`
-- MariaDB database `npm_db`
-
-1. Stop Nginx Proxy Manager before restoring its persistent files.
+Nginx Proxy Manager recovery requires its persistent files and application
+database from the same manifest-selected recovery point.
 
 ```bash
-./operation/compose.sh nginx-proxy-manager down
+./operation/restore-test.sh latest /path/to/empty-restore-test
 ```
 
-2. Restore persistent files:
-
-```
-homelab07-data/nginx-proxy-manager/
-```
-
-3. Ensure MariaDB is running before restoring the logical database backup.
-
-```bash
-./operation/compose.sh mariadb up -d
-```
-
-4. Restore the Nginx Proxy Manager database:
-
-```bash
-docker exec -i homelab07-mariadb \
-  mariadb \
-  -uroot \
-  -p \
-  npm_db < /path/to/backups/npm_db.sql
-```
-
-5. Start Nginx Proxy Manager again.
-
-```bash
-./operation/compose.sh nginx-proxy-manager up -d
-```
-
-6. Validate the administration interface, proxy hosts, and certificates.
+After disposable validation, follow the reviewed disaster-recovery order to
+restore MariaDB first and the Nginx Proxy Manager tree second. Then validate the
+administration boundary, proxy hosts, certificates and representative HTTPS
+routes before returning service.
 
 ---
 

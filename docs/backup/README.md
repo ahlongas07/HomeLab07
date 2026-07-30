@@ -122,6 +122,9 @@ Use an empty location on a non-production filesystem:
 The command restores files but never starts containers or overwrites production.
 Continue with [`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md) for component-level
 validation and [`RECOVERY_MATRIX.md`](RECOVERY_MATRIX.md) for dependency order.
+Record sanitized outcomes with
+[`VALIDATION_RECORD.md`](VALIDATION_RECORD.md); detailed private evidence remains
+outside Git.
 
 ## Backup Monitoring
 

@@ -524,7 +524,8 @@ Provide reliable disaster recovery for platform services.
 
 Deliverables
 
-- Automated backups
+- Operation-layer backup commands
+- Versioned recovery manifest
 - Restore procedures
 - Disaster Recovery documentation
 - Backup validation

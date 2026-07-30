@@ -8,8 +8,13 @@
   snapshots, artifact checksums and manifest-driven disposable restore.
 - Add shared platform control principles, a service recovery matrix and a
   documented future path for off-site, append-only and scheduled backups.
+- Add a sanitized target-host validation record for backup, controlled failure,
+  disposable restore, recovery objectives and Sprint acceptance.
 
 ### Changed
+
+- Make backup runtime restoration fail visibly for every quiesced service and
+  align service recovery documentation with the operation layer.
 
 - Add the Sprint 009 Platform Operations implementation plan covering exposure
   inventory, management isolation, WAF, rate limiting, security headers,

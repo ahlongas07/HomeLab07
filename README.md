@@ -98,6 +98,7 @@ Implemented direction:
 - Shared platform control principles and architecture contracts
 - Edge security policy and validation procedures
 - Backup policy, recovery manifest and recovery matrix
+- Sanitized backup and recovery validation record
 
 ## License
 

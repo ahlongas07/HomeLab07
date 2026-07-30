@@ -210,7 +210,7 @@ is the operational index; service READMEs retain component-specific detail.
 
 The automated restore command:
 
-- requires an explicit snapshot identifier;
+- requires an explicit manifest snapshot selector (`latest` is accepted);
 - requires a new or empty destination outside production roots;
 - refuses `/`, the repository root, project root, private root and production
   mount sources;
@@ -335,4 +335,7 @@ Sprint 010 is complete only when:
 
 # Completion Notes
 
-To be completed after target-host backup and disposable restore validation.
+Record sanitized target-host outcomes in
+[`docs/backup/VALIDATION_RECORD.md`](../docs/backup/VALIDATION_RECORD.md). Sprint
+completion remains pending until the backup, controlled-failure recovery,
+disposable restore and representative application recovery checks pass.

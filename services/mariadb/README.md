@@ -215,45 +215,33 @@ Sprint 002 validation completed successfully.
 
 ## Backup Strategy
 
-Sprint 002 defines an initial logical backup strategy.
-
-Run the backup from the runtime environment:
+Sprint 010 supersedes the initial standalone dump procedure with a coordinated
+platform recovery point. Run it only through the operation layer:
 
 ```bash
-docker exec homelab07-mariadb \
-  mariadb-dump \
-  --all-databases \
-  --single-transaction \
-  --quick \
-  --lock-tables=false \
-  -uroot \
-  -p > /path/to/backups/mariadb-backup.sql
+./operation/backup.sh
 ```
 
-Backups must be stored outside the Git repository.
-
-Recommended private backup location:
-
-```text
-HomeLab07.private/backups/
-```
-
-Future backup automation should preserve this separation between source code, secrets, and persistent data.
+The command quiesces dependent writers, creates a logical all-database dump,
+records its checksum in the Recovery Manifest and stores it inside the encrypted
+Restic recovery point. Backups remain outside Git and outside production data
+filesystems.
 
 ---
 
 ## Restore Procedure
 
-Restore from a logical backup:
+First restore and validate the selected recovery point into an empty disposable
+destination:
 
 ```bash
-docker exec -i homelab07-mariadb \
-  mariadb \
-  -uroot \
-  -p < /path/to/backups/mariadb-backup.sql
+./operation/restore-test.sh latest /path/to/empty-restore-test
 ```
 
-Validate the restored databases before returning dependent applications to service.
+Import the validated logical dump into a disposable MariaDB runtime before any
+reviewed production recovery. Validate databases, grants and representative
+queries before returning dependent applications to service. Production restore
+is deliberately not automated by Sprint 010.
 
 ---
 

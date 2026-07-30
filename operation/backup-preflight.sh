@@ -222,12 +222,15 @@ echo
 
 required_containers=(
     homelab07-mariadb
+    homelab07-valkey
     homelab07-nginx-proxy-manager
     homelab07-nextcloud
     homelab07-nextcloud-cron
     homelab07-paperless-ngx
     homelab07-jellyfin
     homelab07-homebridge
+    homelab07-cloudflare-ddns
+    homelab07-landing-page
 )
 
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then

@@ -92,10 +92,18 @@ restore_runtime_state() {
     if [[ "${nextcloud_cron_running}" == true ]]; then
         compose_service nextcloud up -d nextcloud-cron >/dev/null 2>&1 || restore_failure=1
     fi
-    [[ "${paperless_running}" == true ]] && compose_service paperless-ngx up -d >/dev/null 2>&1 || true
-    [[ "${jellyfin_running}" == true ]] && compose_service jellyfin up -d >/dev/null 2>&1 || true
-    [[ "${homebridge_running}" == true ]] && compose_service homebridge up -d >/dev/null 2>&1 || true
-    [[ "${npm_running}" == true ]] && compose_service nginx-proxy-manager up -d >/dev/null 2>&1 || true
+    if [[ "${paperless_running}" == true ]]; then
+        compose_service paperless-ngx up -d >/dev/null 2>&1 || restore_failure=1
+    fi
+    if [[ "${jellyfin_running}" == true ]]; then
+        compose_service jellyfin up -d >/dev/null 2>&1 || restore_failure=1
+    fi
+    if [[ "${homebridge_running}" == true ]]; then
+        compose_service homebridge up -d >/dev/null 2>&1 || restore_failure=1
+    fi
+    if [[ "${npm_running}" == true ]]; then
+        compose_service nginx-proxy-manager up -d >/dev/null 2>&1 || restore_failure=1
+    fi
 
     if [[ "${nextcloud_maintenance}" == true && "${nextcloud_running}" == true ]]; then
         maintenance_disabled=false
