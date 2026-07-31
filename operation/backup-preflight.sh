@@ -40,6 +40,23 @@ is_within() {
     [[ "${candidate}" == "${boundary}" || "${candidate}" == "${boundary}/"* ]]
 }
 
+validate_readable_tree() {
+    local root="$1"
+    local label="$2"
+
+    if [[ ! -d "${root}" ]]; then
+        fail "Required backup tree is unavailable for ${label}"
+    elif ! find "${root}" -type f -print >/dev/null 2>&1; then
+        fail "Required backup tree cannot be traversed for ${label}"
+    elif find "${root}" \
+        \( -type d \( ! -readable -o ! -executable \) -o -type f ! -readable \) \
+        -print -quit 2>/dev/null | grep -q .; then
+        fail "Required backup tree contains unreadable state for ${label}"
+    else
+        pass "Required backup tree is readable for ${label}"
+    fi
+}
+
 read_private_value() {
     local service="$1"
     local variable="$2"
@@ -170,6 +187,16 @@ if [[ -n "${npm_data_root}" && -d "${npm_data_root}/nginx-proxy-manager" ]]; the
 else
     fail "Required application state is unavailable for proxy platform data"
 fi
+
+echo
+echo "Backup source readability"
+echo
+
+validate_readable_tree "${npm_data_root}/nginx-proxy-manager" "proxy platform data"
+validate_readable_tree "$(read_private_value nextcloud NEXTCLOUD_ROOT || true)" "collaboration state"
+validate_readable_tree "$(read_private_value paperless-ngx PAPERLESS_ROOT || true)" "document state"
+validate_readable_tree "$(read_private_value jellyfin JELLYFIN_ROOT || true)/config" "media application state"
+validate_readable_tree "$(read_private_value homebridge HOMEBRIDGE_DATA_ROOT || true)" "HomeKit state"
 
 if [[ -n "${HOMELAB07_BACKUP_STAGING_ROOT:-}" && -d "${HOMELAB07_BACKUP_STAGING_ROOT}" ]]; then
     overlap_found=false

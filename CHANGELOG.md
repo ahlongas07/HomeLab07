@@ -17,6 +17,8 @@
   align service recovery documentation with the operation layer.
 - Resolve Nginx Proxy Manager state from its owning private configuration and
   validate the exact proxy state root during backup preflight.
+- Fail backup preflight before service quiescing when any protected source tree
+  cannot be traversed or read by the operator.
 
 - Add the Sprint 009 Platform Operations implementation plan covering exposure
   inventory, management isolation, WAF, rate limiting, security headers,
