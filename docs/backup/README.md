@@ -57,8 +57,9 @@ The operation:
 1. validates prerequisites and storage boundaries;
 2. records which stateful services are running;
 3. enables Nextcloud maintenance mode;
-4. stops stateful applications without stopping MariaDB;
-5. creates a logical MariaDB dump and Git bundle;
+4. stops filesystem-backed stateful applications without stopping MariaDB;
+5. creates a transactionally consistent logical MariaDB dump, including the
+   dedicated Keycloak database, and a Git bundle;
 6. writes an encrypted platform-state snapshot;
 7. checks repository integrity and restores the previous runtime state;
 8. generates a versioned `backup-manifest.json` with checksums and results;

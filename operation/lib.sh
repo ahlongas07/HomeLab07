@@ -74,6 +74,7 @@ service_label() {
         nginx-proxy-manager) echo "Nginx Proxy Manager" ;;
         jellyfin) echo "Jellyfin" ;;
         nextcloud) echo "Nextcloud" ;;
+        keycloak) echo "Keycloak" ;;
         paperless-ngx) echo "Paperless-ngx" ;;
         homebridge) echo "Homebridge" ;;
         cloudflare-ddns) echo "Cloudflare Dynamic DNS" ;;

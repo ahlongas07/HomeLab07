@@ -255,8 +255,21 @@ are not performed by this repository change.
 - `no-new-privileges` is applied to both containers and must be verified for
   compatibility during initialization.
 
+## Keycloak OIDC PoC
+
+Sprint 011 adds Keycloak as an optional external identity provider through the
+supported Nextcloud `user_oidc` application. Password login and the local
+administrator remain enabled during the PoC. Automatic user provisioning,
+group synchronization, mandatory redirects and MFA are not enabled until
+claims, rollback and emergency access have been validated.
+
+The sanitized operator sequence and acceptance tests are maintained in
+`services/keycloak/IMPLEMENTATION_NOTES.md`; issuer, client identifier and
+client secret remain private.
+
 ## Related Sprint
 
 - Sprint 005 — Collaboration Platform
+- Sprint 011 — Identity Platform
 - SPIKE-001 — Collaboration Architecture Evaluation
 - POC-001 — Nextcloud Files Platform Validation

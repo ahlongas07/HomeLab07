@@ -543,7 +543,7 @@ Validation
 
 Status
 
-Planned
+Implementation in progress
 
 Objective
 
@@ -552,13 +552,13 @@ requirements have been demonstrated by the preceding Sprints.
 
 Platform Capability
 
-Identity Provider; technology decision deferred.
+Keycloak 26.7.0 using the existing shared MariaDB 11.4 platform.
 
-Candidates
+Decision
 
-- Authelia
-- Keycloak
-- Authentik
+Keycloak was selected because it provides the required OIDC capability and
+officially supports the existing MariaDB LTS baseline. Authentik was rejected
+because it would require a second relational database platform.
 
 Deliverables
 

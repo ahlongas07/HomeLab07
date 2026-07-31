@@ -2,6 +2,13 @@
 
 ### Added
 
+- Add the Sprint 011 Keycloak identity-platform capability using OpenID
+  Connect and the existing shared MariaDB 11.4 platform.
+- Add dedicated Keycloak database provisioning, lifecycle integration,
+  recovery coverage and a controlled Nextcloud OIDC PoC runbook.
+- Add a pinned Keycloak 26.7.0 service without host ports, privileged mode or
+  Docker socket access.
+
 - Add the Sprint 010 Backup & Recovery architecture and private configuration
   contract based on encrypted Restic repositories and safe disposable restores.
 - Add a versioned JSON recovery-manifest contract, coordinated data/manifest
@@ -12,6 +19,10 @@
   disposable restore, recovery objectives and Sprint acceptance.
 
 ### Changed
+
+- Select Keycloak over Authentik to avoid introducing a second relational
+  database platform while retaining official MariaDB support.
+- Update the Landing Page for the active Identity Platform PoC.
 
 - Complete Sprint 010 with encrypted snapshot integrity, manifest-driven
   disposable restore, Git bundle verification, isolated MariaDB import,

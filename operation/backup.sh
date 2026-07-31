@@ -198,6 +198,7 @@ docker inspect -f '{{.Name}}|{{.Config.Image}}|{{.Image}}' \
     homelab07-nginx-proxy-manager \
     homelab07-nextcloud \
     homelab07-nextcloud-cron \
+    homelab07-keycloak \
     homelab07-paperless-ngx \
     homelab07-jellyfin \
     homelab07-homebridge \
@@ -332,7 +333,7 @@ jq -n \
       },
       components: [
         "repository", "private-configuration", "mariadb",
-        "nginx-proxy-manager", "nextcloud", "paperless-ngx",
+        "nginx-proxy-manager", "nextcloud", "keycloak", "paperless-ngx",
         "jellyfin", "homebridge", "landing-page", "valkey",
         "cloudflare-ddns"
       ],

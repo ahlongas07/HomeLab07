@@ -261,6 +261,7 @@ required_containers=(
     homelab07-nginx-proxy-manager
     homelab07-nextcloud
     homelab07-nextcloud-cron
+    homelab07-keycloak
     homelab07-paperless-ngx
     homelab07-jellyfin
     homelab07-homebridge

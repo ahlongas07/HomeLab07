@@ -25,16 +25,19 @@ The project emphasizes:
 
 🚧 Early Development
 
-Sprint 001 through Sprint 009 are complete.
+Sprint 001 through Sprint 010 are complete.
 
 Sprint 009 Platform Operations completed the edge-security, management-access
 and recurring security-validation baseline. The repository defines the desired
 edge policy, incident procedures and a read-only security audit without
 introducing a new security platform.
 
-Sprint 010 Backup & Recovery is in progress. It introduces encrypted,
-deduplicated recovery points, explicit retention, integrity verification and
-safe disposable restore testing through the Operation Layer.
+Sprint 010 Backup & Recovery completed encrypted, deduplicated recovery points,
+explicit retention, integrity verification and disposable restore testing.
+
+Sprint 011 Identity Platform is in implementation. Keycloak provides the
+version-controlled OIDC capability using a dedicated database and role in the
+existing MariaDB platform; Nextcloud is the first controlled consumer.
 
 The project has established:
 
@@ -50,6 +53,8 @@ The project has established:
 - Paperless-ngx as the active document-management service.
 - Jellyfin as the active media service.
 - Homebridge as the active LAN-only HomeKit integration service.
+- Keycloak as the selected shared identity provider, pending target PoC
+  validation with Nextcloud.
 
 Sprint 007 completed the media-platform milestone with NAS-backed movies,
 music and family media, secure HTTPS publication, recoverable application

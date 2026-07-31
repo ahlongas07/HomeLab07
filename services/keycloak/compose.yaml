@@ -1,0 +1,41 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    container_name: homelab07-keycloak
+    restart: unless-stopped
+    command: start
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      KC_DB: mariadb
+      KC_DB_URL_HOST: ${KEYCLOAK_DB_HOST:-homelab07-mariadb}
+      KC_DB_URL_PORT: ${KEYCLOAK_DB_PORT:-3306}
+      KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME:?KEYCLOAK_DB_NAME is required}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USERNAME:?KEYCLOAK_DB_USERNAME is required}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?KEYCLOAK_DB_PASSWORD is required}
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:?KEYCLOAK_HOSTNAME is required}
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME:?KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME is required}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD:?KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD is required}
+    networks:
+      - homelab07-internal
+      - homelab07-proxy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "{ printf 'HEAD /health/ready HTTP/1.0\\r\\n\\r\\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+networks:
+  homelab07-internal:
+    name: homelab07-internal
+    external: true
+  homelab07-proxy:
+    name: homelab07-proxy
+    external: true

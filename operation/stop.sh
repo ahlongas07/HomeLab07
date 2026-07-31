@@ -11,6 +11,7 @@ services=(
     cloudflare-ddns
     homebridge
     paperless-ngx
+    keycloak
     nextcloud
     jellyfin
     nginx-proxy-manager
