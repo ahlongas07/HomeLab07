@@ -13,6 +13,11 @@
 
 ### Changed
 
+- Complete Sprint 010 with encrypted snapshot integrity, manifest-driven
+  disposable restore, Git bundle verification, isolated MariaDB import,
+  reviewed retention and explicitly accepted residual recovery risks.
+- Update the Landing Page with the completed Backup & Recovery milestone.
+
 - Make backup runtime restoration fail visibly for every quiesced service and
   align service recovery documentation with the operation layer.
 - Resolve Nginx Proxy Manager state from its owning private configuration and

@@ -516,7 +516,7 @@ Validation
 
 Status
 
-In Progress
+✅ Completed
 
 Objective
 

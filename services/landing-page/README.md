@@ -8,8 +8,9 @@ This service validates the complete deployment workflow and serves as the refere
 
 It also presents the current public platform status and active Nextcloud,
 Paperless-ngx, Jellyfin and Homebridge business services, plus the validated
-Platform Operations security milestone. Homebridge is listed as a platform
-milestone only; the service itself remains LAN-only.
+Platform Operations security milestone and the encrypted Backup & Recovery
+milestone. Homebridge is listed as a platform milestone only; the service
+itself remains LAN-only.
 
 ---
 
@@ -60,9 +61,9 @@ The command must complete without errors.
 Validate that the rendered page reflects the current platform milestone:
 
 ```text
-Platform Operations
-Edge baseline validated
-Platform security operations
+Backup & Recovery
+Encrypted restore validated
+Encrypted backup and recovery
 ```
 
 ---
@@ -139,3 +140,4 @@ Implemented during:
 - Sprint 007 – Media Platform status update
 - Sprint 008 – Homebridge Platform status update
 - Sprint 009 – Platform Operations status update
+- Sprint 010 – Backup & Recovery status update

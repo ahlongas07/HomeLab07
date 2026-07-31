@@ -1,6 +1,6 @@
 # Sprint 010 — Backup & Recovery
 
-**Status:** In Progress — architecture approved; implementation underway
+**Status:** Completed — validated recovery point with documented residual risks
 
 **Classification:** Platform Capability
 
@@ -337,7 +337,15 @@ Sprint 010 is complete only when:
 
 # Completion Notes
 
-Record sanitized target-host outcomes in
-[`docs/backup/VALIDATION_RECORD.md`](../docs/backup/VALIDATION_RECORD.md). Sprint
-completion remains pending until the backup, controlled-failure recovery,
-disposable restore and representative application recovery checks pass.
+Target validation completed on 2026-07-31. The encrypted repository passed
+metadata and structure checks; a coordinated manifest resolved its exact data
+snapshot; a disposable restore recovered 2.053 GiB and 74,798 entries in 38
+seconds; both required artifacts matched their declared checksum and size; the
+Git bundle verified; and the MariaDB dump imported into an isolated temporary
+runtime. Controlled failures returned non-zero and restored prior service state.
+
+The owner accepted closure with explicit residual risks: no off-site copy is
+active, complete application-level isolated recovery was not exercised, and
+the full application RTO remains unmeasured. These facts are not represented as
+active protection. Sanitized evidence and deferred checks are recorded in
+[`docs/backup/VALIDATION_RECORD.md`](../docs/backup/VALIDATION_RECORD.md).
