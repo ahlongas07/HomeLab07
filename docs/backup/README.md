@@ -110,6 +110,8 @@ Apply only after a current backup, integrity check and disposable restore pass:
 ```
 
 Retention is intentionally not part of the daily backup command.
+Snapshots are grouped by host and recovery tag rather than source paths because
+the protected staging directory is unique for every recovery point.
 
 ## Disposable Restore
 

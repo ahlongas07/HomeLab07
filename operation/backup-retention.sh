@@ -39,6 +39,7 @@ acquire_backup_lock
 trap release_backup_lock EXIT
 
 retention_args=(
+    --group-by host,tags
     --keep-daily "${keep_daily}"
     --keep-weekly "${keep_weekly}"
     --keep-monthly "${keep_monthly}"

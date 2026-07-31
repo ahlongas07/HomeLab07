@@ -23,6 +23,8 @@
   their presence before writing the coordinated Recovery Manifest.
 - Reject disposable restore destinations that overlap any part of a local
   Restic repository.
+- Group Restic retention by host and recovery tag so unique staging paths do
+  not prevent expiration of older recovery points.
 
 - Add the Sprint 009 Platform Operations implementation plan covering exposure
   inventory, management isolation, WAF, rate limiting, security headers,

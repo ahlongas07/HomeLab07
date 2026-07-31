@@ -144,6 +144,8 @@ The default policy is:
 Retention is applied only after a new snapshot and metadata check succeed.
 `forget --prune` is a separate explicit operation from backup creation so a
 failed or compromised backup job cannot immediately remove recovery points.
+Retention groups snapshots by host and recovery tag; grouping by paths would
+incorrectly preserve every snapshot because each staging path is unique.
 
 # Recovery Objectives
 
