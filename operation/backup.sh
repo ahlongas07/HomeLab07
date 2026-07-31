@@ -61,6 +61,7 @@ acquire_backup_lock
 run_dir="$(mktemp -d "${HOMELAB07_BACKUP_STAGING_ROOT}/run.XXXXXX")"
 data_backup_events="${HOMELAB07_BACKUP_STAGING_ROOT}/.data-backup-events.$$"
 manifest_backup_events="${HOMELAB07_BACKUP_STAGING_ROOT}/.manifest-backup-events.$$"
+snapshot_inventory="${HOMELAB07_BACKUP_STAGING_ROOT}/.snapshot-inventory.$$"
 exclude_file="${HOMELAB07_BACKUP_STAGING_ROOT}/.backup-exclude.$$"
 services_restored=false
 nextcloud_maintenance=false
@@ -138,6 +139,7 @@ cleanup_backup() {
     rm -f -- \
         "${data_backup_events:-}" \
         "${manifest_backup_events:-}" \
+        "${snapshot_inventory:-}" \
         "${exclude_file:-}"
     release_backup_lock
 
@@ -206,7 +208,6 @@ docker inspect -f '{{.Name}}|{{.Config.Image}}|{{.Image}}' \
 {
     echo "${RESTIC_PASSWORD_FILE}"
     echo "${PRIVATE_ROOT}/backups"
-    echo "${HOMELAB07_BACKUP_STAGING_ROOT}"
     echo "${jellyfin_root}/cache"
 } > "${exclude_file}"
 
@@ -231,6 +232,24 @@ data_added="$(jq -r '.data_added // 0' <<<"${data_summary}")"
 
 if [[ ! "${data_snapshot_id}" =~ ^[0-9a-f]{64}$ ]]; then
     echo "Restic did not return a valid platform snapshot identifier."
+    exit 1
+fi
+
+restic_command ls --json "${data_snapshot_id}" > "${snapshot_inventory}"
+if ! jq -s -e '
+    ([.[] | select(
+      .struct_type == "node"
+      and .type == "file"
+      and (.path | endswith("/mariadb-all.sql"))
+    )] | length == 1)
+    and
+    ([.[] | select(
+      .struct_type == "node"
+      and .type == "file"
+      and (.path | endswith("/repository.bundle"))
+    )] | length == 1)
+  ' "${snapshot_inventory}" >/dev/null; then
+    echo "Platform snapshot does not contain the required recovery artifacts."
     exit 1
 fi
 

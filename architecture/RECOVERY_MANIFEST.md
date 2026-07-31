@@ -99,6 +99,8 @@ reported by Restic for the platform-state snapshot, not repository-wide usage.
 - The data snapshot must carry `homelab07-platform-state`.
 - Every artifact must restore exactly once and match its SHA-256.
 - Every artifact byte size must match the manifest.
+- Required database and repository artifacts must be present in the data
+  snapshot before the coordinated manifest snapshot is written.
 - Database and repository artifacts must be non-empty.
 - Git worktree status must be `clean` for scheduled platform backups.
 - Required validations must equal `pass` before a manifest is accepted.

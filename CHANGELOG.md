@@ -19,6 +19,10 @@
   validate the exact proxy state root during backup preflight.
 - Fail backup preflight before service quiescing when any protected source tree
   cannot be traversed or read by the operator.
+- Include staging recovery artifacts in the platform-state snapshot and verify
+  their presence before writing the coordinated Recovery Manifest.
+- Reject disposable restore destinations that overlap any part of a local
+  Restic repository.
 
 - Add the Sprint 009 Platform Operations implementation plan covering exposure
   inventory, management isolation, WAF, rate limiting, security headers,

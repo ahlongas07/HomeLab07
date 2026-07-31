@@ -31,7 +31,12 @@ case "${restore_target}" in
         ;;
 esac
 
-for protected_root in "${PROJECT_ROOT}" "${PRIVATE_ROOT}" "${HOMELAB07_BACKUP_STAGING_ROOT}"; do
+protected_roots=("${PROJECT_ROOT}" "${PRIVATE_ROOT}" "${HOMELAB07_BACKUP_STAGING_ROOT}")
+if [[ "${RESTIC_REPOSITORY}" == /* ]]; then
+    protected_roots+=("${RESTIC_REPOSITORY}")
+fi
+
+for protected_root in "${protected_roots[@]}"; do
     if [[ "${restore_target}" == "${protected_root}/"* || "${protected_root}" == "${restore_target}/"* ]]; then
         echo "Restore destination overlaps a protected path."
         exit 1
