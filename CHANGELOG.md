@@ -2,6 +2,10 @@
 
 ### Added
 
+- Add a recovery-safe Paperless-ngx Keycloak OIDC consumer configuration with
+  local login retained and automatic social account creation disabled.
+- Document the dedicated client, OTP, account-linking, validation and rollback
+  procedure for the Paperless-ngx identity enhancement.
 - Add the Sprint 011 Keycloak identity-platform capability using OpenID
   Connect and the existing shared MariaDB 11.4 platform.
 - Add dedicated Keycloak database provisioning, lifecycle integration,

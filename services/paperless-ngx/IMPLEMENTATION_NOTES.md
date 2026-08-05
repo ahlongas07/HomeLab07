@@ -52,3 +52,23 @@ document contents are recorded here.
 The Valkey compatibility PoC passed for the Sprint 006 workload. This evidence
 does not claim general compatibility beyond the pinned Paperless release and
 the tested HomeLab07 deployment model.
+
+## Keycloak OIDC Platform Enhancement
+
+Repository configuration now supports Paperless-ngx as an optional Keycloak
+OIDC consumer. This extends beyond the original Sprint 011 Nextcloud-only PoC
+and requires separate target-host acceptance before it is considered active.
+
+Required sanitized evidence:
+
+- dedicated confidential client with exact redirect URI and web origin;
+- local Paperless administrator login before and after the change;
+- existing PoC account linked from **My Profile**;
+- successful Keycloak login and OTP challenge;
+- logout without a redirect loop;
+- denial of account creation for an unlinked identity;
+- rollback to local-only authentication;
+- post-change backup and disposable recovery validation.
+
+Do not enable automatic social signup, forced SSO, group synchronization or
+administrator-role mapping as part of this enhancement.
