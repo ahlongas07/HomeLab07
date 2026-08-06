@@ -8,8 +8,9 @@ body,
 .login-pf body {
   background-color: #111820;
   background-image:
-    linear-gradient(rgb(6 12 17 / 62%), rgb(6 12 17 / 78%)),
-    url("../img/imagen.png");
+    radial-gradient(circle at 18% 20%, rgb(31 122 140 / 32%), transparent 34%),
+    radial-gradient(circle at 82% 78%, rgb(22 78 99 / 34%), transparent 38%),
+    linear-gradient(145deg, #111820, #071016 70%);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;

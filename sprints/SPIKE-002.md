@@ -348,7 +348,7 @@ unless every claimed field and lifecycle operation is explicitly validated.
 The team approved controlled execution on 2026-08-06. Repository preparation
 adds:
 
-- a CSS-and-assets Keycloak login theme mounted read-only;
+- a CSS-and-messages Keycloak login theme mounted read-only;
 - explicit Paperless-ngx identity and redirect switches;
 - `operation/identity-poc.sh` for status, guarded application and redirect
   rollback;

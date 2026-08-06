@@ -66,8 +66,8 @@ Keycloak ignores bootstrap creation when an administrator already exists.
 ```
 
 The Compose definition mounts the version-controlled `homelab07` login theme
-and existing platform assets read-only. Theme selection is realm state and is
-performed only during the controlled SPIKE-002 procedure.
+read-only. Theme selection is realm state and is performed only during the
+controlled SPIKE-002 procedure.
 
 Configure Nginx Proxy Manager to forward the private identity hostname to
 `homelab07-keycloak:8080` over HTTP. Keep TLS mode Full (strict) at the edge.

@@ -106,8 +106,8 @@ gate.
 ## Login theme
 
 The repository mounts `services/keycloak/themes/homelab07` read-only into the
-container and reuses the existing HomeLab07 visual assets through a separate
-read-only mount.
+container. The theme uses version-controlled CSS, messages and text identity
+without a nested asset mount, preserving a single immutable runtime boundary.
 
 After recreating Keycloak:
 
