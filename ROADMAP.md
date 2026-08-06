@@ -543,7 +543,7 @@ Validation
 
 Status
 
-Implementation in progress
+✅ Completed
 
 Objective
 
@@ -568,6 +568,8 @@ Deliverables
 - User and group management appropriate to demonstrated requirements
 - Nextcloud integration
 - Compatibility validation for existing platform applications
+- Controlled Paperless-ngx OIDC consumer enhancement
+- Explicit retention of Jellyfin local authentication
 
 Validation
 

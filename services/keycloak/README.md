@@ -4,7 +4,8 @@
 
 Keycloak provides HomeLab07's reusable OpenID Connect identity capability.
 Sprint 011 validates Nextcloud as the first consumer while preserving local
-emergency access. Paperless-ngx and Jellyfin remain future integrations.
+emergency access. Paperless-ngx is an accepted additional consumer. Jellyfin
+retains local authentication because it has no supported native OIDC path.
 
 ## Responsibilities
 
@@ -12,8 +13,9 @@ emergency access. Paperless-ngx and Jellyfin remain future integrations.
 - OpenID Connect provider functionality.
 - Reusable identity boundary for platform applications.
 
-Keycloak does not own TLS, DNS or database infrastructure and does not enforce
-MFA or mandatory SSO during Sprint 011.
+Keycloak does not own TLS, DNS or database infrastructure. OTP was validated
+for selected identities; realm-wide MFA and mandatory SSO remain outside
+Sprint 011.
 
 ## Technology
 
@@ -88,7 +90,7 @@ additional recovery artifact. Restore MariaDB before starting Keycloak.
 - No direct host ports, privileged mode or Docker socket.
 - Secrets and public hostname remain private.
 - Local service administrators remain available during the PoC.
-- MFA and mandatory SSO are deferred to a later Sprint.
+- Realm-wide MFA and mandatory SSO are deferred to a later Sprint.
 
 ## Related Sprint
 

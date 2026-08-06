@@ -110,10 +110,12 @@ Copy the single-line `PAPERLESS_SOCIALACCOUNT_PROVIDERS` example to the private
 environment file and replace its public placeholders and dedicated secret.
 Do not record the resulting JSON in this repository or command output.
 
-The baseline intentionally sets social auto-signup and social signup to false.
-Link an existing Paperless PoC account by logging in locally and selecting the
-Keycloak connection from **My Profile**. The local administrator must remain
-usable until login, logout, OTP and rollback have all passed.
+The version-controlled baseline sets social auto-signup and social signup to
+false. After controlled validation, the target private policy may set both to
+true so a Keycloak identity creates a non-administrator Paperless account on
+first login. Keep the local administrator separate and available for recovery.
+Existing local accounts must be linked deliberately from **My Profile**; do not
+rely on matching names or email addresses to merge privileged accounts.
 
 Because Paperless uses the realm's normal browser flow, a user subject to OTP
 in Keycloak receives the same second-factor challenge. Paperless does not own
@@ -158,7 +160,8 @@ OIDC validation after linking the PoC account:
 2. Authenticate through Keycloak and complete the configured OTP challenge.
 3. Confirm the returning identity resolves to the linked Paperless account.
 4. Confirm logout completes without a redirect loop.
-5. Confirm an unlinked Keycloak user cannot create a Paperless account.
+5. Confirm an unlinked Keycloak user follows the approved private signup
+   policy and never receives administrator privileges automatically.
 6. Clear `PAPERLESS_SOCIALACCOUNT_PROVIDERS`, recreate the container and
    confirm local-only authentication as the rollback path.
 
@@ -199,8 +202,8 @@ artifact, not a replacement for the consistent platform recovery point.
 - Protect Rockstor, host access and backups accordingly.
 - Use separate administrator and daily-use accounts.
 - Use a dedicated OIDC client and secret for Paperless-ngx.
-- Keep automatic social signup and forced SSO disabled until explicitly
-  approved and recovery-tested.
+- Enable automatic social signup only as an explicit private policy after
+  validation; keep forced SSO disabled until separately approved.
 - Keep secrets and real endpoint values in `HomeLab07.private`.
 - No host ports, Docker socket, public uploads or anonymous links are enabled.
 

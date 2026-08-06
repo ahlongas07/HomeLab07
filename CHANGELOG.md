@@ -24,6 +24,13 @@
 
 ### Changed
 
+- Complete Sprint 011 after healthy Keycloak deployment, OIDC consumer
+  validation, local emergency access, no-host-port verification and a
+  successful encrypted backup and disposable restore.
+- Accept Paperless-ngx just-in-time OIDC provisioning while retaining its local
+  administrator, and retain Jellyfin local authentication instead of adopting
+  an unsupported third-party SSO plugin.
+- Update the Landing Page for the completed Identity Platform milestone.
 - Select Keycloak over Authentik to avoid introducing a second relational
   database platform while retaining official MariaDB support.
 - Update the Landing Page for the active Identity Platform PoC.

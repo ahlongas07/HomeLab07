@@ -9,8 +9,8 @@ This service validates the complete deployment workflow and serves as the refere
 It also presents the current public platform status and active Nextcloud,
 Paperless-ngx, Jellyfin and Homebridge business services, plus the validated
 Platform Operations security milestone and the encrypted Backup & Recovery
-milestone. Homebridge is listed as a platform milestone only; the service
-itself remains LAN-only.
+milestone, plus the validated Keycloak Identity Platform. Homebridge is listed
+as a platform milestone only; the service itself remains LAN-only.
 
 ---
 
@@ -61,9 +61,9 @@ The command must complete without errors.
 Validate that the rendered page reflects the current platform milestone:
 
 ```text
-Backup & Recovery
-Encrypted restore validated
-Encrypted backup and recovery
+Identity Platform
+Keycloak + OpenID Connect
+Keycloak identity platform
 ```
 
 ---

@@ -55,20 +55,20 @@ the tested HomeLab07 deployment model.
 
 ## Keycloak OIDC Platform Enhancement
 
-Repository configuration now supports Paperless-ngx as an optional Keycloak
-OIDC consumer. This extends beyond the original Sprint 011 Nextcloud-only PoC
-and requires separate target-host acceptance before it is considered active.
+Repository configuration supports Paperless-ngx as a Keycloak OIDC consumer.
+This extends beyond the original Sprint 011 Nextcloud-only PoC.
 
-Required sanitized evidence:
+Target acceptance completed on 2026-08-06:
 
 - dedicated confidential client with exact redirect URI and web origin;
 - local Paperless administrator login before and after the change;
 - existing PoC account linked from **My Profile**;
 - successful Keycloak login and OTP challenge;
 - logout without a redirect loop;
-- denial of account creation for an unlinked identity;
-- rollback to local-only authentication;
-- post-change backup and disposable recovery validation.
+- just-in-time creation of a non-administrator user was accepted;
+- local administrator access remained available;
+- the post-change backup and disposable recovery validation succeeded.
 
-Do not enable automatic social signup, forced SSO, group synchronization or
-administrator-role mapping as part of this enhancement.
+Automatic social signup is an explicit private-environment policy for this
+consumer. Forced SSO, group synchronization and administrator-role mapping
+remain disabled.

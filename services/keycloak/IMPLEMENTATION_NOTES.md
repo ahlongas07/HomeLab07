@@ -47,3 +47,22 @@ group synchronization until returned claims have been reviewed.
 Disable `user_oidc`, remove the Keycloak Proxy Host if necessary and stop
 Keycloak. Preserve the database until evidence and rollback are accepted.
 
+## Target-host acceptance
+
+Acceptance completed on 2026-08-06 with sanitized evidence:
+
+- `quay.io/keycloak/keycloak:26.7.0` was healthy with runtime image ID
+  `sha256:60e153026e8f53ee2c3877b23aa664a6fb24ea99c57085b40cbb77ca2be01e3d`;
+- `docker port homelab07-keycloak` returned no host mappings;
+- realm discovery and Nextcloud OIDC login/logout succeeded;
+- local emergency access remained available;
+- Paperless-ngx authenticated through Keycloak with OTP and accepted
+  just-in-time creation of non-administrator users;
+- a consistent encrypted recovery point passed Restic integrity checks;
+- a disposable restore recovered 75,891 entries (2.171 GiB), validated two
+  artifacts and one database dump, and did not start services or modify
+  production paths.
+
+Jellyfin remains locally authenticated. A third-party SSO plugin was reviewed
+and rejected because its support, client coverage and account-permission risks
+were not justified by the platform requirement.

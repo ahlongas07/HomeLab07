@@ -1,6 +1,6 @@
 # SPRINT-011 — Identity Platform
 
-**Status:** Implementation in progress — repository capability complete; target PoC pending
+**Status:** Completed — identity platform and recovery boundary validated
 
 **Classification:** Platform Capability
 
@@ -10,7 +10,7 @@
 
 **First Consumer:** Nextcloud
 
-**Last Reviewed:** 2026-07-31
+**Last Reviewed:** 2026-08-06
 
 ---
 
@@ -18,8 +18,9 @@
 
 Introduce a reusable identity provider using OpenID Connect. Keycloak consumes
 the existing shared MariaDB platform and is published only through Nginx Proxy
-Manager. Nextcloud is the first controlled consumer; Paperless-ngx and
-Jellyfin are explicitly deferred.
+Manager. Nextcloud is the first controlled consumer. Paperless-ngx was accepted
+as a subsequent OIDC consumer enhancement; Jellyfin retains local
+authentication because it has no supported native OIDC capability.
 
 ## Decision record
 
@@ -62,13 +63,14 @@ state is held in a dedicated MariaDB database and role.
 - Operation-layer start, stop and status integration.
 - MariaDB logical backup and recovery-manifest coverage.
 - Local administrative break-glass and rollback validation.
+- Controlled Paperless-ngx OIDC consumption and just-in-time user provisioning.
 
 ### Excluded
 
 - Mandatory SSO or automatic login redirect.
 - MFA enforcement.
 - Removal of local application administrators.
-- Paperless-ngx and Jellyfin activation.
+- Jellyfin activation through an unsupported third-party plugin.
 - LDAP, SAML, social identity providers and directory federation.
 - High availability or multi-node Keycloak.
 
@@ -156,5 +158,23 @@ the private recovery boundary.
 - Backup, integrity and disposable-restore results.
 - Updated Landing Page and changelog.
 
-Sprint 011 remains open until target runtime evidence satisfies every
-acceptance criterion.
+## Completion notes
+
+Target validation completed on 2026-08-06. Keycloak `26.7.0` reported healthy
+with runtime image ID
+`sha256:60e153026e8f53ee2c3877b23aa664a6fb24ea99c57085b40cbb77ca2be01e3d`.
+`docker port` returned no host mappings. Realm discovery, Nextcloud OIDC
+login/logout, local emergency access and Paperless-ngx OIDC with OTP were
+validated. Paperless-ngx just-in-time provisioning was explicitly accepted;
+group synchronization, application administrator mapping and forced SSO remain
+disabled.
+
+A post-implementation encrypted recovery point passed repository integrity
+checks. Its manifest-driven disposable restore recovered 75,891 files and
+directories (2.171 GiB), validated two recovery artifacts and one logical
+database dump, started no restored service and modified no production path.
+
+Jellyfin remains on local authentication. Its only identified Keycloak route
+requires a third-party SSO plugin with known compatibility and lifecycle risks;
+that exception was rejected because centralized Jellyfin identity is not a
+demonstrated platform requirement.
