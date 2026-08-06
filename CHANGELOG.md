@@ -2,6 +2,9 @@
 
 ### Added
 
+- Add SPIKE-002 to evaluate bounded Keycloak identity authority, supported
+  attribute and avatar reconciliation, a version-controlled login theme and
+  default SSO redirection with tested emergency access.
 - Add a recovery-safe Paperless-ngx Keycloak OIDC consumer configuration with
   local login retained and automatic social account creation disabled.
 - Document the dedicated client, OTP, account-linking, validation and rollback

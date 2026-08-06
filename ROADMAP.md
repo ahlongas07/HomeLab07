@@ -588,6 +588,7 @@ They should only be introduced when justified by platform requirements.
 
 Potential future enhancements include:
 
+- SPIKE-002 — Identity Source of Truth and SSO Experience
 - Observability
 - Multi-node deployment
 - High Availability
