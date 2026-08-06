@@ -121,6 +121,12 @@ Because Paperless uses the realm's normal browser flow, a user subject to OTP
 in Keycloak receives the same second-factor challenge. Paperless does not own
 or separately configure that OTP credential.
 
+SPIKE-002 may enable default SSO redirection and test Keycloak-owned profile
+attributes. Regular login remains enabled, group synchronization remains off
+and no OIDC claim may grant staff or superuser status during the PoC. See
+`services/keycloak/IDENTITY_AUTHORITY_POC.md` for the recovery gate and test
+matrix.
+
 ## Reverse Proxy
 
 Create the Proxy Host using private values:
@@ -212,3 +218,4 @@ artifact, not a replacement for the consistent platform recovery point.
 - Sprint 006 — Paperless-ngx
 - Sprint 011 — Identity Platform foundation
 - Platform Enhancement — Paperless-ngx OIDC consumer
+- SPIKE-002 — Identity Source of Truth and SSO Experience

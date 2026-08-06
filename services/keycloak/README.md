@@ -34,9 +34,12 @@ No Docker socket or privileged mode is used.
 ```text
 services/keycloak/
 ├── .env.example
+├── IDENTITY_AUTHORITY_POC.md
 ├── IMPLEMENTATION_NOTES.md
 ├── README.md
-└── compose.yaml
+├── compose.yaml
+└── themes/
+    └── homelab07/
 ```
 
 Identity state lives in MariaDB. The repository owns the runtime definition;
@@ -61,6 +64,10 @@ Keycloak ignores bootstrap creation when an administrator already exists.
 ./operation/keycloak-db-create.sh
 ./operation/compose.sh keycloak up -d
 ```
+
+The Compose definition mounts the version-controlled `homelab07` login theme
+and existing platform assets read-only. Theme selection is realm state and is
+performed only during the controlled SPIKE-002 procedure.
 
 Configure Nginx Proxy Manager to forward the private identity hostname to
 `homelab07-keycloak:8080` over HTTP. Keep TLS mode Full (strict) at the edge.
@@ -94,4 +101,5 @@ additional recovery artifact. Restore MariaDB before starting Keycloak.
 
 ## Related Sprint
 
-Sprint 011 — Identity Platform.
+- Sprint 011 — Identity Platform
+- SPIKE-002 — Identity Source of Truth and SSO Experience

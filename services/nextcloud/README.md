@@ -267,9 +267,16 @@ The sanitized operator sequence and acceptance tests are maintained in
 `services/keycloak/IMPLEMENTATION_NOTES.md`; issuer, client identifier and
 client secret remain private.
 
+SPIKE-002 evaluates Keycloak as the bounded source of truth for supported
+profile claims, Nextcloud auto-provisioning and default OIDC redirection. The
+reproducible operation and runtime matrix are documented in
+`services/keycloak/IDENTITY_AUTHORITY_POC.md`. Local emergency login remains a
+required control and group-to-administrator mapping is not approved.
+
 ## Related Sprint
 
 - Sprint 005 — Collaboration Platform
 - Sprint 011 — Identity Platform
+- SPIKE-002 — Identity Source of Truth and SSO Experience
 - SPIKE-001 — Collaboration Architecture Evaluation
 - POC-001 — Nextcloud Files Platform Validation

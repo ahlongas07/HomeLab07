@@ -20,6 +20,9 @@ services:
       KC_METRICS_ENABLED: "true"
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME:?KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME is required}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD:?KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD is required}
+    volumes:
+      - ./themes/homelab07:/opt/keycloak/themes/homelab07:ro
+      - ../landing-page/html/assets:/opt/keycloak/themes/homelab07/login/resources/img:ro
     networks:
       - homelab07-internal
       - homelab07-proxy

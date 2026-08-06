@@ -1,6 +1,6 @@
 # SPIKE-002 — Identity Source of Truth and SSO Experience
 
-**Status:** Documentation review complete; controlled PoC required
+**Status:** Approved — controlled PoC implementation prepared; runtime evidence pending
 
 **Classification:** Platform Capability Investigation
 
@@ -342,3 +342,22 @@ The Spike must end with one of these decisions:
 
 The result must not describe Keycloak as the source of truth for “all data”
 unless every claimed field and lifecycle operation is explicitly validated.
+
+## Implementation entry
+
+The team approved controlled execution on 2026-08-06. Repository preparation
+adds:
+
+- a CSS-and-assets Keycloak login theme mounted read-only;
+- explicit Paperless-ngx identity and redirect switches;
+- `operation/identity-poc.sh` for status, guarded application and redirect
+  rollback;
+- a recovery-first runtime runbook at
+  `services/keycloak/IDENTITY_AUTHORITY_POC.md`.
+
+No runtime claim is accepted until the target-host matrix and rollback tests
+are recorded below.
+
+## Runtime evidence
+
+Pending controlled target-host execution.
