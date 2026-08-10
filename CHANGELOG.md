@@ -35,6 +35,9 @@
 
 ### Changed
 
+- Replace Trivy's 1 GiB in-memory `/tmp` limit with a per-run temporary
+  directory on the disposable local cache, allowing Java DB extraction while
+  preserving automatic cleanup after success or failure.
 - Use Trivy 0.72's supported global `--quiet` flag so ephemeral repository and
   image scans do not fail on the command-specific `--no-progress` option.
 - Stream the prerequisite platform security audit during vulnerability scans

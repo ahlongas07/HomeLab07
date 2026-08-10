@@ -233,6 +233,7 @@ runs_root="${report_real}/runs"
 staging_root="${report_real}/.run-${run_id}-$$"
 final_root="${runs_root}/${run_id}"
 lock_directory="${report_real}/.security-scan.lock"
+trivy_tmp_root="${cache_real}/tmp-${run_id}-$$"
 
 if ! mkdir "${lock_directory}" 2>/dev/null; then
     echo "Another security scan holds the report-share lock."
@@ -242,6 +243,7 @@ fi
 cleanup() {
     local exit_status=$?
     rm -rf -- "${staging_root}"
+    rm -rf -- "${trivy_tmp_root}"
     rmdir "${lock_directory}" 2>/dev/null || true
     exit "${exit_status}"
 }
@@ -249,7 +251,8 @@ trap cleanup EXIT INT TERM
 
 umask 0027
 mkdir -p "${runs_root}" "${staging_root}/repository" \
-    "${staging_root}/images" "${staging_root}/sbom"
+    "${staging_root}/images" "${staging_root}/sbom" "${trivy_tmp_root}"
+chmod 0700 "${trivy_tmp_root}"
 
 echo
 echo "Rendering Compose definitions and building the image inventory..."
@@ -279,8 +282,8 @@ run_trivy() {
         --read-only \
         --cap-drop ALL \
         --security-opt no-new-privileges \
-        --tmpfs /tmp:rw,noexec,nosuid,size=1g \
         --volume "${cache_real}:/cache" \
+        --volume "${trivy_tmp_root}:/tmp" \
         --volume "${PROJECT_ROOT}:/workspace:ro" \
         --volume "${staging_root}:/output" \
         "${trivy_image}" \
@@ -411,6 +414,7 @@ if [[ -e "${final_root}" ]]; then
 fi
 
 mv "${staging_root}" "${final_root}"
+rm -rf -- "${trivy_tmp_root}"
 trap - EXIT INT TERM
 rmdir "${lock_directory}"
 
