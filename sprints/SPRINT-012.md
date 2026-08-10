@@ -39,7 +39,7 @@ SBOMs are persistent security evidence, not source code.
 
 ### Included
 
-- Version-pinned ephemeral Trivy execution.
+- Version-and-digest-pinned ephemeral Trivy execution.
 - Repository vulnerability, secret and misconfiguration scanning.
 - Compose rendering and the existing HomeLab07 security audit.
 - Deduplicated image inventory across service Compose definitions.
@@ -106,6 +106,8 @@ sprints/SPRINT-012.md
 ## Acceptance criteria
 
 - No scanner service or host port is introduced.
+- The Trivy runtime reference uses a readable patch tag and immutable registry
+  manifest digest.
 - No Docker socket or production application storage is mounted.
 - All service Compose files render before scanning begins.
 - Every unique image reference produces one Trivy JSON report and one
@@ -130,4 +132,3 @@ sprints/SPRINT-012.md
 - Report-share permissions and mount validation.
 - One failed-run test proving partial reports are not published.
 - One reviewed summary under `docs/security/scans/`.
-

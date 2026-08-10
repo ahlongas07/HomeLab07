@@ -21,7 +21,7 @@ Sprint 011.
 
 | Capability | Selection |
 |---|---|
-| Identity server | `quay.io/keycloak/keycloak:26.7.0` |
+| Identity server | `quay.io/keycloak/keycloak:26.7.0@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13` |
 | Database | Shared MariaDB 11.4, dedicated database and role |
 | Protocol | OpenID Connect |
 | Publication | Nginx Proxy Manager and Cloudflare |

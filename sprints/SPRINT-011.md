@@ -135,8 +135,9 @@ the private recovery boundary.
 
 ## Acceptance criteria
 
-- Keycloak runs from `quay.io/keycloak/keycloak:26.7.0` and its runtime digest
-  is recorded during target validation.
+- Keycloak runs from
+  `quay.io/keycloak/keycloak:26.7.0@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13`.
+  Its local runtime image ID is recorded separately during target validation.
 - Keycloak uses the existing MariaDB 11.4 platform through a dedicated role.
 - No new database platform, public host port, privileged mode or Docker socket
   is introduced.

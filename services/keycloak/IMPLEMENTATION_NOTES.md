@@ -53,6 +53,8 @@ Acceptance completed on 2026-08-06 with sanitized evidence:
 
 - `quay.io/keycloak/keycloak:26.7.0` was healthy with runtime image ID
   `sha256:60e153026e8f53ee2c3877b23aa664a6fb24ea99c57085b40cbb77ca2be01e3d`;
+- the reproducible service definition now pins the reviewed OCI index digest
+  `sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13`;
 - `docker port homelab07-keycloak` returned no host mappings;
 - realm discovery and Nextcloud OIDC login/logout succeeded;
 - local emergency access remained available;

@@ -35,6 +35,9 @@
 
 ### Changed
 
+- Pin Keycloak 26.7.0 and Trivy 0.72.0 to reviewed immutable OCI index digests
+  while retaining readable version tags, and reject mutable Trivy references
+  during security-scan preflight.
 - Accept a report directory below a dedicated mounted filesystem while still
   rejecting accidental evidence writes to the operating-system root volume.
 - Complete Sprint 011 after healthy Keycloak deployment, OIDC consumer

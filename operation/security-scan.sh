@@ -100,7 +100,7 @@ fi
 
 report_root="${HOMELAB07_SECURITY_REPORT_ROOT:-}"
 cache_root="${HOMELAB07_TRIVY_CACHE_ROOT:-}"
-trivy_image="${HOMELAB07_TRIVY_IMAGE:-docker.io/aquasec/trivy:0.72.0}"
+trivy_image="${HOMELAB07_TRIVY_IMAGE:-docker.io/aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f}"
 severities="${HOMELAB07_SECURITY_SCAN_SEVERITIES:-HIGH,CRITICAL}"
 scan_timeout="${HOMELAB07_SECURITY_SCAN_TIMEOUT:-20m}"
 require_mount="${HOMELAB07_SECURITY_REPORT_REQUIRE_MOUNT:-true}"
@@ -112,6 +112,12 @@ for variable_name in HOMELAB07_SECURITY_REPORT_ROOT HOMELAB07_TRIVY_CACHE_ROOT; 
         fail "Required private setting is missing: ${variable_name}"
     fi
 done
+
+if [[ "${trivy_image}" =~ ^[^[:space:]@]+:[^[:space:]@]+@sha256:[0-9a-f]{64}$ ]]; then
+    pass "Trivy runtime uses an immutable tagged digest"
+else
+    fail "HOMELAB07_TRIVY_IMAGE must use image:tag@sha256:<64 lowercase hex characters>"
+fi
 
 report_real=""
 cache_real=""
