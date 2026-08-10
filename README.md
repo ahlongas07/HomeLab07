@@ -25,7 +25,8 @@ The project emphasizes:
 
 🚧 Early Development
 
-Sprint 001 through Sprint 011 are complete.
+Sprint 001 through Sprint 011 are complete. Sprint 012 Vulnerability Management
+is in progress.
 
 Sprint 009 Platform Operations completed the edge-security, management-access
 and recurring security-validation baseline. The repository defines the desired
@@ -39,6 +40,11 @@ Sprint 011 Identity Platform completed the reusable Keycloak OIDC capability
 using a dedicated database and role in the existing MariaDB platform.
 Nextcloud and Paperless-ngx consume centralized authentication; Jellyfin keeps
 local authentication because no supported native OIDC integration exists.
+
+Sprint 012 introduces report-only repository and container-image scanning,
+CycloneDX SBOM generation and restricted security evidence on a dedicated
+private share. It extends the existing policy audit without adding a persistent
+scanner service or Docker socket mount.
 
 The project has established:
 
@@ -55,6 +61,7 @@ The project has established:
 - Jellyfin as the active media service.
 - Homebridge as the active LAN-only HomeKit integration service.
 - Keycloak as the validated shared identity provider for supported consumers.
+- Trivy-based vulnerability management as the active platform enhancement.
 
 Sprint 007 completed the media-platform milestone with NAS-backed movies,
 music and family media, secure HTTPS publication, recoverable application
@@ -93,6 +100,9 @@ Implemented direction:
   [`docs/security/`](docs/security/); [`operation/security-audit.sh`](operation/security-audit.sh)
   checks repository and runtime posture without changing infrastructure state
   or exposing environment data.
+- [`operation/security-scan.sh`](operation/security-scan.sh) orchestrates
+  report-only repository and remote-image scans and writes detailed evidence
+  only to the configured private report share.
 
 ## Documentation
 

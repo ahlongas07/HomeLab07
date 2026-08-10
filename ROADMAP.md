@@ -580,6 +580,40 @@ Validation
 
 ---
 
+## Sprint 012 — Vulnerability Management
+
+Status
+
+🚧 In Progress
+
+Objective
+
+Provide repeatable vulnerability, secret and misconfiguration visibility for
+the repository and all declared platform container images.
+
+Platform Capability
+
+Trivy-based vulnerability management with private evidence storage.
+
+Deliverables
+
+- Read-only repository and image scanning
+- Docker Compose image inventory and existing policy-audit integration
+- CycloneDX software bills of materials
+- Atomic detailed reports on a dedicated private share
+- Sanitized, reviewable security summaries
+- Documented exception, remediation and retention workflow
+
+Validation
+
+- Scanner preflight and pinned runtime identity
+- Complete unique-image coverage
+- Report and SBOM integrity checksums
+- Report-share permission and mount boundary
+- Failed-run atomicity and absence of partial published evidence
+
+---
+
 # Future Platform Enhancements
 
 The following capabilities remain outside the current roadmap.

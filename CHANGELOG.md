@@ -2,6 +2,11 @@
 
 ### Added
 
+- Add the Sprint 012 Vulnerability Management capability with an ephemeral,
+  version-pinned Trivy runtime, repository and remote-image scanning,
+  CycloneDX SBOMs and atomic reports on a restricted private share.
+- Add scanner preflight, Compose image inventory, existing security-audit
+  integration, report manifests, checksums and report-only baseline policy.
 - Add SPIKE-002 to evaluate bounded Keycloak identity authority, supported
   attribute and avatar reconciliation, a version-controlled login theme and
   default SSO redirection with tested emergency access.

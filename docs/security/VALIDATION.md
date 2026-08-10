@@ -13,6 +13,26 @@ returns non-zero when a required control fails. Warnings identify documented
 exceptions or checks that require external evidence. It does not prove router,
 firewall or provider state.
 
+## Vulnerability Scanner
+
+Validate the private report mount, disposable cache, Docker runtime and pinned
+Trivy image:
+
+```bash
+./operation/security-scan.sh preflight
+```
+
+Create a report-only repository, image and SBOM evidence set:
+
+```bash
+./operation/security-scan.sh scan
+```
+
+Detailed evidence is written only to the configured private report share.
+Review the completed run's `checksums.sha256`, `manifest.json` and `summary.md`.
+Do not copy raw secret findings or environment-specific image references into
+version-controlled validation records.
+
 ## External Boundary
 
 Perform tests from a network that is not the approved management LAN:
