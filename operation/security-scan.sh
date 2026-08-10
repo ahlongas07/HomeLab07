@@ -130,12 +130,19 @@ if [[ -n "${report_root}" ]]; then
 fi
 
 if [[ "${require_mount}" == "true" && -n "${report_root}" ]]; then
-    if ! command -v mountpoint >/dev/null 2>&1; then
-        fail "mountpoint is required when report mount validation is enabled"
-    elif mountpoint -q "${report_root}"; then
-        pass "Report root is a mounted filesystem boundary"
+    if ! command -v findmnt >/dev/null 2>&1; then
+        fail "findmnt is required when report mount validation is enabled"
     else
-        fail "Report root is not a mount point"
+        report_mount="$(findmnt -T "${report_root}" -n -o TARGET 2>/dev/null || true)"
+        if [[ -z "${report_mount}" ]]; then
+            fail "No mounted filesystem contains the report root"
+        elif [[ "${report_mount}" == "/" ]]; then
+            fail "Report root resolves to the operating-system root filesystem"
+        elif is_within "${report_real}" "${report_mount}"; then
+            pass "Report root is contained by a dedicated mounted filesystem"
+        else
+            fail "Report root cannot be validated against its mounted filesystem"
+        fi
     fi
 elif [[ "${require_mount}" != "false" && "${require_mount}" != "true" ]]; then
     fail "HOMELAB07_SECURITY_REPORT_REQUIRE_MOUNT must be true or false"

@@ -35,6 +35,8 @@
 
 ### Changed
 
+- Accept a report directory below a dedicated mounted filesystem while still
+  rejecting accidental evidence writes to the operating-system root volume.
 - Complete Sprint 011 after healthy Keycloak deployment, OIDC consumer
   validation, local emergency access, no-host-port verification and a
   successful encrypted backup and disposable restore.
