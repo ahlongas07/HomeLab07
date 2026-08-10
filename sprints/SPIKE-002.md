@@ -1,6 +1,6 @@
 # SPIKE-002 — Identity Source of Truth and SSO Experience
 
-**Status:** Approved — controlled PoC implementation prepared; runtime evidence pending
+**Status:** In progress — identity and theme evidence recorded; redirect recovery validation pending
 
 **Classification:** Platform Capability Investigation
 
@@ -360,4 +360,34 @@ are recorded below.
 
 ## Runtime evidence
 
-Pending controlled target-host execution.
+Controlled target-host validation recorded on 2026-08-10:
+
+| Capability | Nextcloud | Paperless-ngx |
+|---|---|---|
+| OIDC authentication | Passed | Passed |
+| First-login account creation | Passed | Passed |
+| Immutable local identifier from `sub` | Configured and retained | Social account linkage retained |
+| Avatar claim (`picture`) | Passed; rendered after a new login | Unsupported by the application UI |
+| Name and email changes after account creation | Supported by mapped login reconciliation | Not reconciled after a new login |
+| Authority decision | Bounded profile authority | Authentication and JIT creation only |
+
+Additional evidence:
+
+- the version-controlled `homelab07` Keycloak login theme mounted read-only,
+  the container returned healthy, and the realm rendered the selected theme;
+- the Keycloak `picture` mapper emitted a single string value through the ID
+  token, access token and userinfo endpoint for both clients;
+- Nextcloud consumed `picture` through its avatar mapping and displayed the
+  test avatar after reauthentication;
+- Paperless-ngx authenticated the same identity but did not display the
+  avatar or reconcile later name and email changes;
+- no custom Paperless database update, plugin or application fork was added to
+  compensate for unsupported profile synchronization.
+
+The evidence supports **per-consumer scope**: Keycloak is the bounded identity
+profile authority for the proven Nextcloud mappings, while Paperless-ngx uses
+Keycloak for authentication and just-in-time account creation only. Paperless
+continues to own its local profile projection after creation.
+
+The Spike remains open until Phase 4 proves both default redirects, bookmarked
+local emergency access, behavior during Keycloak unavailability, and rollback.
