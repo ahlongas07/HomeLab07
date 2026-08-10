@@ -265,7 +265,13 @@ sort -u "${staging_root}/image-references.txt" -o "${staging_root}/image-referen
 image_count="$(grep -cve '^[[:space:]]*$' "${staging_root}/image-references.txt")"
 
 echo "Running the existing HomeLab07 security policy audit..."
-"${PROJECT_ROOT}/operation/security-audit.sh" >"${staging_root}/platform-audit.txt"
+if ! "${PROJECT_ROOT}/operation/security-audit.sh" |
+    tee "${staging_root}/platform-audit.txt"; then
+    echo
+    echo "The platform security audit failed; Trivy scanning was not started."
+    echo "Correct the required-control failure and rerun the security scan."
+    exit 1
+fi
 
 run_trivy() {
     docker run --rm \
@@ -280,7 +286,7 @@ run_trivy() {
         "${trivy_image}" \
         --cache-dir /cache \
         --timeout "${scan_timeout}" \
-        --no-progress \
+        --quiet \
         "$@"
 }
 

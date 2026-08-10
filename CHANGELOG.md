@@ -35,6 +35,10 @@
 
 ### Changed
 
+- Use Trivy 0.72's supported global `--quiet` flag so ephemeral repository and
+  image scans do not fail on the command-specific `--no-progress` option.
+- Stream the prerequisite platform security audit during vulnerability scans
+  and explain audit-gate failures before removing incomplete staging evidence.
 - Pin Keycloak 26.7.0 and Trivy 0.72.0 to reviewed immutable OCI index digests
   while retaining readable version tags, and reject mutable Trivy references
   during security-scan preflight.
