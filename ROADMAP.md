@@ -614,6 +614,44 @@ Validation
 
 ---
 
+## Sprint 013 — Observability & Alerting
+
+Status
+
+📋 Approved — documentation and implementation planning
+
+Objective
+
+Provide actionable host, storage, service and operation visibility with bounded
+metrics and log retention, LAN-only access and a small alert baseline.
+
+Platform Capability
+
+Grafana Alloy, Prometheus, Loki and Grafana.
+
+Deliverables
+
+- Host and approved service health collection
+- Atomic metrics from backup, vulnerability management and platform operations
+- Batch freshness contract evaluated through Alloy's embedded textfile collector
+- Read-only Rockstor/Btrfs mount, capacity, error and scrub visibility
+- Selected redacted diagnostic logs
+- Declaratively provisioned dashboards, datasources and alert rules
+- LAN-only Grafana access with no Docker socket or privileged containers
+- Actionable alerts and operational runbooks
+
+Validation
+
+- Immutable runtime image identities and reproducible Compose configuration
+- Explicit Grafana LAN bind and absence of public Prometheus/Loki ports
+- Host, endpoint, operation and Rockstor metric coverage
+- Batch last-run, last-success, status and stale-metric evaluation
+- Missing-mount detection and atomic textfile publication
+- Log redaction, label-cardinality and retention controls
+- Alert firing, notification, resolution, recreation and rollback
+
+---
+
 # Future Platform Enhancements
 
 The following capabilities remain outside the current roadmap.
@@ -623,7 +661,6 @@ They should only be introduced when justified by platform requirements.
 Potential future enhancements include:
 
 - SPIKE-002 — Identity Source of Truth and SSO Experience
-- Observability
 - Multi-node deployment
 - High Availability
 - Object Storage
