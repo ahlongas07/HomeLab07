@@ -165,6 +165,7 @@ Expected variables:
 
 ```dotenv
 HOMELAB07_DATA_ROOT=/path/to/homelab07-data
+NPM_MANAGEMENT_BIND_ADDRESS=192.0.2.10
 
 NPM_DB_HOST=homelab07-mariadb
 NPM_DB_PORT=3306
@@ -258,7 +259,13 @@ HomeLab07.private/env/nginx-proxy-manager.env
 |------|----------|
 | 80 | HTTP |
 | 443 | HTTPS |
-| 81 | Administration UI |
+| 81 | Administration UI, bound only to the configured Docker-host LAN address |
+
+`NPM_MANAGEMENT_BIND_ADDRESS` must be the private LAN address assigned to the
+Docker host, not a wildcard, loopback or public address. This keeps the
+administration interface reachable by devices that can route to the LAN while
+preventing Docker from listening for it on every host interface. The router
+must continue without a WAN forwarding rule for this port.
 
 ## Docker Networks
 

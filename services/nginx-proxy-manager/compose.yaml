@@ -6,7 +6,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "81:81"
+      - "${NPM_MANAGEMENT_BIND_ADDRESS:?NPM_MANAGEMENT_BIND_ADDRESS is required}:81:81"
     environment:
       DB_MYSQL_HOST: ${NPM_DB_HOST:?NPM_DB_HOST is required}
       DB_MYSQL_PORT: ${NPM_DB_PORT:-3306}

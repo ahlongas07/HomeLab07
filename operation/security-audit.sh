@@ -71,14 +71,19 @@ else
 fi
 
 npm_compose="${PROJECT_ROOT}/services/nginx-proxy-manager/compose.yaml"
-for mapping in '80:80' '443:443' '81:81'; do
+for mapping in '80:80' '443:443'; do
     if grep -Fq "\"${mapping}\"" "${npm_compose}"; then
         pass "Nginx Proxy Manager declares approved mapping ${mapping}"
     else
         fail "Nginx Proxy Manager is missing approved mapping ${mapping}"
     fi
 done
-warn "EXC-NPM-PORT81: management port 81 requires external LAN/WAN denial validation"
+
+if grep -Fq '"${NPM_MANAGEMENT_BIND_ADDRESS:?NPM_MANAGEMENT_BIND_ADDRESS is required}:81:81"' "${npm_compose}"; then
+    pass "Nginx Proxy Manager administration requires an explicit host bind address"
+else
+    fail "Nginx Proxy Manager administration is not bound through the required private setting"
+fi
 
 if ((${#host_network_files[@]} == 1)) && [[ "${host_network_files[0]}" == "homebridge" ]]; then
     pass "EXC-HB-HOST: Homebridge is the sole host-networking service"
@@ -218,10 +223,19 @@ else
     npm_container="homelab07-nginx-proxy-manager"
     if docker inspect "${npm_container}" >/dev/null 2>&1; then
         runtime_bindings="$(docker inspect -f '{{json .HostConfig.PortBindings}}' "${npm_container}")"
+        npm_management_host_ip="$(jq -r '."81/tcp"[0].HostIp // empty' <<<"${runtime_bindings}")"
         if [[ "${runtime_bindings}" == *'80/tcp'* && "${runtime_bindings}" == *'443/tcp'* && "${runtime_bindings}" == *'81/tcp'* ]]; then
             pass "Runtime Nginx Proxy Manager mappings include 80, 443 and 81"
         else
             fail "Runtime Nginx Proxy Manager mappings differ from policy"
+        fi
+
+        if [[ -n "${npm_management_host_ip}" &&
+            "${npm_management_host_ip}" != "0.0.0.0" &&
+            "${npm_management_host_ip}" != "::" ]]; then
+            pass "Runtime Nginx Proxy Manager administration is bound to an explicit host address"
+        else
+            fail "Runtime Nginx Proxy Manager administration uses a wildcard host binding"
         fi
 
         certificate_dates="$(docker exec "${npm_container}" sh -c \

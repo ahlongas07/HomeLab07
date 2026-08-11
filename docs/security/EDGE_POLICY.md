@@ -20,9 +20,9 @@ rule identifiers and credentials belong outside Git.
 
 Only approved public gateway forwards are retained. Nginx Proxy Manager is the
 only service that declares public gateway ports. Its administration listener
-is a documented management exception and must be denied outside approved
-management sources. Exact listener, firewall and network parameters remain in
-private operational configuration and evidence.
+is bound by Docker only to an explicitly configured LAN address and must be
+denied outside approved management sources. Exact listener, firewall and
+network parameters remain in private operational configuration and evidence.
 
 ## Cloudflare Baseline
 

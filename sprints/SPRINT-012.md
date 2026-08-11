@@ -42,8 +42,9 @@ SBOMs are persistent security evidence, not source code.
 
 - Version-and-digest-pinned ephemeral Trivy execution.
 - Repository vulnerability, secret and misconfiguration scanning.
-- Complete Git history secret scanning with fully redacted private evidence.
+- Complete Git history secret scanning with sanitized private evidence.
 - Compose rendering and the existing HomeLab07 security audit.
+- Nginx Proxy Manager administration bound to a required private LAN address.
 - Deduplicated image inventory across service Compose definitions.
 - Remote-registry vulnerability and image-configuration scanning.
 - CycloneDX JSON SBOM generation per image.
@@ -118,8 +119,10 @@ sprints/SPRINT-012.md
   CycloneDX JSON SBOM.
 - The repository produces one combined vulnerability, secret and
   misconfiguration report.
-- Every Git ref and the complete history produce one fully redacted Gitleaks
-  report without publishing matches to the terminal or repository.
+- Every Git ref and the complete history produce one sanitized Gitleaks report
+  without publishing matched content to the terminal, report or repository.
+- Runtime validation fails if Nginx Proxy Manager administration returns to a
+  wildcard host binding.
 - A manifest records the UTC run ID, Git revision, Trivy version, policy mode,
   image references and artifact names.
 - SHA-256 checksums cover the completed evidence set.

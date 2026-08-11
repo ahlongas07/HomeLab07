@@ -41,6 +41,8 @@
 
 ### Changed
 
+- Bind Nginx Proxy Manager administration to a required private LAN address
+  and fail the security audit when runtime port 81 uses a wildcard host bind.
 - Generalize public edge policy by keeping provider plan, authentication-path,
   rate-limit and management-network parameters in private operational evidence.
 - Document public service versions and immutable digests as a reproducibility
