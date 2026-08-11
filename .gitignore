@@ -52,6 +52,8 @@ logs/
 # Private information (never committed)
 # ------------------------------------------------------------------------------
 
+# Defense in depth if the external private tree is ever copied below Git root.
+HomeLab07.private/
 
 # ------------------------------------------------------------------------------
 # Certificates

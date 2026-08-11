@@ -13,35 +13,36 @@ rule identifiers and credentials belong outside Git.
 |---|---|---|
 | Proxied web application | Cloudflare → Nginx Proxy Manager → application | Managed WAF, narrow rate limiting, response headers and direct-origin denial |
 | DNS-only media application | Nginx Proxy Manager → application | HTTPS through the shared gateway; no claim of Cloudflare HTTP protection |
-| Management | Approved LAN → Nginx Proxy Manager port 81 | Denied from WAN and untrusted networks |
+| Management | Approved management network → proxy administration | Denied from WAN and untrusted networks |
 | LAN integration | Approved LAN → Homebridge host listeners | No public DNS or reverse-proxy publication |
 | Internal data service | Internal Docker network | No host ports and no public route |
 | Outbound automation | Service → provider API | No inbound listener |
 
-Only router forwards for HTTP and HTTPS are retained. Nginx Proxy Manager is
-the only service that declares host ports. Port 81 is a documented management
-exception and must be denied outside approved LAN sources.
+Only approved public gateway forwards are retained. Nginx Proxy Manager is the
+only service that declares public gateway ports. Its administration listener
+is a documented management exception and must be denied outside approved
+management sources. Exact listener, firewall and network parameters remain in
+private operational configuration and evidence.
 
 ## Cloudflare Baseline
 
-- Zone plan: Free.
 - SSL/TLS mode: Full (strict).
 - Managed WAF: enabled for proxied hostnames.
 - Custom WAF rules: retained only when a demonstrated threat or false-positive
   exception has an owner and rollback procedure.
-- Rate limiting: one IP-based rule matches only the exact authentication paths
-  `/login` and `/accounts/login/`; it blocks after 10 requests in 10 seconds
-  for 10 seconds.
+- Rate limiting: narrowly scoped IP-based rules protect authentication
+  endpoints without affecting synchronization, API, media or static traffic.
 - Response headers use **Set static**, not Add, to avoid duplicate policies:
   - `X-Content-Type-Options: nosniff`
   - `Referrer-Policy: strict-origin-when-cross-origin`
-- HSTS is staged with `max-age=2592000`, without `includeSubDomains` and without
-  preload.
+- HSTS is staged with a limited lifetime, without `includeSubDomains` and
+  without preload.
 - Global CSP, framing policy and browser capability restrictions are deferred
   because they require application-specific compatibility validation.
 
-The rate-limit rule intentionally excludes upload, synchronization, WebDAV,
-API, static-resource and media paths. DNS-only routes never receive Cloudflare
+Rate-limit rules intentionally exclude upload, synchronization, WebDAV, API,
+static-resource and media paths. Exact matches, thresholds and block windows
+remain in private provider evidence. DNS-only routes never receive Cloudflare
 WAF, rate-limit, transform or HSTS controls.
 
 ## Origin Policy

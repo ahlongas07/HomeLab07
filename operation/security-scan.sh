@@ -101,6 +101,7 @@ fi
 report_root="${HOMELAB07_SECURITY_REPORT_ROOT:-}"
 cache_root="${HOMELAB07_TRIVY_CACHE_ROOT:-}"
 trivy_image="${HOMELAB07_TRIVY_IMAGE:-docker.io/aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f}"
+gitleaks_image="${HOMELAB07_GITLEAKS_IMAGE:-ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f}"
 severities="${HOMELAB07_SECURITY_SCAN_SEVERITIES:-HIGH,CRITICAL}"
 scan_timeout="${HOMELAB07_SECURITY_SCAN_TIMEOUT:-20m}"
 require_mount="${HOMELAB07_SECURITY_REPORT_REQUIRE_MOUNT:-true}"
@@ -117,6 +118,12 @@ if [[ "${trivy_image}" =~ ^[^[:space:]@]+:[^[:space:]@]+@sha256:[0-9a-f]{64}$ ]]
     pass "Trivy runtime uses an immutable tagged digest"
 else
     fail "HOMELAB07_TRIVY_IMAGE must use image:tag@sha256:<64 lowercase hex characters>"
+fi
+
+if [[ "${gitleaks_image}" =~ ^[^[:space:]@]+:[^[:space:]@]+@sha256:[0-9a-f]{64}$ ]]; then
+    pass "Gitleaks runtime uses an immutable tagged digest"
+else
+    fail "HOMELAB07_GITLEAKS_IMAGE must use image:tag@sha256:<64 lowercase hex characters>"
 fi
 
 report_real=""
@@ -218,6 +225,19 @@ trivy_image_id="$(docker image inspect --format '{{.Id}}' "${trivy_image}")"
 trivy_repo_digest="$(docker image inspect --format '{{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' "${trivy_image}")"
 pass "Trivy runtime image identity is available"
 
+if ! docker image inspect "${gitleaks_image}" >/dev/null 2>&1; then
+    echo
+    echo "Pulling the pinned Gitleaks runtime..."
+    docker pull "${gitleaks_image}" >/dev/null
+fi
+pass "Pinned Gitleaks runtime is available"
+
+gitleaks_version="$(docker run --rm "${gitleaks_image}" version | head -n 1)"
+pass "Gitleaks runtime responded: ${gitleaks_version}"
+gitleaks_image_id="$(docker image inspect --format '{{.Id}}' "${gitleaks_image}")"
+gitleaks_repo_digest="$(docker image inspect --format '{{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' "${gitleaks_image}")"
+pass "Gitleaks runtime image identity is available"
+
 if [[ "${action}" == "preflight" ]]; then
     echo
     echo "Summary"
@@ -301,6 +321,45 @@ run_trivy filesystem \
     --output /output/repository/trivy.json \
     /workspace
 
+echo "Scanning complete Git history with fully redacted findings..."
+docker run --rm \
+    --user "$(id -u):$(id -g)" \
+    --read-only \
+    --cap-drop ALL \
+    --security-opt no-new-privileges \
+    --tmpfs /tmp:rw,noexec,nosuid,size=256m \
+    --volume "${PROJECT_ROOT}:/workspace:ro" \
+    --volume "${staging_root}:/output" \
+    "${gitleaks_image}" \
+    git \
+    --log-opts="--all --full-history" \
+    --redact=100 \
+    --report-format json \
+    --report-path /output/repository/gitleaks-history.raw.json \
+    --exit-code 0 \
+    --no-banner \
+    /workspace
+
+gitleaks_raw_report="${staging_root}/repository/gitleaks-history.raw.json"
+gitleaks_safe_report="${staging_root}/repository/gitleaks-history.json"
+
+if [[ ! -f "${gitleaks_raw_report}" ]]; then
+    printf '[]\n' >"${gitleaks_raw_report}"
+fi
+
+# Never publish matched lines, secret values, commit messages or author data.
+jq 'map({
+    rule_id: .RuleID,
+    description: .Description,
+    file: .File,
+    commit: .Commit,
+    start_line: .StartLine,
+    end_line: .EndLine,
+    fingerprint: .Fingerprint
+})' "${gitleaks_raw_report}" >"${gitleaks_safe_report}"
+rm "${gitleaks_raw_report}"
+gitleaks_history_findings="$(jq 'length' "${gitleaks_safe_report}")"
+
 : >"${staging_root}/image-map.ndjson"
 
 while IFS= read -r image_reference; do
@@ -348,17 +407,22 @@ jq -s '.' "${staging_root}/image-map.ndjson" >"${staging_root}/image-map.json"
 git_revision="$(git -C "${PROJECT_ROOT}" rev-parse HEAD)"
 
 jq -n \
-    --arg contract_version "1.0.0" \
+    --arg contract_version "1.1.0" \
     --arg run_id "${run_id}" \
     --arg git_revision "${git_revision}" \
     --arg trivy_runtime "${trivy_image}" \
     --arg trivy_version "${trivy_version}" \
     --arg trivy_image_id "${trivy_image_id}" \
     --arg trivy_repo_digest "${trivy_repo_digest}" \
+    --arg gitleaks_runtime "${gitleaks_image}" \
+    --arg gitleaks_version "${gitleaks_version}" \
+    --arg gitleaks_image_id "${gitleaks_image_id}" \
+    --arg gitleaks_repo_digest "${gitleaks_repo_digest}" \
     --arg policy_mode "report-only" \
     --arg severities "${severities}" \
     --argjson images "$(cat "${staging_root}/image-map.json")" \
     --argjson findings "${finding_counts}" \
+    --argjson gitleaks_history_findings "${gitleaks_history_findings}" \
     '{
       contract_version: $contract_version,
       run_id: $run_id,
@@ -367,10 +431,19 @@ jq -n \
       trivy_version: $trivy_version,
       trivy_image_id: $trivy_image_id,
       trivy_repo_digest: $trivy_repo_digest,
+      gitleaks_runtime: $gitleaks_runtime,
+      gitleaks_version: $gitleaks_version,
+      gitleaks_image_id: $gitleaks_image_id,
+      gitleaks_repo_digest: $gitleaks_repo_digest,
       policy_mode: $policy_mode,
       severities: $severities,
       images: $images,
-      findings: $findings
+      findings: $findings,
+      git_history: {
+        scope: "all refs and full history",
+        evidence: "sanitized metadata only",
+        possible_secret_findings: $gitleaks_history_findings
+      }
     }' >"${staging_root}/manifest.json"
 
 {
@@ -385,6 +458,7 @@ jq -n \
     echo "- High: $(jq -r '.high' <<<"${finding_counts}")"
     echo "- Misconfigurations: $(jq -r '.misconfigurations' <<<"${finding_counts}")"
     echo "- Secret findings: $(jq -r '.secrets' <<<"${finding_counts}")"
+    echo "- Git history possible-secret findings: ${gitleaks_history_findings}"
     echo
     echo "Detailed evidence is restricted to this private report run."
 } >"${staging_root}/summary.md"

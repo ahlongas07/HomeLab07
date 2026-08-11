@@ -2,6 +2,12 @@
 
 ### Added
 
+- Add immutable Gitleaks 8.30.1 execution across all Git refs and full history,
+  with fully redacted findings retained only in the private security run.
+- Add explicit defense-in-depth ignore protection for accidental nested copies
+  of `HomeLab07.private/`.
+- Record completion and integrity of the first private Sprint 012 baseline
+  without publishing image-level findings, counts or remediation priorities.
 - Add the Sprint 012 Vulnerability Management capability with an ephemeral,
   version-pinned Trivy runtime, repository and remote-image scanning,
   CycloneDX SBOMs and atomic reports on a restricted private share.
@@ -35,6 +41,12 @@
 
 ### Changed
 
+- Generalize public edge policy by keeping provider plan, authentication-path,
+  rate-limit and management-network parameters in private operational evidence.
+- Document public service versions and immutable digests as a reproducibility
+  contract while retaining detailed vulnerability intelligence privately.
+- Keep the first baseline's reviewed finding classifications private while
+  retaining secret-detection rules without broad suppressions.
 - Replace Trivy's 1 GiB in-memory `/tmp` limit with a per-run temporary
   directory on the disposable local cache, allowing Java DB extraction while
   preserving automatic cleanup after success or failure.

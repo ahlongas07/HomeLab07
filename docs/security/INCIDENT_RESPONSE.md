@@ -25,7 +25,8 @@ Do not disable the Cloudflare proxy for all applications as the first response.
 3. Review sanitized logs with
    `./operation/compose.sh nginx-proxy-manager logs --tail=150`.
 4. Restore the last validated router or host-firewall management rule.
-5. Do not publish port 81 to WAN as a recovery shortcut.
+5. Do not publish the proxy administration listener to WAN as a recovery
+   shortcut.
 
 ## Unexpected Public Listener
 

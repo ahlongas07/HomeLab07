@@ -745,14 +745,15 @@ truth. Retained settings must remain reviewable from repository documentation.
 
 Implementation progress as of 2026-07-29:
 
-- the Free-plan managed WAF baseline is active for proxied routes;
-- one narrow IP-based authentication rate limit blocks after 10 requests in
-  10 seconds for 10 seconds and preserves normal application workflows;
+- the managed WAF baseline is active for proxied routes;
+- narrow IP-based authentication rate limiting is active and preserves normal
+  application workflows; exact thresholds and block windows remain in private
+  provider evidence;
 - proxied Nginx Proxy Manager hosts accept Cloudflare source ranges and deny
   direct-origin traffic, while the media route remains intentionally DNS-only;
 - response transforms set `X-Content-Type-Options: nosniff` and
   `Referrer-Policy: strict-origin-when-cross-origin` exactly once;
-- HSTS is staged for 30 days without subdomains or preload;
+- HSTS is staged with a limited lifetime, without subdomains or preload;
 - WAN exposure is limited to the shared HTTP/HTTPS gateway, while Nginx Proxy
   Manager administration is externally denied and remains available from LAN;
 - browser, upload, download, synchronization, WebDAV, media and Homebridge
@@ -771,9 +772,9 @@ Target-host closure validation completed successfully:
   change and remained running without restart or exit errors;
 - all nine service Compose definitions rendered successfully with private
   target configuration;
-- the warnings map to approved exceptions or external validation gates:
-  Nginx Proxy Manager port 81, mutable image review, WAN exposure, management
-  denial, proxied-origin denial and DNS-only route validation;
+- the warnings map to approved management-listener and runtime-image exceptions,
+  plus external validation gates for WAN exposure, management denial,
+  proxied-origin denial and DNS-only route validation;
 - the external gates were exercised during implementation and passed without
   breaking approved application workflows.
 

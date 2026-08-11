@@ -22,13 +22,14 @@ Trivy image:
 ./operation/security-scan.sh preflight
 ```
 
-Create a report-only repository, image and SBOM evidence set:
+Create a report-only current-tree, full-history, image and SBOM evidence set:
 
 ```bash
 ./operation/security-scan.sh scan
 ```
 
-Detailed evidence is written only to the configured private report share.
+Detailed Trivy evidence and sanitized Gitleaks history metadata are written
+only to the configured private report share.
 Review the completed run's `checksums.sha256`, `manifest.json` and `summary.md`.
 Do not copy raw secret findings or environment-specific image references into
 version-controlled validation records.
@@ -73,7 +74,7 @@ Expected policy values:
 ```text
 x-content-type-options: nosniff
 referrer-policy: strict-origin-when-cross-origin
-strict-transport-security: max-age=2592000
+strict-transport-security: max-age=<approved-staged-lifetime>
 ```
 
 Each security header must appear once. HTTP must redirect to HTTPS. Certificate
@@ -83,8 +84,9 @@ hostname, chain, expiry and renewal must remain valid.
 
 Confirm ordinary login succeeds before and after the rule is enabled. Use a
 controlled request sequence without credentials to cross the configured
-threshold, confirm the temporary block, then confirm recovery after 10 seconds.
-Do not load-test the application or include credentials in evidence.
+threshold, confirm the temporary block, then confirm recovery after the
+configured block window. Do not load-test the application or include
+credentials in evidence.
 
 ## Validation Record
 
