@@ -105,9 +105,9 @@ else
 fi
 
 if ((mutable_image_count == 0)); then
-    pass "All image references are immutable digests or patch-level tags"
+    pass "All image references declare immutable SHA-256 digests"
 else
-    warn "EXC-IMAGE-MUTABLE: ${mutable_image_count} image reference(s) require release review before update"
+    warn "EXC-IMAGE-MUTABLE: ${mutable_image_count} version-pinned or unresolved image reference(s) do not declare an immutable SHA-256 digest"
 fi
 
 for service_id in mariadb valkey; do

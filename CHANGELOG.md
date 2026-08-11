@@ -41,6 +41,10 @@
 
 ### Changed
 
+- Define image immutability strictly as an explicit SHA-256 digest in the
+  security audit, while classifying tag-only references as mutable.
+- Extend defense-in-depth ignores to nested private configuration and private
+  security, restore-test and backup-artifact directories.
 - Bind Nginx Proxy Manager administration to a required private LAN address
   and fail the security audit when runtime port 81 uses a wildcard host bind.
 - Generalize public edge policy by keeping provider plan, authentication-path,

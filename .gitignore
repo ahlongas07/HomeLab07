@@ -52,8 +52,17 @@ logs/
 # Private information (never committed)
 # ------------------------------------------------------------------------------
 
-# Defense in depth if the external private tree is ever copied below Git root.
+# HomeLab07 private configuration. The recursive form documents the protection
+# explicitly even though the unanchored directory rule also matches descendants.
 HomeLab07.private/
+**/HomeLab07.private/
+
+# Private security and recovery evidence must remain on dedicated external
+# storage. These ignores are defense in depth; operation scripts also reject
+# protected repository paths as configured destinations.
+security-reports/
+restore-tests/
+backup-artifacts/
 
 # ------------------------------------------------------------------------------
 # Certificates
