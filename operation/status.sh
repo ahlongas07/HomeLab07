@@ -20,6 +20,7 @@ services=(
     homebridge
     cloudflare-ddns
     landing-page
+    observability
 )
 
 if (($# > 1)); then

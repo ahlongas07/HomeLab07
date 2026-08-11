@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 source "${BASH_SOURCE%/*}/backup-lib.sh"
+source "${BASH_SOURCE%/*}/observability-metrics-lib.sh"
 
 print_header "Consistent Platform Backup"
 print_project_root
@@ -126,6 +127,7 @@ restore_runtime_state() {
 cleanup_backup() {
     local original_status=$?
     local cleanup_status=0
+    local metric_status=0
 
     trap - EXIT INT TERM
 
@@ -142,6 +144,9 @@ cleanup_backup() {
         "${snapshot_inventory:-}" \
         "${exclude_file:-}"
     release_backup_lock
+
+    [[ "${original_status}" == "0" && "${cleanup_status}" == "0" ]] && metric_status=1
+    observability_publish_batch_metrics backup "${metric_status}" "${backup_started_epoch}"
 
     if ((cleanup_status != 0)); then
         echo "WARNING: one or more services could not be restored automatically." >&2

@@ -30,6 +30,21 @@ section() {
     echo
 }
 
+is_private_ipv4() {
+    local address="$1"
+    local first second third fourth octet
+
+    [[ "${address}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || return 1
+    IFS=. read -r first second third fourth <<<"${address}"
+    for octet in "${first}" "${second}" "${third}" "${fourth}"; do
+        ((10#${octet} >= 0 && 10#${octet} <= 255)) || return 1
+    done
+
+    ((10#${first} == 10)) ||
+        ((10#${first} == 192 && 10#${second} == 168)) ||
+        ((10#${first} == 172 && 10#${second} >= 16 && 10#${second} <= 31))
+}
+
 compose_files=("${PROJECT_ROOT}"/services/*/compose.yaml)
 
 section "Repository policy"
@@ -64,8 +79,10 @@ for compose_file in "${compose_files[@]}"; do
     done < <(grep -E '^[[:space:]]+image:[[:space:]]+' "${compose_file}" || true)
 done
 
-if ((${#port_files[@]} == 1)) && [[ "${port_files[0]}" == "nginx-proxy-manager" ]]; then
-    pass "Only Nginx Proxy Manager declares host port mappings"
+if ((${#port_files[@]} == 2)) &&
+    [[ " ${port_files[*]} " == *" nginx-proxy-manager "* ]] &&
+    [[ " ${port_files[*]} " == *" observability "* ]]; then
+    pass "Only Nginx Proxy Manager and LAN-only Grafana declare host port mappings"
 else
     fail "Unexpected Compose host-port owner count: ${#port_files[@]}"
 fi
@@ -83,6 +100,27 @@ if grep -Fq '"${NPM_MANAGEMENT_BIND_ADDRESS:?NPM_MANAGEMENT_BIND_ADDRESS is requ
     pass "Nginx Proxy Manager administration requires an explicit host bind address"
 else
     fail "Nginx Proxy Manager administration is not bound through the required private setting"
+fi
+
+observability_compose="${PROJECT_ROOT}/services/observability/compose.yaml"
+if grep -Fq '"${GRAFANA_LAN_BIND_ADDRESS:?GRAFANA_LAN_BIND_ADDRESS is required}:${GRAFANA_LAN_PORT:-3000}:3000"' "${observability_compose}"; then
+    pass "Grafana requires an explicit host bind address"
+else
+    fail "Grafana is not bound through the required private LAN setting"
+fi
+
+if grep -Eq '^[[:space:]]+ports:[[:space:]]*$' "${observability_compose}" &&
+    [[ "$(grep -Ec '^[[:space:]]+- .*:3000' "${observability_compose}")" == "1" ]]; then
+    pass "Grafana is the sole host-port owner in the observability stack"
+else
+    fail "Observability host-port ownership differs from policy"
+fi
+
+if grep -A2 '^[[:space:]]*homelab07-observability:' "${observability_compose}" |
+    grep -Eq '^[[:space:]]+internal:[[:space:]]+true[[:space:]]*$'; then
+    pass "The dedicated observability network is internal"
+else
+    fail "The dedicated observability network is not marked internal"
 fi
 
 if ((${#host_network_files[@]} == 1)) && [[ "${host_network_files[0]}" == "homebridge" ]]; then
@@ -250,12 +288,39 @@ else
     else
         warn "Nginx Proxy Manager container is unavailable; mapping and certificate checks skipped"
     fi
+
+    grafana_container="homelab07-grafana"
+    if docker inspect "${grafana_container}" >/dev/null 2>&1; then
+        grafana_bindings="$(docker inspect -f '{{json .HostConfig.PortBindings}}' "${grafana_container}")"
+        grafana_host_ip="$(jq -r '."3000/tcp"[0].HostIp // empty' <<<"${grafana_bindings}")"
+        if is_private_ipv4 "${grafana_host_ip}"; then
+            pass "Runtime Grafana administration is bound to an RFC1918 host address"
+        else
+            fail "Runtime Grafana administration lacks the required RFC1918 host binding"
+        fi
+
+        observability_port_failure=0
+        for internal_container in homelab07-prometheus homelab07-loki homelab07-alloy; do
+            if docker inspect "${internal_container}" >/dev/null 2>&1 &&
+                [[ -n "$(docker port "${internal_container}" 2>/dev/null || true)" ]]; then
+                observability_port_failure=$((observability_port_failure + 1))
+            fi
+        done
+        if ((observability_port_failure == 0)); then
+            pass "Prometheus, Loki and Alloy publish no runtime host ports"
+        else
+            fail "Internal observability services publish host ports"
+        fi
+    else
+        warn "Grafana container is unavailable; LAN binding checks skipped"
+    fi
 fi
 
 section "External validation boundary"
 
 warn "EXT-WAN: confirm externally that only approved gateway ports are reachable"
 warn "EXT-NPM81: confirm port 81 is denied outside approved management networks"
+warn "EXT-GRAFANA: confirm the Grafana port is reachable only from approved LANs"
 warn "EXT-EDGE: confirm proxied routes use edge controls and direct-origin requests are denied"
 warn "EXT-DNS-ONLY: validate DNS-only services independently; edge controls do not apply"
 

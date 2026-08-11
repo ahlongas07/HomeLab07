@@ -1,0 +1,66 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
+      "gridPos": {"h": 6, "w": 8, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
+      "targets": [{"editorMode": "code", "expr": "homelab07_backup_last_status", "instant": true, "legendFormat": "Backup", "range": false, "refId": "A"}],
+      "title": "Latest backup status",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
+      "gridPos": {"h": 6, "w": 8, "x": 8, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
+      "targets": [{"editorMode": "code", "expr": "homelab07_security_last_status", "instant": true, "legendFormat": "Security scan", "range": false, "refId": "A"}],
+      "title": "Latest security scan status",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 86400}, {"color": "red", "value": 172800}]}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 6, "w": 8, "x": 16, "y": 0},
+      "id": 3,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
+      "targets": [{"editorMode": "code", "expr": "time() - homelab07_backup_last_success_timestamp_seconds", "instant": true, "legendFormat": "Backup age", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "time() - homelab07_security_last_success_timestamp_seconds", "instant": true, "legendFormat": "Scan age", "range": false, "refId": "B"}],
+      "title": "Operation age",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}, "overrides": []},
+      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 6},
+      "id": 4,
+      "options": {"displayMode": "gradient", "minVizHeight": 10, "minVizWidth": 0, "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "valueMode": "color"},
+      "targets": [{"editorMode": "code", "expr": "homelab07_security_critical_findings", "instant": true, "legendFormat": "Critical", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_security_high_findings", "instant": true, "legendFormat": "High", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "homelab07_security_gitleaks_findings", "instant": true, "legendFormat": "Gitleaks", "range": false, "refId": "C"}],
+      "title": "Sanitized security findings",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}, "overrides": []},
+      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 6},
+      "id": 5,
+      "options": {"displayMode": "gradient", "minVizHeight": 10, "minVizWidth": 0, "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "valueMode": "color"},
+      "targets": [{"editorMode": "code", "expr": "homelab07_storage_device_errors_total", "instant": true, "legendFormat": "{{storage}}", "range": false, "refId": "A"}],
+      "title": "Btrfs device errors",
+      "type": "bargauge"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["homelab07", "operations"],
+  "time": {"from": "now-24h", "to": "now"},
+  "timezone": "browser",
+  "title": "HomeLab07 — Operations",
+  "uid": "homelab07-operations",
+  "version": 1
+}
+

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 source "${BASH_SOURCE%/*}/lib.sh"
+source "${BASH_SOURCE%/*}/observability-metrics-lib.sh"
 
 print_header "Vulnerability Management"
 print_project_root
@@ -249,6 +250,7 @@ if [[ "${action}" == "preflight" ]]; then
 fi
 
 run_id="$(date -u '+%Y-%m-%dT%H%M%SZ')"
+scan_started_epoch="$(date +%s)"
 runs_root="${report_real}/runs"
 staging_root="${report_real}/.run-${run_id}-$$"
 final_root="${runs_root}/${run_id}"
@@ -265,6 +267,7 @@ cleanup() {
     rm -rf -- "${staging_root}"
     rm -rf -- "${trivy_tmp_root}"
     rmdir "${lock_directory}" 2>/dev/null || true
+    observability_publish_batch_metrics security 0 "${scan_started_epoch}"
     exit "${exit_status}"
 }
 trap cleanup EXIT INT TERM
@@ -489,8 +492,12 @@ fi
 
 mv "${staging_root}" "${final_root}"
 rm -rf -- "${trivy_tmp_root}"
-trap - EXIT INT TERM
 rmdir "${lock_directory}"
+observability_publish_batch_metrics security 1 "${scan_started_epoch}" \
+    "homelab07_security_critical_findings $(jq -r '.critical' <<<"${finding_counts}")" \
+    "homelab07_security_high_findings $(jq -r '.high' <<<"${finding_counts}")" \
+    "homelab07_security_gitleaks_findings ${gitleaks_history_findings}"
+trap - EXIT INT TERM
 
 echo
 echo "Security evidence published successfully."

@@ -79,6 +79,7 @@ service_label() {
         homebridge) echo "Homebridge" ;;
         cloudflare-ddns) echo "Cloudflare Dynamic DNS" ;;
         landing-page) echo "Landing Page" ;;
+        observability) echo "Observability" ;;
         *) return 1 ;;
     esac
 }

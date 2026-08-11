@@ -1,0 +1,114 @@
+prometheus.exporter.unix "host" {
+  procfs_path    = "/host/proc"
+  sysfs_path     = "/host/sys"
+  udev_data_path = "/host/run/udev/data"
+  set_collectors = [
+    "cpu",
+    "loadavg",
+    "meminfo",
+    "netclass",
+    "netdev",
+    "netstat",
+    "stat",
+    "textfile",
+    "time",
+    "uname",
+    "vmstat",
+  ]
+
+  textfile {
+    directory = "/var/lib/homelab07/metrics"
+  }
+}
+
+prometheus.scrape "host" {
+  targets         = prometheus.exporter.unix.host.targets
+  forward_to      = [prometheus.remote_write.local.receiver]
+  scrape_interval = "30s"
+  scrape_timeout  = "10s"
+}
+
+discovery.file "probes" {
+  files            = ["/etc/alloy/probe-targets.yaml"]
+  refresh_interval = "1m"
+}
+
+prometheus.exporter.blackbox "services" {
+  config_file = "/etc/alloy/blackbox-modules.yaml"
+  targets     = discovery.file.probes.targets
+}
+
+discovery.relabel "probe_aliases" {
+  targets = prometheus.exporter.blackbox.services.targets
+
+  rule {
+    source_labels = ["service"]
+    target_label  = "instance"
+  }
+}
+
+prometheus.scrape "probes" {
+  targets         = discovery.relabel.probe_aliases.output
+  forward_to      = [prometheus.remote_write.local.receiver]
+  scrape_interval = "30s"
+  scrape_timeout  = "15s"
+}
+
+prometheus.remote_write "local" {
+  endpoint {
+    url = "http://homelab07-prometheus:9090/api/v1/write"
+  }
+}
+
+loki.source.file "npm" {
+  targets = [
+    {
+      __path__         = "/var/log/homelab07/npm/*.log",
+      __path_exclude__ = "/var/log/homelab07/npm/*.{gz,zip,bak,old}",
+      platform         = "homelab07",
+      service          = "nginx-proxy-manager",
+    },
+  ]
+  forward_to   = [loki.process.sanitize.receiver]
+  tail_from_end = true
+
+  file_match {
+    enabled           = true
+    sync_period       = "30s"
+    ignore_older_than = "24h"
+  }
+}
+
+loki.process "sanitize" {
+  stage.replace {
+    expression = "(?i)(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)[ ]+[^ ]+"
+    replace    = "${1} [REDACTED_TARGET]"
+  }
+
+  stage.replace {
+    expression = "(?i)(authorization|cookie|token|access_token|refresh_token|code|password)([=: ]+)[^& ,;]+"
+    replace    = "${1}${2}[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "([?&][^= ]+)=([^& ]+)"
+    replace    = "${1}=[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "([0-9]{1,3}\\.){3}[0-9]{1,3}"
+    replace    = "[REDACTED_IP]"
+  }
+
+  stage.label_drop {
+    values = ["filename"]
+  }
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://homelab07-loki:3100/loki/api/v1/push"
+  }
+}

@@ -7,6 +7,7 @@ print_header "Stop"
 print_project_root
 
 services=(
+    observability
     landing-page
     cloudflare-ddns
     homebridge

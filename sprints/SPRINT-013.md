@@ -1,6 +1,6 @@
 # SPRINT-013 — Observability & Alerting
 
-**Status:** Approved — documentation and implementation planning
+**Status:** In progress — repository implementation complete; target validation pending
 
 **Classification:** Platform Capability
 
@@ -529,7 +529,7 @@ where required to emit or manage the new capability.
   alert is exercised safely.
 - Warning, pending, firing and resolved states behave as documented.
 - Notifications contain no environment-specific or sensitive detail.
-- Every alert links to a repository runbook.
+- Every alert references a repository runbook.
 - Only Grafana owns notification delivery.
 
 ### Recovery and rollback validation
@@ -559,7 +559,8 @@ where required to emit or manage the new capability.
 - HTTP/TLS probes validate actual service behavior rather than container state.
 - Loki stores only explicitly approved, filtered and short-lived logs.
 - Dashboards, datasources and alert rules are declaratively provisioned.
-- The minimal alert set is actionable, has runbooks and one notification owner.
+- The minimal alert set is actionable, references runbooks and has one
+  notification owner.
 - Retention limits protect the Rockstor storage platform from unbounded growth.
 - Observability failure cannot stop or modify the monitored platform.
 - Documentation and sanitized target-host evidence complete the implementation.

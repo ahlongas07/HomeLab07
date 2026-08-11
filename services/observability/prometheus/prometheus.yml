@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  external_labels:
+    platform: homelab07
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - 127.0.0.1:9090
+
+  - job_name: loki
+    static_configs:
+      - targets:
+          - homelab07-loki:3100
+
+  - job_name: alloy
+    static_configs:
+      - targets:
+          - homelab07-alloy:12345
+

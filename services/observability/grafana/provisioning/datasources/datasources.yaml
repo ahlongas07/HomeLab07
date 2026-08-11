@@ -1,0 +1,32 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+  - name: Loki
+    orgId: 1
+
+datasources:
+  - name: Prometheus
+    uid: homelab07-prometheus
+    type: prometheus
+    access: proxy
+    url: http://homelab07-prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: POST
+      prometheusType: Prometheus
+      prometheusVersion: 3.0.0
+      timeInterval: 30s
+
+  - name: Loki
+    uid: homelab07-loki
+    type: loki
+    access: proxy
+    url: http://homelab07-loki:3100
+    editable: false
+    jsonData:
+      maxLines: 500
+      derivedFields: []
+

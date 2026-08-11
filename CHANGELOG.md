@@ -2,6 +2,13 @@
 
 ### Added
 
+- Add the Sprint 013 Observability and Alerting baseline with LAN-only Grafana,
+  internal Prometheus and Loki, Alloy collection, declarative dashboards and
+  Grafana-managed alert rules.
+- Add atomic operation textfile metrics, stale-metric contracts and a read-only
+  Rockstor/Btrfs adapter without Docker socket or host-root access.
+- Add observability preflight, lifecycle integration, systemd timer templates,
+  alert runbooks and target validation procedures.
 - Add immutable Gitleaks 8.30.1 execution across all Git refs and full history,
   with fully redacted findings retained only in the private security run.
 - Add explicit defense-in-depth ignore protection for accidental nested copies

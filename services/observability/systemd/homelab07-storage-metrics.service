@@ -1,0 +1,15 @@
+[Unit]
+Description=HomeLab07 read-only Rockstor and Btrfs metrics
+After=local-fs.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/homelab07/observability-runtime.env
+ExecStart=/usr/bin/env bash -c 'exec "${HOMELAB07_PROJECT_ROOT}/operation/storage-metrics.sh"'
+User=root
+Group=root
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true

@@ -63,6 +63,8 @@ HomeLab07.private/
 security-reports/
 restore-tests/
 backup-artifacts/
+observability-data/
+observability-metrics/
 
 # ------------------------------------------------------------------------------
 # Certificates

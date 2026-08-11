@@ -1,0 +1,5 @@
+# Copy to the private file referenced by HOMELAB07_STORAGE_INVENTORY_FILE.
+# Fields are tab-separated: abstract_alias<TAB>absolute_mount<TAB>expected_fstype
+platform-data	/absolute/path/to/platform-data	btrfs
+backup	/absolute/path/to/backup	btrfs
+

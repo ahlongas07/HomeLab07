@@ -1,0 +1,130 @@
+services:
+  prometheus:
+    image: ${PROMETHEUS_IMAGE:?PROMETHEUS_IMAGE is required}
+    container_name: homelab07-prometheus
+    restart: unless-stopped
+    user: "65534:65534"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION_TIME:-15d}
+      - --storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE:-10GB}
+      - --web.enable-remote-write-receiver
+      - --web.enable-lifecycle=false
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ${HOMELAB07_OBSERVABILITY_ROOT:?HOMELAB07_OBSERVABILITY_ROOT is required}/prometheus:/prometheus
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    networks:
+      - homelab07-observability
+
+  loki:
+    image: ${LOKI_IMAGE:?LOKI_IMAGE is required}
+    container_name: homelab07-loki
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command:
+      - -config.file=/etc/loki/loki.yaml
+      - -config.expand-env=true
+    environment:
+      LOKI_RETENTION_PERIOD: ${LOKI_RETENTION_PERIOD:-168h}
+    volumes:
+      - ./loki/loki.yaml:/etc/loki/loki.yaml:ro
+      - ${HOMELAB07_OBSERVABILITY_ROOT:?HOMELAB07_OBSERVABILITY_ROOT is required}/loki:/loki
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    networks:
+      - homelab07-observability
+
+  alloy:
+    image: ${ALLOY_IMAGE:?ALLOY_IMAGE is required}
+    container_name: homelab07-alloy
+    restart: unless-stopped
+    user: "0:0"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    depends_on:
+      - prometheus
+      - loki
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - ./alloy/blackbox-modules.yaml:/etc/alloy/blackbox-modules.yaml:ro
+      - ${HOMELAB07_OBSERVABILITY_PROBE_TARGETS_FILE:?HOMELAB07_OBSERVABILITY_PROBE_TARGETS_FILE is required}:/etc/alloy/probe-targets.yaml:ro
+      - ${HOMELAB07_OBSERVABILITY_METRICS_ROOT:?HOMELAB07_OBSERVABILITY_METRICS_ROOT is required}:/var/lib/homelab07/metrics:ro
+      - ${HOMELAB07_NPM_LOG_ROOT:?HOMELAB07_NPM_LOG_ROOT is required}:/var/log/homelab07/npm:ro
+      - ${HOMELAB07_OBSERVABILITY_ROOT:?HOMELAB07_OBSERVABILITY_ROOT is required}/alloy:/var/lib/alloy
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /run/udev/data:/host/run/udev/data:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    networks:
+      - homelab07-observability
+      - homelab07-internal
+      - homelab07-proxy
+
+  grafana:
+    image: ${GRAFANA_IMAGE:?GRAFANA_IMAGE is required}
+    container_name: homelab07-grafana
+    restart: unless-stopped
+    user: "472:472"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    depends_on:
+      - prometheus
+      - loki
+    ports:
+      - "${GRAFANA_LAN_BIND_ADDRESS:?GRAFANA_LAN_BIND_ADDRESS is required}:${GRAFANA_LAN_PORT:-3000}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER is required}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_SECURITY_COOKIE_SAMESITE: strict
+      GF_SECURITY_DISABLE_GRAVATAR: "true"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_PLUGINS_PLUGIN_ADMIN_ENABLED: "false"
+      GF_SERVER_ENABLE_GZIP: "true"
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+    volumes:
+      - ${HOMELAB07_OBSERVABILITY_ROOT:?HOMELAB07_OBSERVABILITY_ROOT is required}/grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    networks:
+      - homelab07-observability
+
+networks:
+  homelab07-observability:
+    name: homelab07-observability
+    internal: true
+  homelab07-internal:
+    name: homelab07-internal
+    external: true
+  homelab07-proxy:
+    name: homelab07-proxy
+    external: true

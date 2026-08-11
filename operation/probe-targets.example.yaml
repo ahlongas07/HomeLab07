@@ -1,0 +1,16 @@
+# Copy to a private path referenced by HOMELAB07_OBSERVABILITY_PROBE_TARGETS_FILE.
+# Use abstract names only. Real endpoints remain outside Git.
+- targets:
+    - https://service.example.invalid/health
+  labels:
+    name: collaboration
+    module: http_healthy
+    service: collaboration
+
+- targets:
+    - database.example.invalid:3306
+  labels:
+    name: relational-database
+    module: tcp_connect
+    service: mariadb
+
