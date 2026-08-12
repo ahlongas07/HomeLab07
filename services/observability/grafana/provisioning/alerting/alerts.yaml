@@ -28,7 +28,7 @@ groups:
               conditions:
                 - evaluator: {params: [1], type: lt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
@@ -61,7 +61,7 @@ groups:
               conditions:
                 - evaluator: {params: [0], type: gt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
@@ -94,7 +94,7 @@ groups:
               conditions:
                 - evaluator: {params: [900], type: gt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
@@ -127,7 +127,7 @@ groups:
               conditions:
                 - evaluator: {params: [172800], type: gt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
@@ -160,7 +160,7 @@ groups:
               conditions:
                 - evaluator: {params: [604800], type: gt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
@@ -214,7 +214,7 @@ groups:
               conditions:
                 - evaluator: {params: [90], type: gt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
@@ -247,7 +247,7 @@ groups:
               conditions:
                 - evaluator: {params: [0], type: gt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
@@ -280,7 +280,7 @@ groups:
               conditions:
                 - evaluator: {params: [0], type: gt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
@@ -315,7 +315,7 @@ groups:
               conditions:
                 - evaluator: {params: [90], type: gt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
@@ -348,7 +348,7 @@ groups:
               conditions:
                 - evaluator: {params: [1209600], type: lt}
                   operator: {type: and}
-                  query: {params: [B]}
+                  query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
               datasource: {type: __expr__, uid: __expr__}
