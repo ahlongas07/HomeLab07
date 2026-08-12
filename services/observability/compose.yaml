@@ -116,11 +116,15 @@ services:
       - /tmp:rw,noexec,nosuid,size=64m
     networks:
       - homelab07-observability
+      - homelab07-observability-access
 
 networks:
   homelab07-observability:
     name: homelab07-observability
     internal: true
+  homelab07-observability-access:
+    name: homelab07-observability-access
+    driver: bridge
   homelab07-internal:
     name: homelab07-internal
     external: true

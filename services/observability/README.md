@@ -93,8 +93,10 @@ Run preflight before pulling or starting anything:
 ```
 
 Grafana is the only service with a host mapping. It binds to the explicit LAN
-address in private configuration. Do not add an NPM proxy host, public DNS,
-Cloudflare route or router port forward.
+address in private configuration and joins a dedicated bridge network so Docker
+can apply that mapping. The internal observability network remains isolated.
+Do not add an NPM proxy host, public DNS, Cloudflare route or router port
+forward.
 
 ## Host metric timers
 
