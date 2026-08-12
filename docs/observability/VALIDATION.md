@@ -31,6 +31,12 @@ Required evidence:
 - Prometheus receives host, probe and four textfile metric sets;
 - Loki contains only approved NPM files and sanitized content.
 
+For a controlled NPM request containing a path, query value and test IPv4
+address, confirm the newly ingested Loki line preserves the HTTP method and
+parameter names while replacing complete sensitive values with
+`[REDACTED_TARGET]`, `[REDACTED]` and `[REDACTED_IP]`. The line must contain no
+literal `${1}`/`${2}` placeholders or partially visible IPv4 octets.
+
 ## Textfile tests
 
 1. Run platform and storage collectors.
@@ -77,4 +83,3 @@ incomplete until a private contact point is configured and tested.
 
 Confirm monitored applications and operations remain healthy. Do not delete
 runtime roots as part of rollback. Their removal is a separate reviewed action.
-

@@ -81,22 +81,82 @@ loki.source.file "npm" {
 
 loki.process "sanitize" {
   stage.replace {
-    expression = "(?i)(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)[ ]+[^ ]+"
-    replace    = "${1} [REDACTED_TARGET]"
+    expression = "(?i)GET[ ]+([^ ]+)"
+    replace    = "[REDACTED_TARGET]"
   }
 
   stage.replace {
-    expression = "(?i)(authorization|cookie|token|access_token|refresh_token|code|password)([=: ]+)[^& ,;]+"
-    replace    = "${1}${2}[REDACTED]"
+    expression = "(?i)POST[ ]+([^ ]+)"
+    replace    = "[REDACTED_TARGET]"
   }
 
   stage.replace {
-    expression = "([?&][^= ]+)=([^& ]+)"
-    replace    = "${1}=[REDACTED]"
+    expression = "(?i)PUT[ ]+([^ ]+)"
+    replace    = "[REDACTED_TARGET]"
   }
 
   stage.replace {
-    expression = "([0-9]{1,3}\\.){3}[0-9]{1,3}"
+    expression = "(?i)PATCH[ ]+([^ ]+)"
+    replace    = "[REDACTED_TARGET]"
+  }
+
+  stage.replace {
+    expression = "(?i)DELETE[ ]+([^ ]+)"
+    replace    = "[REDACTED_TARGET]"
+  }
+
+  stage.replace {
+    expression = "(?i)HEAD[ ]+([^ ]+)"
+    replace    = "[REDACTED_TARGET]"
+  }
+
+  stage.replace {
+    expression = "(?i)OPTIONS[ ]+([^ ]+)"
+    replace    = "[REDACTED_TARGET]"
+  }
+
+  stage.replace {
+    expression = "(?i)authorization[=: ]+([^& ,;]+)"
+    replace    = "[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "(?i)cookie[=: ]+([^& ,;]+)"
+    replace    = "[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "(?i)token[=: ]+([^& ,;]+)"
+    replace    = "[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "(?i)access_token[=: ]+([^& ,;]+)"
+    replace    = "[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "(?i)refresh_token[=: ]+([^& ,;]+)"
+    replace    = "[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "(?i)code[=: ]+([^& ,;]+)"
+    replace    = "[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "(?i)password[=: ]+([^& ,;]+)"
+    replace    = "[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "[?&][^= ]+=([^& ]+)"
+    replace    = "[REDACTED]"
+  }
+
+  stage.replace {
+    expression = "([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})"
     replace    = "[REDACTED_IP]"
   }
 
