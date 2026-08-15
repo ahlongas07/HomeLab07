@@ -30,7 +30,7 @@ done
 metric_root="${HOMELAB07_OBSERVABILITY_METRICS_ROOT}"
 final_file="${metric_root}/rockstor.prom"
 temporary="$(mktemp "${metric_root}/.rockstor.prom.XXXXXX")"
-chmod 0600 "${temporary}" 2>/dev/null || true
+chmod 0644 "${temporary}" 2>/dev/null || true
 failure_count=0
 storage_count=0
 
@@ -49,7 +49,7 @@ cleanup_storage_metric() {
         failed_file="$(mktemp "${metric_root}/.rockstor-failure.prom.XXXXXX" 2>/dev/null || true)"
 
         if [[ -n "${failed_file}" ]]; then
-            chmod 0600 "${failed_file}" 2>/dev/null || true
+            chmod 0644 "${failed_file}" 2>/dev/null || true
             if [[ -f "${final_file}" ]]; then
                 awk '
                     !/^# (HELP|TYPE) homelab07_rockstor_last_/ &&

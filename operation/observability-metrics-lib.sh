@@ -71,7 +71,7 @@ observability_publish_batch_metrics() {
         echo "WARNING: unable to create temporary ${job} metric file." >&2
         return 0
     }
-    chmod 0600 "${temporary}" 2>/dev/null || true
+    chmod 0644 "${temporary}" 2>/dev/null || true
 
     {
         printf '# HELP %s_last_run_timestamp_seconds Unix time of the latest completed attempt.\n' "${prefix}"

@@ -41,12 +41,14 @@ literal `${1}`/`${2}` placeholders or partially visible IPv4 octets.
 ## Textfile tests
 
 1. Run platform and storage collectors.
-2. Confirm every file has last-run, last-success and last-status where
+2. Confirm every published `.prom` file has mode `0644` regardless of whether
+   its producer ran as the normal operator or through a root-owned timer.
+3. Confirm every file has last-run, last-success and last-status where
    applicable.
-3. Interrupt a temporary test writer before rename.
-4. Confirm the previous final file and samples remain intact.
-5. Stop the timer beyond its maximum age and confirm stale alert behavior.
-6. Remove a metric from a disposable test target and confirm no-data is not OK.
+4. Interrupt a temporary test writer before rename.
+5. Confirm the previous final file and samples remain intact.
+6. Stop the timer beyond its maximum age and confirm stale alert behavior.
+7. Remove a metric from a disposable test target and confirm no-data is not OK.
 
 ## Rockstor tests
 

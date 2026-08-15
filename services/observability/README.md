@@ -45,6 +45,14 @@ services/observability/
 
 Runtime state and textfile metrics remain outside the repository.
 
+Prometheus textfiles are published atomically with mode `0644`. Their contract
+permits only bounded status, timestamps, durations, counts and abstract labels;
+paths, credentials, personal identities and detected content are prohibited.
+Owner write access protects publication while read access allows the
+capability-dropped Alloy process to collect files created by either the normal
+operator or the root-owned systemd timers. Private inventories and probe target
+files remain owner-only and are not covered by this textfile mode.
+
 ## Configuration
 
 Copy the example without placing private values in Git:
