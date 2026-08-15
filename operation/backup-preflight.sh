@@ -83,6 +83,19 @@ for command_name in docker git jq restic sha256sum tar; do
     fi
 done
 
+if command -v git >/dev/null 2>&1; then
+    if repository_status="$(project_git status --porcelain 2>/dev/null)"; then
+        pass "Platform repository is accessible to the backup operator"
+        if [[ -z "${repository_status}" ]]; then
+            pass "Platform repository worktree is clean"
+        else
+            fail "Platform repository worktree must be clean"
+        fi
+    else
+        fail "Platform repository is not accessible to the backup operator"
+    fi
+fi
+
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
     pass "Docker daemon is available"
 else

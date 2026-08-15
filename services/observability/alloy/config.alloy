@@ -81,37 +81,7 @@ loki.source.file "npm" {
 
 loki.process "sanitize" {
   stage.replace {
-    expression = "(?i)GET[ ]+([^ ]+)"
-    replace    = "[REDACTED_TARGET]"
-  }
-
-  stage.replace {
-    expression = "(?i)POST[ ]+([^ ]+)"
-    replace    = "[REDACTED_TARGET]"
-  }
-
-  stage.replace {
-    expression = "(?i)PUT[ ]+([^ ]+)"
-    replace    = "[REDACTED_TARGET]"
-  }
-
-  stage.replace {
-    expression = "(?i)PATCH[ ]+([^ ]+)"
-    replace    = "[REDACTED_TARGET]"
-  }
-
-  stage.replace {
-    expression = "(?i)DELETE[ ]+([^ ]+)"
-    replace    = "[REDACTED_TARGET]"
-  }
-
-  stage.replace {
-    expression = "(?i)HEAD[ ]+([^ ]+)"
-    replace    = "[REDACTED_TARGET]"
-  }
-
-  stage.replace {
-    expression = "(?i)OPTIONS[ ]+([^ ]+)"
+    expression = "(?i)(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)[ ]+([^ ]+)[ ]+([^ ]+)[ ]+\"([^\"]+)\""
     replace    = "[REDACTED_TARGET]"
   }
 

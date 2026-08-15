@@ -12,6 +12,10 @@ readonly PRIVATE_ROOT="${HOMELAB07_PRIVATE_ROOT:-${PROJECT_ROOT}/../HomeLab07.pr
 
 export HOMELAB07_PRIVATE_ROOT="${PRIVATE_ROOT}"
 
+project_git() {
+    git -c "safe.directory=${PROJECT_ROOT}" -C "${PROJECT_ROOT}" "$@"
+}
+
 print_header() {
     local action="$1"
 

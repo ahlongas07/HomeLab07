@@ -31,10 +31,11 @@ Required evidence:
 - Prometheus receives host, probe and four textfile metric sets;
 - Loki contains only approved NPM files and sanitized content.
 
-For a controlled NPM request containing a path, query value and test IPv4
-address, confirm the newly ingested Loki line preserves the HTTP method and
-parameter names while replacing complete sensitive values with
-`[REDACTED_TARGET]`, `[REDACTED]` and `[REDACTED_IP]`. The line must contain no
+For a controlled NPM request containing a host, path, query value and test IPv4
+address, confirm the newly ingested Loki line preserves the HTTP method while
+replacing the request scheme, host and complete URI with `[REDACTED_TARGET]`.
+Other sensitive values and IPv4 addresses must appear as `[REDACTED]` and
+`[REDACTED_IP]`. The line must contain no original hostname, path, query value,
 literal `${1}`/`${2}` placeholders or partially visible IPv4 octets.
 
 ## Textfile tests

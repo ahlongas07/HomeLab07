@@ -32,7 +32,12 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 
-if [[ -n "$(git -C "${PROJECT_ROOT}" status --porcelain)" ]]; then
+if ! repository_status="$(project_git status --porcelain)"; then
+    echo "Repository status could not be read by the backup operator."
+    exit 1
+fi
+
+if [[ -n "${repository_status}" ]]; then
     echo "Repository worktree must be clean before creating a recovery point."
     echo "Commit or intentionally remove pending changes, then retry."
     exit 1
@@ -191,7 +196,7 @@ if [[ ! -s "${run_dir}/mariadb-all.sql" ]]; then
 fi
 
 echo "Capturing repository identity and recovery artifacts..."
-git -C "${PROJECT_ROOT}" bundle create "${run_dir}/repository.bundle" --all
+project_git bundle create "${run_dir}/repository.bundle" --all
 
 docker exec homelab07-mariadb sh -c \
     'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -N -uroot -e "SHOW DATABASES"' \
@@ -262,8 +267,8 @@ fi
 echo "Verifying repository metadata..."
 restic_command check
 
-git_revision="$(git -C "${PROJECT_ROOT}" rev-parse HEAD)"
-git_ref="$(git -C "${PROJECT_ROOT}" describe --always)"
+git_revision="$(project_git rev-parse HEAD)"
+git_ref="$(project_git describe --always)"
 restic_version="$(restic version | head -1)"
 database_dump_sha256="$(sha256sum "${run_dir}/mariadb-all.sql" | awk '{print $1}')"
 repository_bundle_sha256="$(sha256sum "${run_dir}/repository.bundle" | awk '{print $1}')"
