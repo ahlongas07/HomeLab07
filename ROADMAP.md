@@ -618,7 +618,7 @@ Validation
 
 Status
 
-🚧 In progress — repository implementation complete; target validation pending
+✅ Completed — baseline deployed and target validation accepted on 2026-08-15
 
 Objective
 

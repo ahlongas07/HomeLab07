@@ -1,5 +1,23 @@
 # Observability Validation
 
+## Accepted baseline
+
+The platform owner and engineering team accepted the Sprint 013 target
+baseline on 2026-08-15. The deployed stack produced current Grafana dashboard
+evidence for backup, vulnerability scanning, operation age and Btrfs device
+errors; Prometheus received the approved host, probe, operation and storage
+metrics; and Loki received approved redacted reverse-proxy logs.
+
+The validation also confirmed that root-owned operation runs publish textfile
+metrics with the stable `0644` reader contract required by Alloy. Private
+addresses, paths, identities, screenshots and detailed security evidence are
+retained outside the repository.
+
+External notification delivery remains an accepted residual item until a
+private Grafana contact point is configured and exercised. The repository
+baseline therefore guarantees local alert evaluation and runbooks, but does
+not claim external delivery validation.
+
 ## Static checks
 
 ```bash

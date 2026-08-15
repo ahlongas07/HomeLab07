@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [v0.14.0-observability-alerting] - 2026-08-15
+
 ### Added
 
 - Add the Sprint 013 Observability and Alerting baseline with LAN-only Grafana,

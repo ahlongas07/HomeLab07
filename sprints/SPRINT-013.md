@@ -1,6 +1,6 @@
 # SPRINT-013 — Observability & Alerting
 
-**Status:** In progress — repository implementation complete; target validation pending
+**Status:** Completed — baseline deployed and target validation accepted
 
 **Classification:** Platform Capability
 
@@ -10,7 +10,7 @@
 
 **Primary Focus:** Actionable platform health, storage visibility and operational alerting
 
-**Last Reviewed:** 2026-08-11
+**Last Reviewed:** 2026-08-15
 
 ---
 
@@ -579,6 +579,34 @@ where required to emit or manage the new capability.
 - Alert firing, notification and resolution evidence.
 - Retention configuration and measured initial storage consumption.
 - Clean recreation and rollback results.
+
+## Closure decision
+
+Sprint 013 was accepted by the platform owner and engineering team on
+2026-08-15 after the repository-defined observability stack was deployed and
+Grafana reported current platform evidence.
+
+Accepted target results include:
+
+- Grafana, Prometheus, Loki and Alloy running from the version-controlled
+  baseline;
+- the provisioned Operations dashboard reporting successful backup and
+  security-scan status, operation age and zero Btrfs device errors for the
+  approved abstract storage labels;
+- host, probe, operation and read-only Rockstor metrics reaching Prometheus;
+- approved Nginx Proxy Manager logs reaching Loki with request targets and
+  network identities redacted;
+- operation metrics remaining readable after both normal-operator and
+  root-owned executions through a stable `0644` publication contract;
+- successful recovery-point creation after backup preflight and Git ownership
+  handling were corrected; and
+- actionable Grafana alert rules loading and evaluating against current data.
+
+External notification delivery is an accepted residual validation item. It
+remains disabled until a private contact point is configured and tested; local
+Grafana evaluation and runbooks remain the notification baseline. Detailed
+target identities, addresses, paths, screenshots and scan evidence remain
+outside the public repository.
 
 ## Future enhancements
 
