@@ -27,7 +27,7 @@ as a platform milestone only; the service itself remains LAN-only.
 
 ## Technology
 
-- Nginx (official image)
+- Nginx `1.30.4-alpine` (official stable image)
 - Docker Compose
 - HTML
 - CSS
@@ -57,6 +57,16 @@ Validate the Compose configuration through the operation layer:
 ```
 
 The command must complete without errors.
+
+Confirm the deployed runtime uses the reviewed stable patch release:
+
+```bash
+docker inspect homelab07-landing-page \
+  --format '{{.Config.Image}}'
+docker exec homelab07-landing-page nginx -v
+```
+
+The expected references are `nginx:1.30.4-alpine` and `nginx/1.30.4`.
 
 Validate that the rendered page reflects the current platform milestone:
 
