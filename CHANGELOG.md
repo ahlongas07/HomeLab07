@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Changed
+
+- Update the Landing Page for the completed Observability & Alerting milestone.
+
 ## [v0.14.0-observability-alerting] - 2026-08-15
 
 ### Added

@@ -9,8 +9,9 @@ This service validates the complete deployment workflow and serves as the refere
 It also presents the current public platform status and active Nextcloud,
 Paperless-ngx, Jellyfin and Homebridge business services, plus the validated
 Platform Operations security milestone and the encrypted Backup & Recovery
-milestone, plus the validated Keycloak Identity Platform. Homebridge is listed
-as a platform milestone only; the service itself remains LAN-only.
+milestone, the validated Keycloak Identity Platform, and the Observability &
+Alerting baseline. Homebridge is listed as a platform milestone only; the
+service itself remains LAN-only.
 
 ---
 
@@ -71,9 +72,9 @@ The expected references are `nginx:1.30.4-alpine` and `nginx/1.30.4`.
 Validate that the rendered page reflects the current platform milestone:
 
 ```text
-Identity Platform
-Keycloak + OpenID Connect
-Keycloak identity platform
+Observability & Alerting
+Metrics, logs + alerts
+Observability and alerting
 ```
 
 ---
@@ -151,3 +152,5 @@ Implemented during:
 - Sprint 008 – Homebridge Platform status update
 - Sprint 009 – Platform Operations status update
 - Sprint 010 – Backup & Recovery status update
+- Sprint 011 – Identity Platform status update
+- Sprint 013 – Observability & Alerting status update
