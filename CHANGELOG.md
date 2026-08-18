@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+### Added
+
+- Add SPIKE-003 to evaluate a 15-second NAS health command center, richer
+  read-only storage and operation evidence, observability self-health, and
+  gated exporter or functional-probe candidates.
+
 ### Changed
 
 - Update the Landing Page for the completed Observability & Alerting milestone.
