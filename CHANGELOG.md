@@ -12,6 +12,13 @@
 
 ### Changed
 
+- Correct NAS state aggregation so same-label conditions cannot mask a stale
+  backup or another higher-severity signal.
+- Suppress unavailable Btrfs values instead of presenting synthetic zeroes,
+  require positive scrub age for freshness, correct security execution colors
+  and replace the legacy Btrfs inode panel with allocation evidence.
+- Parse both compact and whitespace-separated Btrfs raw-usage fields and
+  tolerate variable scrub timestamp spacing observed on the target host.
 - Update the Landing Page for the completed Observability & Alerting milestone.
 
 ## [v0.14.0-observability-alerting] - 2026-08-15

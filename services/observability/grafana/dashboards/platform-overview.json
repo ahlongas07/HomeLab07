@@ -16,7 +16,7 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 80}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": []},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 80}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": [{"matcher": {"id": "byRegexp", "options": "/.*Btrfs.*/"}, "properties": [{"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}}]}]},
       "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0},
       "id": 2,
       "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
@@ -50,8 +50,8 @@
       "gridPos": {"h": 6, "w": 12, "x": 12, "y": 8},
       "id": 5,
       "options": {"displayMode": "gradient", "minVizHeight": 10, "minVizWidth": 0, "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "valueMode": "color"},
-      "targets": [{"editorMode": "code", "expr": "homelab07_storage_space_used_percent", "instant": true, "legendFormat": "{{storage}} space", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_storage_inodes_used_percent", "instant": true, "legendFormat": "{{storage}} inodes", "range": false, "refId": "B"}],
-      "title": "Storage pressure",
+      "targets": [{"editorMode": "code", "expr": "homelab07_storage_space_used_percent", "instant": true, "legendFormat": "{{storage}} space", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_storage_btrfs_data_used_percent and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} Btrfs data", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "homelab07_storage_btrfs_metadata_used_percent and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} Btrfs metadata", "range": false, "refId": "C"}],
+      "title": "Filesystem pressure and Btrfs allocation",
       "type": "bargauge"
     }
   ],
@@ -65,4 +65,3 @@
   "uid": "homelab07-platform",
   "version": 1
 }
-

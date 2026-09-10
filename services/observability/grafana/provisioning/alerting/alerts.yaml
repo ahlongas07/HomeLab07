@@ -207,7 +207,7 @@ groups:
             relativeTimeRange: {from: 600, to: 0}
             model:
               <<: *prometheus_query
-              expr: 'max by (storage) (homelab07_storage_space_used_percent or homelab07_storage_inodes_used_percent or homelab07_storage_btrfs_data_used_percent or homelab07_storage_btrfs_metadata_used_percent)'
+              expr: 'max by (storage) (homelab07_storage_space_used_percent)'
           - refId: B
             datasourceUid: __expr__
             model:
@@ -227,7 +227,7 @@ groups:
         execErrState: Alerting
         for: 5m
         annotations:
-          summary: Storage or inode use is above the critical baseline.
+          summary: Filesystem space use is above the critical baseline.
           runbook: docs/observability/ALERTS.md#storage-pressure
         labels: {platform: homelab07, severity: critical}
 

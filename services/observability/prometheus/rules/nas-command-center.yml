@@ -7,55 +7,66 @@ groups:
       # silently disappear from the global decision.
       - record: homelab07_nas_critical_condition
         expr: |
-          max(
-            (homelab07_storage_mount_ok == bool 0)
-            or (homelab07_storage_fstype_ok == bool 0)
-            or (homelab07_storage_read_only > bool 0)
-            or (increase(homelab07_storage_device_errors_total[15m]) > bool 0)
-            or (homelab07_backup_last_status == bool 0)
-            or ((time() - homelab07_backup_last_success_timestamp_seconds) > bool 172800)
-            or (probe_success == bool 0)
-            or ((probe_ssl_earliest_cert_expiry - time()) < bool 604800)
-          ) or vector(0)
+          clamp_max(
+            (max(homelab07_storage_mount_ok == bool 0) or vector(0))
+            + (max(homelab07_storage_fstype_ok == bool 0) or vector(0))
+            + (max(homelab07_storage_read_only > bool 0) or vector(0))
+            + (max(increase(homelab07_storage_device_errors_total[15m]) > bool 0) or vector(0))
+            + (max(homelab07_backup_last_status == bool 0) or vector(0))
+            + (max((time() - homelab07_backup_last_success_timestamp_seconds) > bool 172800) or vector(0))
+            + (max(probe_success == bool 0) or vector(0))
+            + (max((probe_ssl_earliest_cert_expiry - time()) < bool 604800) or vector(0)),
+            1
+          )
 
       - record: homelab07_nas_unknown_condition
         expr: |
-          max(
-            absent(node_time_seconds)
-            or absent(homelab07_storage_collection_timestamp_seconds)
-            or ((time() - homelab07_storage_collection_timestamp_seconds) > bool 900)
-            or absent(homelab07_rockstor_last_status)
-            or (homelab07_rockstor_last_status == bool 0)
-            or absent(homelab07_rockstor_last_run_timestamp_seconds)
-            or ((time() - homelab07_rockstor_last_run_timestamp_seconds) > bool 900)
-            or absent(homelab07_storage_mount_ok)
-            or absent(homelab07_storage_fstype_ok)
-            or absent(homelab07_storage_device_errors_total)
-            or absent(homelab07_storage_btrfs_metrics_available)
-            or (homelab07_storage_btrfs_metrics_available == bool 0)
-            or absent(homelab07_storage_scrub_status)
-            or absent(homelab07_storage_scrub_age_seconds)
-            or absent(homelab07_backup_last_status)
-            or absent(homelab07_backup_last_success_timestamp_seconds)
-            or absent(probe_success)
-          ) or vector(0)
+          clamp_max(
+            (max(absent(node_time_seconds)) or vector(0))
+            + (max(absent(homelab07_storage_collection_timestamp_seconds)) or vector(0))
+            + (max((time() - homelab07_storage_collection_timestamp_seconds) > bool 900) or vector(0))
+            + (max(absent(homelab07_rockstor_last_status)) or vector(0))
+            + (max(homelab07_rockstor_last_status == bool 0) or vector(0))
+            + (max(absent(homelab07_rockstor_last_run_timestamp_seconds)) or vector(0))
+            + (max((time() - homelab07_rockstor_last_run_timestamp_seconds) > bool 900) or vector(0))
+            + (max(absent(homelab07_storage_mount_ok)) or vector(0))
+            + (max(absent(homelab07_storage_fstype_ok)) or vector(0))
+            + (max(absent(homelab07_storage_device_errors_total)) or vector(0))
+            + (max(absent(homelab07_storage_btrfs_metrics_available)) or vector(0))
+            + (max(homelab07_storage_btrfs_metrics_available == bool 0) or vector(0))
+            + (max(absent(homelab07_storage_scrub_status)) or vector(0))
+            + (max(absent(homelab07_storage_scrub_age_seconds)) or vector(0))
+            + (max(absent(homelab07_backup_last_status)) or vector(0))
+            + (max(absent(homelab07_backup_last_success_timestamp_seconds)) or vector(0))
+            + (max(absent(probe_success)) or vector(0)),
+            1
+          )
 
       - record: homelab07_nas_degraded_condition
         expr: |
-          max(
-            ((probe_ssl_earliest_cert_expiry - time()) >= bool 604800)
+          clamp_max(
+            (max(
+              ((probe_ssl_earliest_cert_expiry - time()) >= bool 604800)
               * ((probe_ssl_earliest_cert_expiry - time()) < bool 2592000)
-            or (homelab07_storage_space_used_percent > bool 80)
-            or (homelab07_storage_btrfs_data_used_percent > bool 80)
-            or (homelab07_storage_btrfs_metadata_used_percent > bool 80)
-            or (homelab07_storage_scrub_status == bool 0)
-            or (homelab07_storage_scrub_age_seconds > bool 2592000)
-            or ((100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 80)
-            or ((100 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > bool 80)
-            or ((node_memory_SwapTotal_bytes > 0)
-              and ((100 * node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes) < bool 50))
-            or (homelab07_platform_service_running == bool 0)
-          ) or vector(0)
+            ) or vector(0))
+            + (max(homelab07_storage_space_used_percent > bool 80) or vector(0))
+            + (max(
+              (homelab07_storage_scrub_status == bool 0)
+              and on(storage) (homelab07_storage_btrfs_metrics_available == 1)
+            ) or vector(0))
+            + (max(
+              (homelab07_storage_scrub_age_seconds > bool 2592000)
+              and on(storage) (homelab07_storage_btrfs_metrics_available == 1)
+            ) or vector(0))
+            + (max((100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 80) or vector(0))
+            + (max((100 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > bool 80) or vector(0))
+            + (max(
+              (node_memory_SwapTotal_bytes > 0)
+              and ((100 * node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes) < bool 50)
+            ) or vector(0))
+            + (max(homelab07_platform_service_running == bool 0) or vector(0)),
+            1
+          )
 
       - record: homelab07_nas_state
         expr: |
