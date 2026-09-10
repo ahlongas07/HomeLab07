@@ -4,6 +4,9 @@ global:
   external_labels:
     platform: homelab07
 
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
 scrape_configs:
   - job_name: prometheus
     static_configs:
@@ -19,4 +22,3 @@ scrape_configs:
     static_configs:
       - targets:
           - homelab07-alloy:12345
-

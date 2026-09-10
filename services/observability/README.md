@@ -3,7 +3,8 @@
 ## Purpose
 
 The observability service provides short-lived platform metrics, selected
-diagnostic logs, LAN-only dashboards and actionable alerts for Sprint 013.
+diagnostic logs, LAN-only dashboards and actionable alerts for Sprint 013,
+with the Sprint 014 NAS health decision layered over the existing evidence.
 
 ## Responsibilities
 
@@ -136,7 +137,7 @@ sudo ./operation/storage-metrics.sh
 ./operation/security-audit.sh
 ```
 
-Then validate the datasource status and the three provisioned dashboards from
+Then validate the datasource status and the four provisioned dashboards from
 an approved LAN client. Follow `docs/observability/VALIDATION.md` for alert,
 retention, redaction and WAN-boundary tests.
 
@@ -172,4 +173,5 @@ Historical metrics and logs are not a restore requirement.
 
 ## Related Sprint
 
-See `sprints/SPRINT-013.md` and `docs/observability/README.md`.
+See `sprints/SPRINT-013.md`, `sprints/SPRINT-014.md` and
+`docs/observability/README.md`.

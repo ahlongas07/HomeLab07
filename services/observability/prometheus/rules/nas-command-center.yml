@@ -1,0 +1,65 @@
+groups:
+  - name: homelab07-nas-command-center
+    interval: 30s
+    rules:
+      # State values are 0 Unknown, 1 Healthy, 2 Degraded and 3 Critical.
+      # Each condition records an unlabeled scalar so a missing series cannot
+      # silently disappear from the global decision.
+      - record: homelab07_nas_critical_condition
+        expr: |
+          max(
+            (homelab07_storage_mount_ok == bool 0)
+            or (homelab07_storage_fstype_ok == bool 0)
+            or (homelab07_storage_read_only > bool 0)
+            or (increase(homelab07_storage_device_errors_total[15m]) > bool 0)
+            or (homelab07_backup_last_status == bool 0)
+            or ((time() - homelab07_backup_last_success_timestamp_seconds) > bool 172800)
+            or (probe_success == bool 0)
+            or ((probe_ssl_earliest_cert_expiry - time()) < bool 604800)
+          ) or vector(0)
+
+      - record: homelab07_nas_unknown_condition
+        expr: |
+          max(
+            absent(node_time_seconds)
+            or absent(homelab07_storage_collection_timestamp_seconds)
+            or ((time() - homelab07_storage_collection_timestamp_seconds) > bool 900)
+            or absent(homelab07_rockstor_last_status)
+            or (homelab07_rockstor_last_status == bool 0)
+            or absent(homelab07_rockstor_last_run_timestamp_seconds)
+            or ((time() - homelab07_rockstor_last_run_timestamp_seconds) > bool 900)
+            or absent(homelab07_storage_mount_ok)
+            or absent(homelab07_storage_fstype_ok)
+            or absent(homelab07_storage_device_errors_total)
+            or absent(homelab07_storage_btrfs_metrics_available)
+            or (homelab07_storage_btrfs_metrics_available == bool 0)
+            or absent(homelab07_storage_scrub_status)
+            or absent(homelab07_storage_scrub_age_seconds)
+            or absent(homelab07_backup_last_status)
+            or absent(homelab07_backup_last_success_timestamp_seconds)
+            or absent(probe_success)
+          ) or vector(0)
+
+      - record: homelab07_nas_degraded_condition
+        expr: |
+          max(
+            ((probe_ssl_earliest_cert_expiry - time()) >= bool 604800)
+              * ((probe_ssl_earliest_cert_expiry - time()) < bool 2592000)
+            or (homelab07_storage_space_used_percent > bool 80)
+            or (homelab07_storage_btrfs_data_used_percent > bool 80)
+            or (homelab07_storage_btrfs_metadata_used_percent > bool 80)
+            or (homelab07_storage_scrub_status == bool 0)
+            or (homelab07_storage_scrub_age_seconds > bool 2592000)
+            or ((100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 80)
+            or ((100 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > bool 80)
+            or ((node_memory_SwapTotal_bytes > 0)
+              and ((100 * node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes) < bool 50))
+            or (homelab07_platform_service_running == bool 0)
+          ) or vector(0)
+
+      - record: homelab07_nas_state
+        expr: |
+          (vector(3) and on() (homelab07_nas_critical_condition > 0))
+          or (vector(0) and on() (homelab07_nas_unknown_condition > 0))
+          or (vector(2) and on() (homelab07_nas_degraded_condition > 0))
+          or vector(1)

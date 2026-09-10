@@ -45,7 +45,8 @@ Required evidence:
 - Prometheus, Loki and Alloy have no host port.
 - no container is privileged or mounts the Docker socket;
 - all datasources are healthy;
-- all three dashboards are provisioned after clean recreation;
+- all four dashboards, including the NAS Command Center, are provisioned after
+  clean recreation;
 - Prometheus receives host, probe and four textfile metric sets;
 - Loki contains only approved NPM files and sanitized content.
 
@@ -95,6 +96,25 @@ Exercise one target from each class safely:
 
 Record pending, firing and resolved states. Notification delivery remains
 incomplete until a private contact point is configured and tested.
+
+## NAS Command Center state tests
+
+Use only a disposable test target or temporary test-series source. Never alter
+production storage, backup evidence or certificates to manufacture a state.
+
+1. Validate `Healthy` (`1`) with every required family current and no active
+   condition.
+2. Cross one preventive threshold and validate `Degraded` (`2`).
+3. Remove one required test family, then age one required timestamp, and
+   validate `Unknown` (`0`) in both cases.
+4. Activate a safe critical test condition and validate `Critical` (`3`).
+5. Combine missing evidence with a confirmed critical condition and confirm
+   that `Critical` wins.
+6. Confirm recovery returns through pending/resolved behavior to `Healthy`.
+7. Ask an operator who did not prepare the fault to identify the correct next
+   dashboard or runbook within 15 seconds.
+8. Record sanitized results and query timestamps; do not commit endpoints,
+   paths, storage names, screenshots or contact-point details.
 
 ## Rollback
 
