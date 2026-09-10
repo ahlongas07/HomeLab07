@@ -110,10 +110,15 @@ production storage, backup evidence or certificates to manufacture a state.
 4. Activate a safe critical test condition and validate `Critical` (`3`).
 5. Combine missing evidence with a confirmed critical condition and confirm
    that `Critical` wins.
-6. Confirm recovery returns through pending/resolved behavior to `Healthy`.
-7. Ask an operator who did not prepare the fault to identify the correct next
+6. Combine a healthy latest-job status with an out-of-RPO success timestamp
+   carrying the same labels and confirm the stale backup still produces
+   `Critical`.
+7. Set Btrfs availability to zero in disposable evidence and confirm allocation
+   and scrub panels show no value rather than a healthy zero or fresh result.
+8. Confirm recovery returns through pending/resolved behavior to `Healthy`.
+9. Ask an operator who did not prepare the fault to identify the correct next
    dashboard or runbook within 15 seconds.
-8. Record sanitized results and query timestamps; do not commit endpoints,
+10. Record sanitized results and query timestamps; do not commit endpoints,
    paths, storage names, screenshots or contact-point details.
 
 ## Rollback

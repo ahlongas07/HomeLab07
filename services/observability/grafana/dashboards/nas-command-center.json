@@ -46,12 +46,12 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 80}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": []},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 80}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": [{"matcher": {"id": "byRegexp", "options": "/.*Btrfs.*/"}, "properties": [{"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}}]}]},
       "gridPos": {"h": 7, "w": 8, "x": 0, "y": 5},
       "id": 5,
       "options": {"displayMode": "gradient", "minVizHeight": 10, "minVizWidth": 0, "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "valueMode": "color"},
-      "targets": [{"editorMode": "code", "expr": "homelab07_storage_space_used_percent", "instant": true, "legendFormat": "{{storage}} filesystem", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_storage_btrfs_data_used_percent", "instant": true, "legendFormat": "{{storage}} Btrfs data", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "homelab07_storage_btrfs_metadata_used_percent", "instant": true, "legendFormat": "{{storage}} Btrfs metadata", "range": false, "refId": "C"}],
-      "title": "Storage pressure (Btrfs-aware)",
+      "targets": [{"editorMode": "code", "expr": "homelab07_storage_space_used_percent", "instant": true, "legendFormat": "{{storage}} filesystem", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_storage_btrfs_data_used_percent and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} Btrfs data", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "homelab07_storage_btrfs_metadata_used_percent and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} Btrfs metadata", "range": false, "refId": "C"}],
+      "title": "Filesystem pressure and Btrfs allocation",
       "type": "bargauge"
     },
     {
@@ -70,7 +70,7 @@
       "gridPos": {"h": 7, "w": 8, "x": 16, "y": 5},
       "id": 7,
       "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
-      "targets": [{"editorMode": "code", "expr": "homelab07_storage_scrub_status", "instant": true, "legendFormat": "{{storage}} result", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_storage_scrub_age_seconds < bool 2592000", "instant": true, "legendFormat": "{{storage}} fresh (<30d)", "range": false, "refId": "B"}],
+      "targets": [{"editorMode": "code", "expr": "homelab07_storage_scrub_status and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} result", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "((homelab07_storage_scrub_age_seconds > bool 0) * (homelab07_storage_scrub_age_seconds < bool 2592000)) and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} fresh (<30d)", "range": false, "refId": "B"}],
       "title": "Btrfs scrub result and freshness",
       "type": "stat"
     },
@@ -96,7 +96,7 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 1}, {"color": "red", "value": 2}]}}, "overrides": []},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 1}, {"color": "red", "value": 2}]}}, "overrides": [{"matcher": {"id": "byName", "options": "Scan execution"}, "properties": [{"id": "mappings", "value": [{"options": {"0": {"color": "red", "text": "Failed"}, "1": {"color": "green", "text": "Succeeded"}}, "type": "value"}]}, {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}]}]},
       "gridPos": {"h": 7, "w": 8, "x": 16, "y": 12},
       "id": 10,
       "options": {"displayMode": "gradient", "minVizHeight": 10, "minVizWidth": 0, "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "valueMode": "color"},

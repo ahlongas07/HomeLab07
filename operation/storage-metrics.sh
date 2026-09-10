@@ -166,19 +166,23 @@ while IFS=$'\t' read -r alias mount_path expected_fstype extra; do
 
         if usage_output="$(btrfs filesystem usage --raw "${mount_path}" 2>/dev/null)"; then
             btrfs_data_used="$(awk '
-                /^Data,/ {
+                /^[[:space:]]*Data,/ {
                     for (i = 1; i <= NF; i++) {
-                        if ($i == "Size:") {value = $(i + 1); gsub(/[^0-9]/, "", value); total_size += value}
-                        if ($i == "Used:") {value = $(i + 1); gsub(/[^0-9]/, "", value); total_used += value}
+                        if ($i == "Size:" && i < NF) {value = $(i + 1); gsub(/[^0-9]/, "", value); total_size += value}
+                        else if ($i ~ /^Size:[0-9]+,?$/) {value = $i; sub(/^Size:/, "", value); gsub(/[^0-9]/, "", value); total_size += value}
+                        if ($i == "Used:" && i < NF) {value = $(i + 1); gsub(/[^0-9]/, "", value); total_used += value}
+                        else if ($i ~ /^Used:[0-9]+,?$/) {value = $i; sub(/^Used:/, "", value); gsub(/[^0-9]/, "", value); total_used += value}
                     }
                 }
                 END {if (total_size > 0) printf "%.2f", (total_used / total_size) * 100}
             ' <<<"${usage_output}")"
             btrfs_metadata_used="$(awk '
-                /^Metadata,/ {
+                /^[[:space:]]*Metadata,/ {
                     for (i = 1; i <= NF; i++) {
-                        if ($i == "Size:") {value = $(i + 1); gsub(/[^0-9]/, "", value); total_size += value}
-                        if ($i == "Used:") {value = $(i + 1); gsub(/[^0-9]/, "", value); total_used += value}
+                        if ($i == "Size:" && i < NF) {value = $(i + 1); gsub(/[^0-9]/, "", value); total_size += value}
+                        else if ($i ~ /^Size:[0-9]+,?$/) {value = $i; sub(/^Size:/, "", value); gsub(/[^0-9]/, "", value); total_size += value}
+                        if ($i == "Used:" && i < NF) {value = $(i + 1); gsub(/[^0-9]/, "", value); total_used += value}
+                        else if ($i ~ /^Used:[0-9]+,?$/) {value = $i; sub(/^Used:/, "", value); gsub(/[^0-9]/, "", value); total_used += value}
                     }
                 }
                 END {if (total_size > 0) printf "%.2f", (total_used / total_size) * 100}
@@ -192,7 +196,14 @@ while IFS=$'\t' read -r alias mount_path expected_fstype extra; do
                 ! grep -Eqi 'status:[[:space:]]*(abort|cancel)' <<<"${scrub_output}"; then
                 scrub_status=1
             fi
-            scrub_started="$(awk -F': ' 'tolower($1) ~ /start time/ {print $2; exit}' <<<"${scrub_output}")"
+            scrub_started="$(awk '
+                tolower($0) ~ /^[[:space:]]*start time:/ {
+                    value = $0
+                    sub(/^[^:]*:[[:space:]]*/, "", value)
+                    print value
+                    exit
+                }
+            ' <<<"${scrub_output}")"
             if [[ -n "${scrub_started}" ]] &&
                 scrub_epoch="$(date -d "${scrub_started}" +%s 2>/dev/null)"; then
                 scrub_age="$(( $(date +%s) - scrub_epoch ))"

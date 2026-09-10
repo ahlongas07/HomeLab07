@@ -41,8 +41,12 @@ root-owned oneshot timer runs the fixed read-only adapter and atomically writes
 ## Limitations
 
 - SMART metrics remain excluded until a stable source is validated.
+
+The adapter accepts both `Size:123`/`Used:123` and
+`Size: 123`/`Used: 123` output forms from supported Btrfs tooling. Scrub start
+timestamps tolerate variable whitespace but remain unknown when the filesystem
+reports no prior scrub evidence.
 - Scrub timestamps depend on output supported by the installed Btrfs tools.
 - Per-share logical usage is excluded because snapshots, reflinks and qgroups
   can make naive accounting misleading.
 - Rockstor internal dashboard feeds and undocumented APIs are not scraped.
-

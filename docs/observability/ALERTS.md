@@ -42,7 +42,10 @@ Never write test data into an unverified mount path.
 
 ## Storage pressure
 
-1. Compare filesystem, inode, Btrfs data and Btrfs metadata pressure.
+1. Evaluate filesystem space pressure first. Use Btrfs data and metadata
+   allocation only as diagnostic context because it describes allocated chunks,
+   not total free filesystem capacity. Treat inode values as diagnostic only
+   for filesystems with a fixed inode model.
 2. Review snapshots and Rockstor allocation before deleting anything.
 3. Do not assume logical share size equals physical Btrfs consumption.
 4. Use an approved capacity or retention action.

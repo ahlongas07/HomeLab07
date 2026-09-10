@@ -65,7 +65,7 @@ Unknown conditions cover missing host, storage, Rockstor, scrub, backup or
 probe evidence, failed/unavailable Btrfs collection, plus storage/Rockstor
 collection older than 15 minutes.
 
-Degraded conditions are 80% storage, Btrfs allocation, CPU or memory pressure;
+Degraded conditions are 80% filesystem, CPU or memory pressure;
 swap more than 50% used when swap exists; a declared service not running; or a
 certificate expiring in 7–30 days. An unsuccessful scrub or one older than 30
 days is also degraded.
@@ -85,6 +85,15 @@ evidence and matching runbook/validation updates.
 Prometheus loads repository-owned recording rules from a read-only mount. The
 dashboard queries the resulting state and the original bounded metrics. Alloy,
 collectors, retention, networks and access controls remain unchanged.
+
+Every state condition is reduced independently before the bounded condition
+sum is evaluated. This prevents PromQL set-union precedence from masking a
+later condition that has the same label set as an earlier healthy condition.
+Dashboard Btrfs allocation and scrub values are shown only when the collector
+reports extended metrics as available; zero is never substituted for unknown
+evidence. Allocation usage describes already allocated Btrfs chunks and remains
+diagnostic; filesystem usage is the capacity-pressure signal. Scrub freshness
+additionally requires a positive observed age.
 
 ## Validation
 
