@@ -652,6 +652,41 @@ Validation
 
 ---
 
+## Sprint 014 — NAS Command Center
+
+Status
+
+Implementation complete — target validation pending
+
+Objective
+
+Turn existing Sprint 013 evidence into a single, bounded NAS health decision
+and direct the operator to the next diagnostic area without adding collectors,
+credentials or privileges.
+
+Platform Enhancement
+
+Grafana dashboard and Prometheus recording rules over existing evidence.
+
+Deliverables
+
+- NAS Command Center provisioned from Git
+- Explicit `Critical > Unknown > Degraded > Healthy` decision precedence
+- Required-evidence and freshness handling
+- Btrfs-aware storage pressure without inode usage as its primary signal
+- Separated backup execution/freshness and security execution/posture views
+- Controlled four-state target validation procedure
+
+Validation
+
+- Prometheus rule and Compose validation
+- Healthy, degraded, critical, absent and stale evidence exercises
+- Critical-over-unknown precedence
+- 15-second operator decision exercise
+- Clean dashboard recreation and unchanged access boundary
+
+---
+
 # Future Platform Enhancements
 
 The following capabilities remain outside the current roadmap.

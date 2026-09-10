@@ -17,6 +17,7 @@ services:
       - --web.enable-remote-write-receiver
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
       - ${HOMELAB07_OBSERVABILITY_ROOT:?HOMELAB07_OBSERVABILITY_ROOT is required}/prometheus:/prometheus
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=64m

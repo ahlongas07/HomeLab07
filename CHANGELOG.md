@@ -2,6 +2,10 @@
 
 ### Added
 
+- Add the Sprint 014 NAS Command Center implementation with a provisioned
+  dashboard and an explicit four-state health decision over existing evidence.
+- Add required-evidence freshness handling and controlled validation for the
+  `Critical > Unknown > Degraded > Healthy` precedence contract.
 - Add SPIKE-003 to evaluate a 15-second NAS health command center, richer
   read-only storage and operation evidence, observability self-health, and
   gated exporter or functional-probe candidates.
