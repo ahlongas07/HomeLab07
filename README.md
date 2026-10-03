@@ -23,28 +23,9 @@ The project emphasizes:
 
 ## Project Status
 
-🚧 Early Development
-
-Sprint 001 through Sprint 011 are complete. Sprint 012 Vulnerability Management
-is in progress.
-
-Sprint 009 Platform Operations completed the edge-security, management-access
-and recurring security-validation baseline. The repository defines the desired
-edge policy, incident procedures and a read-only security audit without
-introducing a new security platform.
-
-Sprint 010 Backup & Recovery completed encrypted, deduplicated recovery points,
-explicit retention, integrity verification and disposable restore testing.
-
-Sprint 011 Identity Platform completed the reusable Keycloak OIDC capability
-using a dedicated database and role in the existing MariaDB platform.
-Nextcloud and Paperless-ngx consume centralized authentication; Jellyfin keeps
-local authentication because no supported native OIDC integration exists.
-
-Sprint 012 introduces report-only repository and container-image scanning,
-CycloneDX SBOM generation and restricted security evidence on a dedicated
-private share. It extends the existing policy audit without adding a persistent
-scanner service or Docker socket mount.
+The current sprint, open validation items, completed milestones and proposed
+investigations are tracked in the [Roadmap](ROADMAP.md). The Roadmap is the
+single source of truth for project status.
 
 The project has established:
 
@@ -74,6 +55,11 @@ LAN isolation and validated recovery.
 Sprint 009 completed the Platform Operations milestone with validated edge
 controls, origin restrictions, LAN-only proxy administration, staged HSTS,
 sanitized incident procedures and a target-tested read-only security audit.
+
+Sprint 013 completed the observability baseline. Sprint 014's NAS Command
+Center implementation is complete and awaits target validation. Sprint 012
+remains open for remediation review and a new private run covering full-history
+Gitleaks; see the Roadmap and sprint records for current validation details.
 
 POC-001 closed with Nextcloud selected as the active collaboration service.
 The previous OwnCloud implementation remains recoverable from the
@@ -106,14 +92,14 @@ Implemented direction:
 
 ## Documentation
 
-- Project Charter
-- Engineering Principles
-- Roadmap
-- Sprint documents
-- Shared platform control principles and architecture contracts
-- Edge security policy and validation procedures
-- Backup policy, recovery manifest and recovery matrix
-- Sanitized backup and recovery validation record
+- [Project Charter](PROJECT_CHARTER.md)
+- [Engineering Principles](ENGINEERING_PRINCIPLES.md)
+- [Roadmap and canonical project status](ROADMAP.md)
+- [Sprint documents](sprints/)
+- [Architecture contracts](architecture/)
+- [Backup and recovery](docs/backup/)
+- [Observability](docs/observability/)
+- [Security](docs/security/)
 
 ## License
 

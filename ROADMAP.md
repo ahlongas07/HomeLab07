@@ -4,6 +4,23 @@ Version: 2.0
 
 Status: Active
 
+## Canonical Project Status
+
+This section is the single source of truth for current work and open items.
+The README links here instead of maintaining a separate sprint summary.
+
+| Work item | Status | Next action |
+|---|---|---|
+| Sprint 012 — Vulnerability Management | In progress | Review the private baseline and remediation priorities; run a new private target-host scan covering all Git refs and full history before closure. |
+| Sprint 014 — NAS Command Center | Implementation complete; target validation pending | Execute the controlled target-host validation defined in the Sprint document. |
+| SPIKE-001 — Collaboration Platform Research | In progress | Complete balanced official-source evidence for all candidates and record the decision. |
+| SPIKE-001 — oCIS Architecture Validation | Architecture review complete; PoC required | Run the separately gated PoC only when its prerequisites and approval are met. |
+| SPIKE-002 — Identity Source of Truth and SSO | In progress; redirect recovery validation pending | Complete the documented redirect and local recovery validation. |
+| SPIKE-003 — Observability Depth and NAS Command Center | Track A implemented through Sprint 014; remaining tracks proposed | Close Track A with Sprint 014 validation; defer other tracks pending separate scope approval. |
+
+No other Sprint is designated active. Items described as proposed, deferred or
+pending validation must not be treated as completed work.
+
 ---
 
 # Vision
@@ -687,15 +704,11 @@ Validation
 
 ---
 
-# Future Platform Enhancements
+# Deferred and Proposed Work
 
-The following capabilities remain outside the current roadmap.
+The following work has no implementation authorization from this Roadmap and
+requires an explicit future scope decision:
 
-They should only be introduced when justified by platform requirements.
-
-Potential future enhancements include:
-
-- SPIKE-002 — Identity Source of Truth and SSO Experience
 - Multi-node deployment
 - High Availability
 - Object Storage
@@ -703,6 +716,10 @@ Potential future enhancements include:
 - Infrastructure as Code
 - Kubernetes
 - Multi-site replication
+
+SPIKE-003 tracks beyond the dashboard and semantic work assigned to Sprint 014
+remain proposed investigation items; they do not authorize additional
+collectors, credentials, host privileges or active probes.
 
 ---
 

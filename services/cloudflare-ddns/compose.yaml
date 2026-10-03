@@ -1,6 +1,6 @@
 services:
   cloudflare-ddns:
-    image: favonia/cloudflare-ddns:1
+    image: favonia/cloudflare-ddns:1.17.1
     container_name: homelab07-cloudflare-ddns
     restart: unless-stopped
     read_only: true

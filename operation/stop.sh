@@ -6,19 +6,7 @@ print_header "Stop"
 
 print_project_root
 
-services=(
-    observability
-    landing-page
-    cloudflare-ddns
-    homebridge
-    paperless-ngx
-    keycloak
-    nextcloud
-    jellyfin
-    nginx-proxy-manager
-    valkey
-    mariadb
-)
+mapfile -t services < <(platform_services_reverse)
 
 if (($# > 1)); then
     echo "Usage: $0 [service]"

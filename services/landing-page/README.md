@@ -10,8 +10,10 @@ It also presents the current public platform status and active Nextcloud,
 Paperless-ngx, Jellyfin and Homebridge business services, plus the validated
 Platform Operations security milestone and the encrypted Backup & Recovery
 milestone, the validated Keycloak Identity Platform, and the Observability &
-Alerting baseline. Homebridge is listed as a platform milestone only; the
-service itself remains LAN-only.
+Alerting baseline. The current milestone adds the Sprint 014 NAS Command Center
+and its explicit four-state health model; target validation remains pending.
+Homebridge is listed as a platform milestone only; the service itself remains
+LAN-only.
 
 ---
 
@@ -72,9 +74,9 @@ The expected references are `nginx:1.30.4-alpine` and `nginx/1.30.4`.
 Validate that the rendered page reflects the current platform milestone:
 
 ```text
-Observability & Alerting
-Metrics, logs + alerts
-Observability and alerting
+NAS Command Center
+Four-state health model
+NAS health command center
 ```
 
 ---
@@ -154,3 +156,4 @@ Implemented during:
 - Sprint 010 – Backup & Recovery status update
 - Sprint 011 – Identity Platform status update
 - Sprint 013 – Observability & Alerting status update
+- Sprint 014 – NAS Command Center status update

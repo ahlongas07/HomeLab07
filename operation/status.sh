@@ -9,19 +9,7 @@ print_project_root
 echo "Platform"
 echo
 
-services=(
-    mariadb
-    valkey
-    nginx-proxy-manager
-    jellyfin
-    nextcloud
-    keycloak
-    paperless-ngx
-    homebridge
-    cloudflare-ddns
-    landing-page
-    observability
-)
+services=("${PLATFORM_SERVICES[@]}")
 
 if (($# > 1)); then
     echo "Usage: $0 [service]"

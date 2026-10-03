@@ -12,6 +12,28 @@ readonly PRIVATE_ROOT="${HOMELAB07_PRIVATE_ROOT:-${PROJECT_ROOT}/../HomeLab07.pr
 
 export HOMELAB07_PRIVATE_ROOT="${PRIVATE_ROOT}"
 
+# Canonical lifecycle order: dependencies first. Stop operations reverse it.
+readonly -a PLATFORM_SERVICES=(
+    mariadb
+    valkey
+    nginx-proxy-manager
+    jellyfin
+    nextcloud
+    keycloak
+    paperless-ngx
+    homebridge
+    cloudflare-ddns
+    landing-page
+    observability
+)
+
+platform_services_reverse() {
+    local index
+    for ((index=${#PLATFORM_SERVICES[@]} - 1; index >= 0; index--)); do
+        printf '%s\n' "${PLATFORM_SERVICES[index]}"
+    done
+}
+
 project_git() {
     git -c "safe.directory=${PROJECT_ROOT}" -C "${PROJECT_ROOT}" "$@"
 }

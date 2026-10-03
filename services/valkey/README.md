@@ -50,15 +50,14 @@ Valkey is not responsible for:
 | Network | homelab07-internal |
 | Operations | HomeLab07 operation layer |
 
-The image uses the stable major tag:
+The image uses a fixed patch and Alpine release tag:
 
 ```text
-valkey/valkey:8-alpine
+valkey/valkey:8.1.10-alpine3.24
 ```
 
-This keeps the service on the Valkey 8 release line while allowing patch updates from the upstream image. Pinning to a patch tag, such as `8.1.8-alpine`, can improve deployment repeatability but requires intentional patch maintenance.
-
-Recommendation: keep `8-alpine` for Sprint 004. Valkey is not yet consumed by an application, so the operational benefit of automatic patch updates is currently higher than the release-control benefit of patch pinning. Re-evaluate patch pinning when the first application consumes Valkey and compatibility testing becomes part of the release process.
+The fixed tag improves deployment repeatability. Update it deliberately after
+reviewing upstream release notes and validating consumers.
 
 ---
 

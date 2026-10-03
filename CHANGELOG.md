@@ -12,6 +12,8 @@
 
 ### Changed
 
+- Update the Landing Page for the Sprint 014 NAS Command Center milestone and
+  its four-state health model without claiming target validation is complete.
 - Correct NAS state aggregation so same-label conditions cannot mask a stale
   backup or another higher-severity signal.
 - Suppress unavailable Btrfs values instead of presenting synthetic zeroes,

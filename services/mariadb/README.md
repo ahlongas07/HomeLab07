@@ -192,6 +192,36 @@ The service does not publish host ports.
 
 Applications should connect to MariaDB through the internal Docker network, not through the public network.
 
+### JuanchoAI migration account
+
+The JuanchoAI application owns its database and migration account. Provision
+them through the operation layer; the script creates `juanchoai` if needed and
+grants `juanchoai_migrator` only `SELECT`, `INSERT`, `UPDATE`, `DELETE`,
+`CREATE`, `ALTER`, `DROP`, `INDEX` and `REFERENCES` on `juanchoai.*`. These
+cover table/index/constraint migrations and `golang-migrate`'s
+`schema_migrations` reads and updates. The account receives no global grants,
+database creation rights, or grant option.
+
+Create the private credential file from the placeholder example, then replace
+the password with a generated secret delivered through a private channel:
+
+```bash
+cp services/juanchoai-migrator.env.example ../HomeLab07.private/env/juanchoai-migrator.env
+```
+
+Provision or rotate its password by running:
+
+```bash
+./operation/juanchoai-migrator-db-create.sh
+```
+
+The migration container must attach to `homelab07-internal` and connect to
+`homelab07-mariadb:3306` using database `juanchoai` and user
+`juanchoai_migrator`. MariaDB accepts this account from the internal Docker
+network (`'%'` is the MariaDB host pattern); network reachability is bounded by
+the service's internal-only Docker network, and no host port is published.
+After provisioning, the script prints `SHOW GRANTS` output for review.
+
 ---
 
 ## Validation Results
