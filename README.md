@@ -44,23 +44,6 @@ The project has established:
 - Keycloak as the validated shared identity provider for supported consumers.
 - Trivy-based vulnerability management as the active platform enhancement.
 
-Sprint 007 completed the media-platform milestone with NAS-backed movies,
-music and family media, secure HTTPS publication, recoverable application
-state and validated Intel VA-API acceleration.
-
-Sprint 008 completed the Homebridge operational-adoption milestone with an
-immutable runtime, preserved HomeKit identity, working camera integrations,
-LAN isolation and validated recovery.
-
-Sprint 009 completed the Platform Operations milestone with validated edge
-controls, origin restrictions, LAN-only proxy administration, staged HSTS,
-sanitized incident procedures and a target-tested read-only security audit.
-
-Sprint 013 completed the observability baseline. Sprint 014's NAS Command
-Center implementation is complete and awaits target validation. Sprint 012
-remains open for remediation review and a new private run covering full-history
-Gitleaks; see the Roadmap and sprint records for current validation details.
-
 POC-001 closed with Nextcloud selected as the active collaboration service.
 The previous OwnCloud implementation remains recoverable from the
 `v0.6.0-collaboration-platform` tag; its database, NAS data and private
@@ -95,6 +78,7 @@ Implemented direction:
 - [Project Charter](PROJECT_CHARTER.md)
 - [Engineering Principles](ENGINEERING_PRINCIPLES.md)
 - [Roadmap and canonical project status](ROADMAP.md)
+- [Living capability specifications](specs/README.md)
 - [Sprint documents](sprints/)
 - [Architecture contracts](architecture/)
 - [Backup and recovery](docs/backup/)

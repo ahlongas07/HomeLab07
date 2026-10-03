@@ -66,6 +66,7 @@ Before making significant changes, always review:
 3. PRODUCT_REQUIREMENTS.md
 4. ROADMAP.md
 5. The active Sprint document under `/sprints`
+6. The affected capability specification under `/specs`, when one exists
 
 These documents define the project vision, architecture and current implementation priorities.
 
@@ -337,6 +338,10 @@ Instead:
 An implementation is complete only when:
 
 - Documentation is updated.
+- The affected living capability specification under `/specs` reflects the
+  accepted behavior and links to operational procedures and sprint evidence.
+- Sprint closure evidence remains in the Sprint record; private runtime
+  evidence stays outside Git.
 - Configuration is reproducible.
 - Validation succeeds.
 - Security requirements are satisfied.
