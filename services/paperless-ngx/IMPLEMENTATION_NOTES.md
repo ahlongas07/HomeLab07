@@ -23,6 +23,32 @@ The tag was verified in GHCR on 2026-07-22. Published Linux manifests:
 Confirm the NAS architecture and record the runtime image identity before
 deployment; do not substitute one platform digest for another.
 
+## Paperless-ngx 3 Upgrade
+
+`ghcr.io/paperless-ngx/paperless-ngx:3.3.3` was verified in GHCR on
+2026-10-19. The Compose definition pins the multi-architecture index digest:
+
+- index: `sha256:dba0242c1df1843643df4eb50ce5639f3a7900f414879088fd5bed8eaf2d456d`
+- amd64: `sha256:4097c7925229c1fd6c2a5230d50ba0e056fb9dde076a08654f5c19ae88dff7db`
+- arm64: `sha256:bf51fc62a57abc327dd8408ac487f2509507ab8d78841424ca62dd3f50019c54`
+
+Upgrade decisions reviewed against the upstream v3 migration guide:
+
+- The consumer polling setting is renamed to
+  `PAPERLESS_CONSUMER_POLLING_INTERVAL`; NAS storage still requires polling.
+- Archive generation stays `always` to keep the original-plus-archive contract.
+- Duplicate rejection stays enabled through
+  `PAPERLESS_CONSUMER_DELETE_DUPLICATES`.
+- Login rate limiting trusts one `X-Forwarded-For` hop. django-allauth rejects
+  a count above the hops present, so the safe baseline counts only Nginx Proxy
+  Manager.
+- Document encryption, consume scripts, barcode scanner selection, advanced
+  database options and the removed OCR modes are not used; no action needed.
+
+Target evidence to record: x86-64-v2 CPU check, pre-upgrade recovery point,
+runtime image identity, clean startup logs, search index rebuild, OIDC and
+local login, duplicate rejection and archive creation.
+
 ## Decision Gates
 
 - Stop if Valkey produces protocol errors or silently loses documents.

@@ -12,6 +12,10 @@
 
 ### Changed
 
+- Upgrade Paperless-ngx from 2.20.15 to 3.3.3 pinned by digest, rename the
+  consumer polling setting, keep archive generation and duplicate rejection
+  explicit, set a safe login proxy count and document the backup-first upgrade
+  and rollback procedure.
 - Update the Landing Page for the Sprint 014 NAS Command Center milestone and
   its four-state health model without claiming target validation is complete.
 - Correct NAS state aggregation so same-label conditions cannot mask a stale

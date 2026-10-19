@@ -20,7 +20,7 @@ infrastructure.
 
 | Capability | Selection |
 |---|---|
-| Application | `ghcr.io/paperless-ngx/paperless-ngx:2.20.15` |
+| Application | `ghcr.io/paperless-ngx/paperless-ngx:3.3.3` pinned by index digest |
 | Database | Shared MariaDB 11.4 |
 | Broker | Shared Valkey 8 compatibility PoC |
 | OCR | OCRmyPDF and Tesseract from the official image |
@@ -61,8 +61,23 @@ cp services/paperless-ngx/.env.example \
 ```
 
 Replace every placeholder privately. Choose UID/GID values that can write to
-the Rockstor paths. The baseline enables 60-second consumer polling because
-NAS filesystems may not expose reliable inotify events.
+the Rockstor paths. The baseline enables 60-second consumer polling through
+`PAPERLESS_CONSUMER_POLLING_INTERVAL` because NAS filesystems may not expose
+reliable inotify events. Paperless-ngx 3 ignores the former
+`PAPERLESS_CONSUMER_POLLING` name.
+
+The baseline preserves the documented archive contract and duplicate policy:
+
+| Setting | Baseline | Reason |
+|---|---|---|
+| `PAPERLESS_ARCHIVE_FILE_GENERATION` | `always` | Every document keeps an original and a searchable archive version. |
+| `PAPERLESS_CONSUMER_DELETE_DUPLICATES` | `true` | Duplicate documents are rejected, as in Paperless-ngx 2. |
+| `PAPERLESS_ALLAUTH_TRUSTED_PROXY_COUNT` | `1` | Login rate limiting reads the address added by Nginx Proxy Manager. |
+
+The proxy count must never exceed the `X-Forwarded-For` entries present on
+every request; a higher value fails login with a server error. Raise it to `2`
+privately only when every request reaches Nginx Proxy Manager through the
+Cloudflare proxy.
 
 The default OCR languages are Spanish and English. Change this only through
 private configuration. Tika, Gotenberg and email ingestion are outside Sprint
@@ -89,6 +104,54 @@ the service is healthy; do not place administrator credentials in Git:
 ```bash
 ./operation/compose.sh paperless-ngx exec paperless-ngx createsuperuser
 ```
+
+## Upgrade
+
+Paperless-ngx applies database migrations on startup and does not support
+downgrades. Rollback therefore means restoring the pre-upgrade recovery point,
+not changing the image back.
+
+Paperless-ngx 3 requires 2.20.15 as the starting version. It rebuilds the
+search index on first startup, drops task history and maps its own settings
+from Paperless-ngx 2. Review the upstream v3 migration guide before any later
+major upgrade.
+
+1. Confirm the host CPU supports x86-64-v2; no output means the document
+   classifier will crash:
+
+   ```bash
+   grep -o -m1 sse4_2 /proc/cpuinfo
+   ```
+
+2. In the private environment file, rename `PAPERLESS_CONSUMER_POLLING` to
+   `PAPERLESS_CONSUMER_POLLING_INTERVAL` and add the settings from
+   `.env.example` that are not present yet.
+3. Create and verify a recovery point:
+
+   ```bash
+   ./operation/backup.sh
+   ./operation/restore-test.sh latest <empty-destination>
+   ```
+
+4. Pull and recreate the service:
+
+   ```bash
+   ./operation/compose.sh paperless-ngx config --quiet
+   ./operation/compose.sh paperless-ngx pull
+   ./operation/compose.sh paperless-ngx up -d
+   ./operation/compose.sh paperless-ngx logs --tail=200
+   ```
+
+5. Run the validation below and confirm the logs report no deprecated or
+   removed settings.
+
+Rollback: stop Paperless-ngx, restore its MariaDB database and persistent roots
+from the recovery point, check out the previous repository version and start
+the service again.
+
+If Keycloak login fails at the callback with `invalid_client`, add
+`"token_auth_method":"client_secret_basic"` to the provider `settings` in the
+private `PAPERLESS_SOCIALACCOUNT_PROVIDERS` value.
 
 ## Keycloak OIDC
 
@@ -159,6 +222,10 @@ Validate with synthetic data:
 3. Confirm the inbox file disappears only after durable ingestion.
 4. Recreate the Paperless container and confirm documents and metadata remain.
 5. Restart Valkey and verify failure/retry behavior without document loss.
+6. Place the same file in `consume` twice and confirm the duplicate is
+   rejected.
+7. Log in from outside the LAN and confirm the login succeeds without a
+   server error.
 
 OIDC validation after linking the PoC account:
 
@@ -218,4 +285,5 @@ artifact, not a replacement for the consistent platform recovery point.
 - Sprint 006 — Paperless-ngx
 - Sprint 011 — Identity Platform foundation
 - Platform Enhancement — Paperless-ngx OIDC consumer
+- Platform Enhancement — Paperless-ngx 3 upgrade
 - SPIKE-002 — Identity Source of Truth and SSO Experience
