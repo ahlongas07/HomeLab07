@@ -420,13 +420,13 @@ class Sync:
         self.field_hash = required("/api/custom_fields/", FIELD_HASH)
 
     def existing(self, relative):
-        """Return (found, stored_hash) for the document with this source path."""
+        """Return (found, stored_hash, user_can_change) for this source path."""
         query = json.dumps([self.field_path, "exact", relative])
         for document in self.api.results("/api/documents/", custom_field_query=query, page_size=5):
             values = {f.get("field"): f.get("value") for f in document.get("custom_fields", [])}
             if values.get(self.field_path) == relative:
-                return True, values.get(self.field_hash)
-        return False, None
+                return True, values.get(self.field_hash), document.get("user_can_change")
+        return False, None, None
 
     def is_duplicate(self, upload_path):
         """True only when Paperless confirms an identical stored file."""
@@ -477,9 +477,13 @@ class Sync:
             self.counts["unsupported"] += 1
             log(f"UNSUPPORTED {ident}")
             return
-        found, stored_hash = self.existing(relative)
+        found, stored_hash, can_change = self.existing(relative)
         if found:
-            if stored_hash == original_hash:
+            # Re-checked on every run: sync-medico must never own an exam.
+            if can_change is True:
+                self.counts["failed"] += 1
+                log(f"ERROR sync-medico still owns an uploaded exam; check the ownership workflow: {ident}")
+            elif stored_hash == original_hash:
                 self.counts["skipped"] += 1
             else:
                 self.counts["modified"] += 1

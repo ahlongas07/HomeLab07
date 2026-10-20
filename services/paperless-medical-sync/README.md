@@ -179,7 +179,9 @@ Task polling follows the API v10 task format (lowercase `status`,
 `related_document_ids` and `result_data` with `document_id` and
 `duplicate_of`). After each upload the sync confirms that the workflow
 reassigned the owner: `sync-medico` must no longer be able to change the
-document (`user_can_change` is false).
+document (`user_can_change` is false). Every later run repeats the check for
+already uploaded exams from the same list response and reports a failure while
+`sync-medico` can still change one.
 
 Validate against a disposable Paperless-ngx 3.3.3 instance with synthetic
 documents before deploying on the NAS. The following Paperless API behaviors
