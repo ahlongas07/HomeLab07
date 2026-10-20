@@ -5,6 +5,7 @@ Commands:
   sync         upload new exams from the read-only source folder
   model-init   create the Paperless data model (requires an administrator token)
   next-delay   print seconds until the next scheduled run
+  wait-ready   wait until Paperless answers HTTP (used once at start-up)
 
 Only the Python standard library is used.
 """
@@ -86,7 +87,9 @@ class Unreachable(Exception):
 
 
 class ApiError(Exception):
-    pass
+    def __init__(self, message, status=None):
+        super().__init__(message)
+        self.status = status
 
 
 def log(message):
@@ -130,10 +133,11 @@ class Paperless:
         self.host = parsed.hostname
         self.port = parsed.port
         self.base_path = parsed.path.rstrip("/")
-        self.headers = {
-            "Authorization": f"Token {token}",
-            "Accept": f"application/json; version={API_VERSION}",
-        }
+        self.headers = {"Accept": f"application/json; version={API_VERSION}"}
+        if token:
+            self.headers["Authorization"] = f"Token {token}"
+        # Replaced by Namer.mask so error excerpts never expose personal data.
+        self.redact = lambda text: text
 
     def _connection(self, timeout=60):
         cls = http.client.HTTPSConnection if self.scheme == "https" else http.client.HTTPConnection
@@ -154,13 +158,13 @@ class Paperless:
             response = connection.getresponse()
             payload = response.read()
         except (OSError, http.client.HTTPException) as error:
+            # Only connection-level errors abort the run and trigger the retry.
             raise Unreachable(f"{method} {path}: {error.__class__.__name__}") from None
         finally:
             connection.close()
-        if response.status >= 500:
-            raise Unreachable(f"{method} {path}: HTTP {response.status}")
         if response.status >= 400:
-            raise ApiError(f"{method} {path}: HTTP {response.status}: {payload[:300]!r}")
+            excerpt = self.redact(payload[:300].decode("utf-8", "replace"))
+            raise ApiError(f"{method} {path}: HTTP {response.status}: {excerpt}", response.status)
         self.last_api_version = response.getheader("X-Api-Version")
         if not payload:
             return None
@@ -185,7 +189,13 @@ class Paperless:
         return None
 
     def check_version(self):
-        self.get("/api/document_types/", page_size=1)
+        try:
+            self.get("/api/document_types/", page_size=1)
+        except ApiError as error:
+            # Paperless still starting: retry the whole run later.
+            if error.status and error.status >= 500:
+                raise Unreachable(str(error)) from None
+            raise
         reported = self.last_api_version
         if not reported or not reported.isdigit() or int(reported) < API_VERSION:
             raise SystemExit(
@@ -428,24 +438,35 @@ class Sync:
         return False
 
     def wait_for_task(self, task_id):
+        """Poll an API v10 task: lowercase status, related_document_ids and result_data."""
         deadline = time.monotonic() + self.task_timeout
         while time.monotonic() < deadline:
             data = self.api.get("/api/tasks/", task_id=task_id)
             tasks = data.get("results", []) if isinstance(data, dict) else (data or [])
             if tasks:
                 task = tasks[0]
-                if task.get("status") == "SUCCESS":
-                    return "success", task.get("related_document")
-                if task.get("status") in ("FAILURE", "REVOKED"):
-                    result = str(task.get("result", ""))
-                    return ("duplicate" if "duplicate" in result.lower() else "failure"), None
+                status = str(task.get("status", "")).lower()
+                result = task.get("result_data") or {}
+                if status == "success":
+                    ids = task.get("related_document_ids") or []
+                    document_id = result.get("document_id") or (ids[0] if ids else None)
+                    if document_id is None:
+                        return "failure", None
+                    return "success", document_id
+                if status in ("failure", "revoked"):
+                    if result.get("duplicate_of"):
+                        return "duplicate", None
+                    return "failure", None
             time.sleep(5)
         return "timeout", None
 
     def verify_document(self, document_id):
+        """post_document makes the uploader the owner; the workflow must reassign it."""
         document = self.api.get(f"/api/documents/{document_id}/")
         if not document or document.get("owner") is None:
             raise ApiError("uploaded exam has no owner; check the ownership workflow")
+        if document.get("user_can_change") is not False:
+            raise ApiError("sync-medico still owns the uploaded exam; check the ownership workflow")
         fields = {f.get("field") for f in document.get("custom_fields", [])}
         if self.field_path not in fields or self.field_hash not in fields:
             raise ApiError("custom fields were not stored with the upload")
@@ -515,9 +536,6 @@ class Sync:
             else:
                 self.counts["failed"] += 1
                 log(f"ERROR upload {outcome}: {ident}")
-        except ApiError as error:
-            self.counts["failed"] += 1
-            log(f"ERROR {ident}: {error}")
         finally:
             if temporary and os.path.exists(temporary):
                 os.unlink(temporary)
@@ -540,6 +558,10 @@ class Sync:
                 except OSError as error:
                     self.counts["failed"] += 1
                     log(f"ERROR unreadable {ident}: {error.__class__.__name__}")
+                except ApiError as error:
+                    # Includes HTTP 5xx: only this file fails; the run continues.
+                    self.counts["failed"] += 1
+                    log(f"ERROR {ident}: {self.namer.mask(str(error))}")
         summary = " ".join(f"{key}={value}" for key, value in self.counts.items())
         log(f"SUMMARY {summary}")
         return self.counts["failed"] == 0 and self.counts["encrypted_no_password"] == 0
@@ -567,6 +589,7 @@ def command_sync():
             raise SystemExit("PDF_PASSWORDS must be a JSON list of strings")
         namer = Namer(json_env("SYNC_CATEGORY_MAP", {}), json_env("SYNC_PERSONAL_PATTERNS", []))
         api = Paperless(os.environ.get("PAPERLESS_INTERNAL_URL", "http://homelab07-paperless-ngx:8000"), token)
+        api.redact = namer.mask
         sync = Sync(api, namer, passwords, int(os.environ.get("SYNC_TASK_TIMEOUT", "900")))
         counts = sync.counts
         ok = sync.run()
@@ -625,8 +648,14 @@ def command_model_init():
 
     sync_user = api.find_by_name("/api/users/", SYNC_USERNAME, field="username")
     if sync_user:
-        log(f"exists  /api/users/ {SYNC_USERNAME}")
         sync_user_id = sync_user["id"]
+        # Reconcile privileges so drift (for example manual staff rights) is reverted.
+        api.request("PATCH", f"/api/users/{sync_user_id}/", body={
+            "is_staff": False,
+            "is_superuser": False,
+            "user_permissions": SYNC_PERMISSIONS,
+        })
+        log(f"reconciled /api/users/ {SYNC_USERNAME} permissions")
     else:
         sync_user_id = api.post("/api/users/", {
             "username": SYNC_USERNAME,
@@ -638,6 +667,32 @@ def command_model_init():
             "user_permissions": SYNC_PERMISSIONS,
         })["id"]
         log(f"created /api/users/ {SYNC_USERNAME}")
+
+    existing_workflow = api.find_by_name("/api/workflows/", WORKFLOW_NAME)
+    if existing_workflow:
+        # Nested workflow updates are not reconciled automatically: verify the
+        # contract and stop on drift so the operator recreates it deliberately.
+        triggers = existing_workflow.get("triggers", [])
+        actions = existing_workflow.get("actions", [])
+        trigger_ok = any(
+            t.get("type") == TRIGGER_DOCUMENT_ADDED
+            and medical_tag in (t.get("filter_has_tags") or [])
+            and SOURCE_API_UPLOAD in (t.get("sources") or [])
+            for t in triggers
+        )
+        action_ok = any(
+            a.get("assign_owner") == owner["id"]
+            and sync_user_id in (a.get("assign_view_users") or [])
+            for a in actions
+        )
+        if not (existing_workflow.get("enabled") and trigger_ok and action_ok):
+            raise SystemExit(
+                f"Workflow {WORKFLOW_NAME!r} differs from the Sprint 015 contract; "
+                "delete it in Paperless and run model-init again"
+            )
+        log(f"verified /api/workflows/ {WORKFLOW_NAME}")
+        log("Data model ready. Revoke the temporary administrator token now.")
+        return EXIT_OK
 
     ensure(api, "/api/workflows/", WORKFLOW_NAME, {
         "name": WORKFLOW_NAME,
@@ -670,8 +725,31 @@ def command_next_delay():
     return EXIT_OK
 
 
+def command_wait_ready():
+    """Wait until Paperless answers HTTP before the first run after a start."""
+    api = Paperless(os.environ.get("PAPERLESS_INTERNAL_URL", "http://homelab07-paperless-ngx:8000"), None)
+    deadline = time.monotonic() + int(os.environ.get("SYNC_STARTUP_WAIT", "600"))
+    while time.monotonic() < deadline:
+        try:
+            api.get("/api/")
+            return EXIT_OK
+        except ApiError as error:
+            if error.status and error.status < 500:
+                return EXIT_OK  # Answering (for example 401): ready.
+        except Unreachable:
+            pass
+        time.sleep(15)
+    log("Paperless did not answer within SYNC_STARTUP_WAIT; starting anyway.")
+    return EXIT_OK
+
+
 def main(arguments):
-    commands = {"sync": command_sync, "model-init": command_model_init, "next-delay": command_next_delay}
+    commands = {
+        "sync": command_sync,
+        "model-init": command_model_init,
+        "next-delay": command_next_delay,
+        "wait-ready": command_wait_ready,
+    }
     if len(arguments) != 1 or arguments[0] not in commands:
         print(__doc__, file=sys.stderr)
         return 2

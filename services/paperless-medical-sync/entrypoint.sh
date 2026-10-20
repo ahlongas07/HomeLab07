@@ -14,6 +14,9 @@ if [ "$#" -gt 0 ]; then
     exec "$@"
 fi
 
+# After a NAS reboot the sync may start before Paperless is ready.
+medical-sync wait-ready
+
 while :; do
     date +%s >"${heartbeat}"
     medical-sync sync

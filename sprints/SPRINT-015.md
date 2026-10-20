@@ -351,6 +351,15 @@ Paperless API behaviors to confirm during synthetic validation: custom field
 values sent with `post_document`, the `checksum__iexact` filter and the
 workflow and user payloads created by `model-init`.
 
+Implementation review fixes: task polling uses the API v10 task format;
+ownership is confirmed through `user_can_change` because `post_document`
+makes the uploader the owner; HTTP 5xx fails only the current file; error
+excerpts are masked; `model-init` reconciles the service user's permissions
+and stops on workflow drift; the container waits for Paperless after start-up;
+alert changes load only after the first sync metrics exist. Synthetic
+validation runs first against a disposable Paperless-ngx 3.3.3 instance, then
+on the NAS.
+
 ## Closure record
 
 Record outcome, sanitized validation summary, deviations and residual work here.

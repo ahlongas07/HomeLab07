@@ -110,7 +110,10 @@ Follow this order. Steps 1–3 run once.
    ```
 
    Delete the temporary token in `/admin/` immediately afterwards. The command
-   is idempotent and only creates missing objects.
+   is idempotent: it creates missing objects, resets the `sync-medico`
+   permissions and staff flags to the contract, and verifies an existing
+   workflow. It does not rewrite an existing workflow; on drift it stops and
+   asks for the workflow to be deleted and the command run again.
 
 3. Create the `sync-medico` token in `/admin/` → Auth tokens and store it as
    `PAPERLESS_SYNC_TOKEN` in the private environment file.
@@ -127,9 +130,18 @@ Follow this order. Steps 1–3 run once.
    ./operation/compose.sh paperless-medical-sync logs --tail=100
    ```
 
-6. After synthetic validation passes, point `SYNC_SOURCE_ROOT` at the real
+6. After the first sync has published `paperless-medical-sync.prom`, recreate
+   the observability stack so Grafana loads the sync alert conditions. Loading
+   them earlier fires the alerts, because an absent status counts as a
+   failure.
+
+7. After synthetic validation passes, point `SYNC_SOURCE_ROOT` at the real
    folder, recreate the service and review documents tagged `revisar-fecha`
    and `revisar-titulo`.
+
+On start-up the container waits up to `SYNC_STARTUP_WAIT` seconds (default
+600) for Paperless to answer before the first run, so a NAS reboot does not
+produce a failed attempt.
 
 Run a sync manually; a run in progress holds a lock and the second exits
 without uploading:
@@ -163,8 +175,15 @@ acceptance criteria are the checklist. Confirm at least:
 6. Logs contain no tokens, passwords, document content or unmasked personal
    data.
 
-The following Paperless API behaviors are assumed and must be confirmed during
-synthetic validation:
+Task polling follows the API v10 task format (lowercase `status`,
+`related_document_ids` and `result_data` with `document_id` and
+`duplicate_of`). After each upload the sync confirms that the workflow
+reassigned the owner: `sync-medico` must no longer be able to change the
+document (`user_can_change` is false).
+
+Validate against a disposable Paperless-ngx 3.3.3 instance with synthetic
+documents before deploying on the NAS. The following Paperless API behaviors
+are assumed and must be confirmed there:
 
 - `post_document` stores custom field values sent as a JSON object of field
   ID → value;
@@ -185,8 +204,13 @@ Alerts: "Platform batch operation failed" covers a failed or absent status and
 runbook is [Batch operation failed or stale](../../docs/observability/ALERTS.md#batch-operation-failed-or-stale).
 Logs are read with `docker logs`; they are not shipped to Loki.
 
-Deploy the service before relying on a clean alert state: the batch rule treats
-an absent status as a failure.
+Load the alert changes only after the sync has published its first metrics
+(Deployment step 6): the batch rule treats an absent status as a failure.
+
+Failure handling: a connection error aborts the run and retries after
+`SYNC_RETRY_SECONDS`. Any HTTP error, including 5xx, fails only the file being
+processed; the run continues with the next file. Error excerpts from Paperless
+are masked with the personal-data patterns before logging.
 
 ## Backup
 
