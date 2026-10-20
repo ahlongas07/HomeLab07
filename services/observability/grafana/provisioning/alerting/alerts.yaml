@@ -54,7 +54,7 @@ groups:
             relativeTimeRange: {from: 600, to: 0}
             model:
               <<: *prometheus_query
-              expr: '(homelab07_backup_last_status == bool 0) or absent(homelab07_backup_last_status) or (homelab07_security_last_status == bool 0) or absent(homelab07_security_last_status) or (homelab07_platform_last_status == bool 0) or absent(homelab07_platform_last_status) or (homelab07_rockstor_last_status == bool 0) or absent(homelab07_rockstor_last_status)'
+              expr: '(homelab07_backup_last_status == bool 0) or absent(homelab07_backup_last_status) or (homelab07_security_last_status == bool 0) or absent(homelab07_security_last_status) or (homelab07_platform_last_status == bool 0) or absent(homelab07_platform_last_status) or (homelab07_rockstor_last_status == bool 0) or absent(homelab07_rockstor_last_status) or (homelab07_paperless_medical_sync_last_status == bool 0) or absent(homelab07_paperless_medical_sync_last_status)'
           - refId: B
             datasourceUid: __expr__
             model:
@@ -143,6 +143,39 @@ groups:
           summary: No successful recovery point exists inside the baseline interval.
           runbook: docs/observability/ALERTS.md#backup-stale
         labels: {platform: homelab07, severity: critical}
+
+      - uid: hl07-medical-sync-stale
+        title: Medical records sync is stale
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: homelab07-prometheus
+            relativeTimeRange: {from: 172800, to: 0}
+            model:
+              <<: *prometheus_query
+              expr: time() - homelab07_paperless_medical_sync_last_run_timestamp_seconds
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator: {params: [172800], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+              datasource: {type: __expr__, uid: __expr__}
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: B
+              type: classic_conditions
+        noDataState: Alerting
+        execErrState: Alerting
+        for: 5m
+        annotations:
+          summary: The medical records sync has not completed an attempt inside 48 hours.
+          runbook: docs/observability/ALERTS.md#batch-operation-failed-or-stale
+        labels: {platform: homelab07, severity: warning}
 
       - uid: hl07-security-stale
         title: Security evidence is stale

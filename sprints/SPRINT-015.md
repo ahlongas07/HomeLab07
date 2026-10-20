@@ -1,6 +1,6 @@
 # SPRINT-015 — Medical Records Ingestion
 
-**Status:** Approved — ready to start
+**Status:** In progress — implementation complete; target validation pending
 
 **Classification:** Application Service
 
@@ -224,7 +224,7 @@ Alerting reuses the existing Grafana rules, with no new dashboard or panel:
 - Private configuration lives in
   `HomeLab07.private/env/paperless-medical-sync.env` (mode `600`), loaded with
   `env_file:`: source root, internal Paperless URL, `PAPERLESS_SYNC_TOKEN`,
-  `PDF_PASSWORDS`, owner user ID, folder → category table and the
+  `PDF_PASSWORDS`, owner username, folder → category table and the
   personal-data patterns removed from titles.
 - PDF passwords never reach Paperless, logs, metrics or process arguments.
 - Validation uses `docker compose config --quiet`; the full rendered output is
@@ -324,6 +324,32 @@ The source folder needs no rollback because it is mounted read-only.
 
 Restic snapshots taken before the rollback keep the exams until the retention
 policy removes them.
+
+## Implementation notes
+
+Delivered in `services/paperless-medical-sync/` (see its README). Deviations
+from the plan, all within scope:
+
+- `PAPERLESS_IGNORE_DATES` needed a pass-through line in the Paperless
+  `compose.yaml` because that stack lists its environment explicitly; the value
+  itself stays private.
+- The data model resolves the owner by `SYNC_OWNER_USERNAME` instead of a
+  numeric user ID.
+- The 48-hour condition is a separate rule, "Medical records sync is stale",
+  that uses the same runbook.
+- The service is added to the platform lifecycle list so `start`, `stop` and
+  `status` include it.
+
+Static validation completed: `sh -n`, `py_compile`, YAML parsing,
+`docker compose config --quiet` with example values, and a functional run of the
+sync against a simulated Paperless API (upload, skip, modified warning,
+duplicate, unsupported format and unreachable retry). Not run locally: image
+build, Hadolint, ShellCheck and the vulnerability scan; they run on the target
+host.
+
+Paperless API behaviors to confirm during synthetic validation: custom field
+values sent with `post_document`, the `checksum__iexact` filter and the
+workflow and user payloads created by `model-init`.
 
 ## Closure record
 

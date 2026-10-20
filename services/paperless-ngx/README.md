@@ -279,6 +279,9 @@ artifact, not a replacement for the consistent platform recovery point.
   validation; keep forced SSO disabled until separately approved.
 - Keep secrets and real endpoint values in `HomeLab07.private`.
 - No host ports, Docker socket, public uploads or anonymous links are enabled.
+- Medical exams are uploaded by the token-only `sync-medico` user from the
+  separate [Paperless Medical Sync](../paperless-medical-sync/README.md)
+  service. Every exam must have an owner.
 
 ## Related Sprint
 
@@ -286,4 +289,5 @@ artifact, not a replacement for the consistent platform recovery point.
 - Sprint 011 — Identity Platform foundation
 - Platform Enhancement — Paperless-ngx OIDC consumer
 - Platform Enhancement — Paperless-ngx 3 upgrade
+- Sprint 015 — Medical Records Ingestion (`PAPERLESS_IGNORE_DATES`)
 - SPIKE-002 — Identity Source of Truth and SSO Experience

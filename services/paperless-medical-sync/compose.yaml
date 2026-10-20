@@ -1,0 +1,37 @@
+services:
+  paperless-medical-sync:
+    build:
+      context: .
+    image: homelab07/paperless-medical-sync:sprint-015
+    container_name: homelab07-paperless-medical-sync
+    restart: unless-stopped
+    # Secrets are loaded as runtime variables only; never interpolate them here.
+    env_file:
+      - ${HOMELAB07_PRIVATE_ROOT:?HOMELAB07_PRIVATE_ROOT is required}/env/paperless-medical-sync.env
+    user: "${SYNC_UID:?SYNC_UID is required}:${SYNC_GID:?SYNC_GID is required}"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: ${SYNC_MEMORY_LIMIT:-256m}
+    cpus: 0.5
+    pids_limit: 64
+    tmpfs:
+      - /run/sync:size=${SYNC_TMPFS_SIZE:-128m},mode=1777
+    volumes:
+      - ${SYNC_SOURCE_ROOT:?SYNC_SOURCE_ROOT is required}:/source:ro
+      - ${SYNC_METRICS_ROOT:?SYNC_METRICS_ROOT is required}:/metrics
+    networks:
+      - homelab07-internal
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /run/sync/heartbeat ] && [ $$(( $$(date +%s) - $$(cat /run/sync/heartbeat) )) -lt 93600 ]"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 1m
+
+networks:
+  homelab07-internal:
+    name: homelab07-internal
+    external: true

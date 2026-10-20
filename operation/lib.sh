@@ -21,6 +21,7 @@ readonly -a PLATFORM_SERVICES=(
     nextcloud
     keycloak
     paperless-ngx
+    paperless-medical-sync
     homebridge
     cloudflare-ddns
     landing-page
@@ -102,6 +103,7 @@ service_label() {
         nextcloud) echo "Nextcloud" ;;
         keycloak) echo "Keycloak" ;;
         paperless-ngx) echo "Paperless-ngx" ;;
+        paperless-medical-sync) echo "Paperless Medical Sync" ;;
         homebridge) echo "Homebridge" ;;
         cloudflare-ddns) echo "Cloudflare Dynamic DNS" ;;
         landing-page) echo "Landing Page" ;;
