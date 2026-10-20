@@ -49,6 +49,10 @@ Target evidence to record: x86-64-v2 CPU check, pre-upgrade recovery point,
 runtime image identity, clean startup logs, search index rebuild, OIDC and
 local login, duplicate rejection and archive creation.
 
+Target validation of the 3.3.3 upgrade, including the Valkey failure/retry
+gate, was confirmed complete by the project owner on 2026-10-20. Detailed
+evidence remains in the private evidence location.
+
 ## Decision Gates
 
 - Stop if Valkey produces protocol errors or silently loses documents.

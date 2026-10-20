@@ -12,8 +12,9 @@ The README links here instead of maintaining a separate sprint summary.
 | Work item | Status | Next action |
 |---|---|---|
 | Sprint 012 — Vulnerability Management | In progress | Review the private baseline and remediation priorities; run a new private target-host scan covering all Git refs and full history before closure. |
-| Platform Enhancement — Paperless-ngx 3 upgrade | Implementation complete; target validation pending | Create a verified recovery point, then run the upgrade and validation in the Paperless-ngx README. |
+| Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
 | Sprint 014 — NAS Command Center | Implementation complete; target validation pending | Execute the controlled target-host validation defined in the Sprint document. |
+| Sprint 015 — Medical Records Ingestion | Approved — ready to start | Implement the sync stack and data-model script defined in the Sprint document. |
 | SPIKE-001 — Collaboration Platform Research | In progress | Complete balanced official-source evidence for all candidates and record the decision. |
 | SPIKE-001 — oCIS Architecture Validation | Architecture review complete; PoC required | Run the separately gated PoC only when its prerequisites and approval are met. |
 | SPIKE-002 — Identity Source of Truth and SSO | In progress; redirect recovery validation pending | Complete the documented redirect and local recovery validation. |
@@ -702,6 +703,40 @@ Validation
 - Critical-over-unknown precedence
 - 15-second operator decision exercise
 - Clean dashboard recreation and unchanged access boundary
+
+---
+
+## Sprint 015 — Medical Records Ingestion
+
+Status
+
+Approved — ready to start
+
+Objective
+
+Archive medical exams in Paperless-ngx through a daily API synchronization
+that never modifies the authoritative NAS folder.
+
+Application Service
+
+Paperless-ngx API version 10 and a dedicated minimal container with no NAS
+operating-system changes. See
+[SPRINT-015](sprints/SPRINT-015.md).
+
+Deliverables
+
+- Idempotent Paperless data-model script and `sync-medico` service user
+- Daily sync with encrypted-PDF handling, date and title rules
+- Initial load of existing exams; modified files reported, not re-uploaded
+- Sync metrics and failure alert
+
+Validation
+
+- Synthetic-document validation before real exams are loaded
+- Permission, ownership, idempotency and log-hygiene checks
+
+The future medical AI agent and its internet API access are excluded and
+require a separate scope decision.
 
 ---
 
