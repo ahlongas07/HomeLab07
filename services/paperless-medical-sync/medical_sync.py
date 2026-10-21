@@ -623,6 +623,18 @@ def ensure(api, path, name, payload):
     return created["id"]
 
 
+def ensure_shared(api, path, name, payload, sharing):
+    """Create or reconcile an owned object: exam owner + view for sync-medico."""
+    item = api.find_by_name(path, name)
+    if item:
+        api.request("PATCH", f"{path}{item['id']}/", body=sharing)
+        log(f"reconciled {path} {name} owner and permissions")
+        return item["id"]
+    created = api.post(path, {**payload, **sharing})
+    log(f"created {path} {name}")
+    return created["id"]
+
+
 def command_model_init():
     owner_username = os.environ.get("SYNC_OWNER_USERNAME", "").strip()
     if not owner_username:
@@ -639,16 +651,6 @@ def command_model_init():
     owner = api.find_by_name("/api/users/", owner_username, field="username")
     if not owner:
         raise SystemExit("SYNC_OWNER_USERNAME does not match a Paperless user")
-
-    no_matching = {"matching_algorithm": MATCH_NONE, "match": ""}
-    type_id = ensure(api, "/api/document_types/", DOCUMENT_TYPE, {"name": DOCUMENT_TYPE, **no_matching})
-    medical_tag = None
-    for name in (TAG_MEDICAL, TAG_REVIEW_DATE, TAG_REVIEW_TITLE, *sorted(set(category_map.values()))):
-        tag_id = ensure(api, "/api/tags/", name, {"name": name, "is_inbox_tag": False, **no_matching})
-        if name == TAG_MEDICAL:
-            medical_tag = tag_id
-    for name in (FIELD_PATH, FIELD_HASH):
-        ensure(api, "/api/custom_fields/", name, {"name": name, "data_type": "string"})
 
     sync_user = api.find_by_name("/api/users/", SYNC_USERNAME, field="username")
     if sync_user:
@@ -672,7 +674,28 @@ def command_model_init():
         })["id"]
         log(f"created /api/users/ {SYNC_USERNAME}")
 
-    existing_workflow = api.find_by_name("/api/workflows/", WORKFLOW_NAME)
+    # Types and tags are owned objects in Paperless: global view permission is
+    # not enough. The exam owner owns them and sync-medico gets view access.
+    sharing = {
+        "owner": owner["id"],
+        "set_permissions": {
+            "view": {"users": [sync_user_id], "groups": []},
+            "change": {"users": [], "groups": []},
+        },
+    }
+    no_matching = {"matching_algorithm": MATCH_NONE, "match": ""}
+    type_id = ensure_shared(api, "/api/document_types/", DOCUMENT_TYPE,
+                            {"name": DOCUMENT_TYPE, **no_matching}, sharing)
+    medical_tag = None
+    for name in (TAG_MEDICAL, TAG_REVIEW_DATE, TAG_REVIEW_TITLE, *sorted(set(category_map.values()))):
+        tag_id = ensure_shared(api, "/api/tags/", name,
+                               {"name": name, "is_inbox_tag": False, **no_matching}, sharing)
+        if name == TAG_MEDICAL:
+            medical_tag = tag_id
+    for name in (FIELD_PATH, FIELD_HASH):
+        ensure(api, "/api/custom_fields/", name, {"name": name, "data_type": "string"})
+
+    existing_workflow =api.find_by_name("/api/workflows/", WORKFLOW_NAME)
     if existing_workflow:
         # Nested workflow updates are not reconciled automatically: verify the
         # contract and stop on drift so the operator recreates it deliberately.
