@@ -14,7 +14,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Sprint 012 — Vulnerability Management | In progress | Review the private baseline and remediation priorities; run a new private target-host scan covering all Git refs and full history before closure. |
 | Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
 | Sprint 014 — NAS Command Center | Implementation complete; target validation pending | Execute the controlled target-host validation defined in the Sprint document. |
-| Sprint 015 — Medical Records Ingestion | In progress — implementation complete; target validation pending | Deploy in the Sprint order and run the synthetic-document validation. |
+| Sprint 015 — Medical Records Ingestion | Validated on target — closure pending residual work | Image scan, first daily run check and manual review of flagged documents. |
 | SPIKE-001 — Collaboration Platform Research | In progress | Complete balanced official-source evidence for all candidates and record the decision. |
 | SPIKE-001 — oCIS Architecture Validation | Architecture review complete; PoC required | Run the separately gated PoC only when its prerequisites and approval are met. |
 | SPIKE-002 — Identity Source of Truth and SSO | In progress; redirect recovery validation pending | Complete the documented redirect and local recovery validation. |
@@ -710,7 +710,7 @@ Validation
 
 Status
 
-In progress — implementation complete; target validation pending
+Validated on target — closure pending residual work
 
 Objective
 

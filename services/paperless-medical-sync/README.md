@@ -110,6 +110,14 @@ again), or, if it was created in the Paperless interface, grant `sync-medico`
 view permission on it. Otherwise every run stops with
 `Missing Paperless object`.
 
+Files outside a category folder can still receive a category through Paperless
+content matching configured on the category tags in the interface. This is
+manual configuration: `model-init` creates new tags without matching and never
+changes the matching of existing tags, so the rules survive re-runs but not a
+rebuild of Paperless without its database. Keep the rules in the private
+operational evidence so they can be recreated, and check that they only tag
+exams.
+
 ## Deployment
 
 Follow this order. Steps 1–3 run once.
@@ -242,7 +250,9 @@ exam owner, in Paperless:
   keeps manual edits such as correspondent and corrected title; or
 - delete the document and also empty it from the Paperless trash, because a
   document in the trash still counts as a duplicate; the next run uploads it
-  again with the new path, and manual edits are lost.
+  again with the new path, and manual edits are lost. If
+  `PAPERLESS_EMPTY_TRASH_DIR` is set, the emptied original lands in that
+  folder; remove it from there.
 
 Prefer leaving uploaded files where they are.
 
@@ -382,6 +392,10 @@ The full order is in the
 4. With a temporary administrator token, delete the workflow, `sync-medico`,
    custom fields, tags and document type; then delete the token.
 5. Remove `PAPERLESS_IGNORE_DATES` and recreate Paperless.
+
+If `PAPERLESS_EMPTY_TRASH_DIR` is set in the private Paperless configuration,
+emptying the trash moves the originals into that folder instead of deleting
+them; remove them from there too so no copy of the exams remains.
 
 Restic snapshots taken before the rollback keep the exams until the retention
 policy removes them.

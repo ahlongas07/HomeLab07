@@ -17,6 +17,8 @@
   watcher.
 - Add the medical sync status, last-success age and files-by-result table to
   the existing Operations dashboard.
+- Add the medical records ingestion living specification and the Sprint 015
+  closure record.
 - Stop and restore the medical sync around the platform backup, add it to the
   image inventory, preflight runtime list and recovery documentation. The
   original exam folder stays outside Restic and is protected by the NAS data

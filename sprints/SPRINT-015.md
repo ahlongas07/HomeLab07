@@ -1,6 +1,6 @@
 # SPRINT-015 — Medical Records Ingestion
 
-**Status:** In progress — implementation complete; target validation pending
+**Status:** Validated on target — closure pending residual work
 
 **Classification:** Application Service
 
@@ -326,7 +326,9 @@ it passes.
 2. Remove the sync conditions from the Grafana alert rules and delete
    `paperless-medical-sync.prom`.
 3. Delete the documents tagged `medico` that the sync created, then empty
-   them from the Paperless trash so no copy of the exams remains.
+   them from the Paperless trash. If `PAPERLESS_EMPTY_TRASH_DIR` is set, the
+   originals are moved there instead of deleted; remove them from that folder
+   so no copy of the exams remains.
 4. With a temporary administrator token, delete the workflow, `sync-medico`,
    custom fields, tags and document type, then revoke the token.
 5. Remove `PAPERLESS_IGNORE_DATES` from the private Paperless configuration
@@ -469,7 +471,88 @@ and one with it stopped.
 
 ## Closure record
 
-Record outcome, sanitized validation summary, deviations and residual work here.
+**Outcome:** Implementation complete and deployed on the target host. Initial
+load of the medical exam archive succeeded on 2026-10-22. Every acceptance
+criterion passed in manual validation on the target host. Closure pending the
+open items under "Residual work".
+
+### Validation summary (sanitized)
+
+| Area | Result |
+|---|---|
+| Data model | `model-init` created the document type, tags, custom fields, `sync-medico` and the ownership workflow; re-runs reconcile permissions without duplicates |
+| Initial load | Final full load on 2026-10-22: `uploaded=59 skipped=0 modified=0 duplicate=0 encrypted_no_password=0 unsupported=0 failed=0 deferred=0` in a single pass |
+| Ownership and access | Every exam owned by the exam owner; `sync-medico` limited to view and receives `403` on edit or delete; a test user without exam permissions sees no exam; ownership re-checked on every run |
+| Originals | Hash and modification time unchanged after sync |
+| Personal data | Preview and logs show holder name and identity numbers masked; titles contain neither; `docker compose config --quiet` and logs show no token or PDF password |
+| Dates and categories | Path-derived dates (DD-MM-YYYY, delimited YYYYMMDD, ISO folder, Spanish month folder) verified with `medical-sync preview`; long numeric identifiers produce no date; folder categories applied; content matching rules on category tags cover files without a category folder |
+| Watcher | Folder-by-folder copies detected within about one minute; batch copies produced one run; a large file was not uploaded while being copied; start-up and daily runs confirmed |
+| Encrypted PDFs | No file left as `encrypted_no_password` |
+| Resilience | With Paperless stopped the container did not restart-loop and retried after `SYNC_RETRY_SECONDS`; overlapping manual and scheduled runs uploaded nothing twice; the largest PDF uploaded within the memory limit; `sync-medico` token rotation exercised |
+| Observability | Metrics reach Prometheus through the Alloy textfile collector; "Platform batch operation failed" fired on a controlled failure (invalid token) and returned to Normal after a successful run; the 48-hour stale alert fired; Operations dashboard shows status, age and files by result |
+| Isolation | Sync failure, rebuild and removal did not affect Paperless; no host port, no change to the NAS operating system |
+| Automated tests | 7/7 watcher tests pass (deferred retry, file copied during a run, locked run, batch settle, future mtime, NFD tag lookup, unchanged folder) |
+
+### Deviations from the approved plan
+
+- **Change-triggered sync.** Added standard-library stat polling
+  (`SYNC_WATCH_INTERVAL`, `SYNC_SETTLE_SECONDS`) instead of the daily-only
+  schedule; start-up and daily runs kept as fallback. `watchfiles` and
+  `inotifywait` were rejected to keep the standard-library contract and
+  independence from the mount type.
+- **Deferral of files being copied.** Based on ctime only, so a future mtime
+  set by the copying client cannot defer a file forever.
+- **`medical-sync preview`.** New read-only command to verify dates,
+  categories, titles and masking before a load.
+- **Tag visibility.** Category tags created from the UI were invisible to
+  `sync-medico`; adding them to `SYNC_CATEGORY_MAP` and re-running
+  `model-init` now gives them the exam owner and view for `sync-medico`, as
+  for the contract tags.
+- **Category content matching.** Configured manually on the category tags in
+  the Paperless interface, outside the repository: `model-init` neither
+  creates nor changes matching. Accepted; the rules are kept in private
+  evidence and the README describes how to recreate and check them.
+- **Unicode.** Tag names compared in NFC; NFD names stored by macOS clients
+  are found locally.
+- **Backup coordination.** `backup.sh` stops the sync before Paperless and
+  restores it afterwards; the container joins the image inventory and
+  recovery documentation. The original exam folder stays outside Restic: it
+  is protected by the NAS data backup mechanism.
+- **Operations dashboard.** Sync panels added to the existing dashboard
+  instead of a new one.
+
+### Issues found during deployment
+
+| Issue | Resolution |
+|---|---|
+| Task polling read API v9 fields while requesting v10 | Fixed before deployment (lowercase status, `related_document_ids`, `result_data`) |
+| Ownership check could not detect a failed workflow | Fixed (`user_can_change` check, repeated on every run) |
+| Private configuration kept placeholder `SYNC_PERSONAL_PATTERNS` and lacked `SYNC_CATEGORY_MAP` | First load reverted; real values configured and checked with `preview`; README now requires it before the first load |
+| Category tags created in the UI not visible to `sync-medico` | Shared manually, then reconciled through `model-init` |
+| Documents in the Paperless trash and moved source folders reported as duplicates | Trash emptied; moved-file behaviour documented in the README |
+| Originals moved to `PAPERLESS_EMPTY_TRASH_DIR` after emptying the trash | Cleaned manually; documented in the rollback and moved-file procedures |
+| Alloy `instance` label changes on every observability recreation | Accepted; stable hostname proposed as a minor observability improvement |
+
+### Residual work
+
+- [x] Revert the original exam folder from the Restic snapshot, preflight and
+      restore-test scope; correct the backup documentation accordingly.
+- [x] Create the living specification
+      [`specs/medical-records.md`](../specs/medical-records.md) and update the
+      Roadmap status.
+- [ ] ShellCheck, Hadolint, image build and vulnerability scan of the final
+      image on the target host.
+- [ ] Confirm the first daily run reports `skipped=59 duplicate=0`.
+- [ ] Manual review in Paperless of `revisar-titulo` and `revisar-fecha`
+      documents, correspondents and missing categories.
+- [ ] Mark this Sprint and the Roadmap entry complete.
+
+### Follow-up candidates (not in scope)
+
+- Medical AI agent access through an existing Paperless MCP server, read-only,
+  optionally behind Keycloak OAuth for use from the Claude app.
+- Notification contact point for Grafana alerts.
+- Stable hostname for the Alloy container.
+- Codify category content matching in `model-init`.
+
 Detailed private evidence remains in its approved private location.
-Update the affected living specification under `/specs` before marking this
-Sprint complete.
