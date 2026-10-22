@@ -13,7 +13,8 @@ and private configuration are outside this repository change.
 
 ## Decisions
 
-- `nextcloud:33.0.6-apache` is pinned for application and cron.
+- `nextcloud:33.0.10-apache` is pinned by digest for application and cron
+  (33.0.6 until the 2026-10-22 security update).
 - The dedicated NAS root has explicit `html` and `data` directories.
 - Application and cron share identical persistent mounts.
 - Cron uses the official `/cron.sh` pattern and has no proxy-network access.
@@ -56,6 +57,62 @@ docker image inspect nextcloud:33.0.6-apache \
 
 Do not silently replace the pinned version. A digest or version change requires
 a reviewed repository update.
+
+## Security Update 33.0.6 → 33.0.10
+
+Reviewed and approved on 2026-10-22 as a version update only; the proposed
+account and exposure mitigations were not approved and are not applied. The
+pre-upgrade recovery point is the platform backup taken earlier the same day
+with Nextcloud in maintenance mode.
+Detailed scan findings and instance checks are kept in the private security
+review on the report share, not in Git.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `nextcloud:33.0.6-apache` | `nextcloud:33.0.10-apache` (same image as `33-apache`) |
+| Index digest | `sha256:d234808c4e63aad6889922228d64612a28682183dccaeac251db4db0be368aab` | `sha256:a4f8627d317e6de663b700f6a0d022530f038980930a4b81e967e7c19501b839` |
+| amd64 manifest | `sha256:96501c7550521e093ae90adc119c4af17e577c59e8ccb80ac07b4a5e01eea274` | `sha256:1ae59dd29104449f1756aff63bc6b070dd634f4f6a3e956f2fb8be1a0d98c399` |
+| arm64 manifest | `sha256:6086111db7d4f9fe791a4f1b8c2033ae44fbcfb9efbd9301b3316bed23ba136e` | `sha256:15531d894b5267cba3d0e001c3329c70b4e31ca5f4f0ae14c0a8c0cb57b1956d` |
+| Image built | 2026-07-14 | 2026-10-21 |
+| Upstream release | 2026-06-25 | 2026-10-15, latest stable of branch 33 |
+| PHP | 8.4.23 | 8.4.27 |
+
+Digests were read from Docker Hub on 2026-10-22.
+
+Upstream advisory affecting 33.0.6, fixed in 33.0.7:
+GHSA-7hwf-8pcj-33h4 / CVE-2026-104190 (high), ImageMagick abusable through
+previews of malicious files. Bundled PHP dependencies updated by 33.0.10
+include `mtdowling/jmespath.php` 2.9.1 and `guzzlehttp/guzzle` 7.15.2.
+
+The branch stays at 33: the maintenance release carries the security fixes, so
+a major upgrade to 34 has no security justification and would need a separate
+application compatibility review.
+
+Compatibility: same PHP minor and Debian 13 base, MariaDB 11.4 supported,
+Valkey and APCu unchanged. The only non-shipped enabled application,
+`user_oidc`, supports Nextcloud 29–34. The official image runs `occ upgrade`
+on start. Nextcloud does not support downgrades: rollback restores the
+pre-upgrade recovery point.
+
+Account and exposure mitigations proposed with the update (2FA for every
+administrator, fewer administrators, restricted preview providers, HSTS of at
+least 180 days, public link policy) are listed in the private review; they
+were not approved with this update.
+
+Target evidence to record after approval:
+
+- [ ] Pre-upgrade recovery point and disposable restore containing `html`,
+      `data` and the Nextcloud database.
+- [ ] Runtime image identity for application and cron.
+- [ ] `occ status` reports 33.0.10, no maintenance mode, no pending database
+      upgrade; missing indices, columns and primary keys added.
+- [ ] `occ integrity:check-core` clean; enabled application inventory
+      unchanged.
+- [ ] Local and Keycloak login, upload, download, share link, client sync,
+      preview and cron validated.
+- [ ] NPM access audit passes; published headers unchanged.
+- [ ] Security scan comparison performed on the private share; record only
+      whether it was accepted.
 
 ## Runtime Evidence
 

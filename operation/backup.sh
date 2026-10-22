@@ -92,30 +92,33 @@ container_was_running homelab07-paperless-medical-sync && medical_sync_running=t
 container_was_running homelab07-jellyfin && jellyfin_running=true
 container_was_running homelab07-homebridge && homebridge_running=true
 
+# Restart the containers stopped for the capture without recreating them.
+# `up -d` would apply any Compose change already present in the repository,
+# such as a new image pin, turning a backup into an unattended upgrade.
 restore_runtime_state() {
     local restore_failure=0
 
     if [[ "${nextcloud_running}" == true ]]; then
-        compose_service nextcloud up -d nextcloud >/dev/null 2>&1 || restore_failure=1
+        compose_service nextcloud start nextcloud >/dev/null 2>&1 || restore_failure=1
     fi
     if [[ "${nextcloud_cron_running}" == true ]]; then
-        compose_service nextcloud up -d nextcloud-cron >/dev/null 2>&1 || restore_failure=1
+        compose_service nextcloud start nextcloud-cron >/dev/null 2>&1 || restore_failure=1
     fi
     if [[ "${paperless_running}" == true ]]; then
-        compose_service paperless-ngx up -d >/dev/null 2>&1 || restore_failure=1
+        compose_service paperless-ngx start >/dev/null 2>&1 || restore_failure=1
     fi
     # After Paperless: the sync waits for it and then runs a full pass.
     if [[ "${medical_sync_running}" == true ]]; then
-        compose_service paperless-medical-sync up -d >/dev/null 2>&1 || restore_failure=1
+        compose_service paperless-medical-sync start >/dev/null 2>&1 || restore_failure=1
     fi
     if [[ "${jellyfin_running}" == true ]]; then
-        compose_service jellyfin up -d >/dev/null 2>&1 || restore_failure=1
+        compose_service jellyfin start >/dev/null 2>&1 || restore_failure=1
     fi
     if [[ "${homebridge_running}" == true ]]; then
-        compose_service homebridge up -d >/dev/null 2>&1 || restore_failure=1
+        compose_service homebridge start >/dev/null 2>&1 || restore_failure=1
     fi
     if [[ "${npm_running}" == true ]]; then
-        compose_service nginx-proxy-manager up -d >/dev/null 2>&1 || restore_failure=1
+        compose_service nginx-proxy-manager start >/dev/null 2>&1 || restore_failure=1
     fi
 
     if [[ "${nextcloud_maintenance}" == true && "${nextcloud_running}" == true ]]; then

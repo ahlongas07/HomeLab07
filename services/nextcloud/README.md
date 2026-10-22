@@ -19,15 +19,15 @@ infrastructure, backup automation or unrelated NAS shares.
 
 | Capability | Selection |
 |---|---|
-| Application and cron | `nextcloud:33.0.6-apache` |
+| Application and cron | `nextcloud:33.0.10-apache`, pinned by digest |
 | Database | Shared MariaDB 11.4 |
 | Distributed cache and locking | Shared Valkey 8 |
 | Local cache | APCu from the official image |
 | Publication | Nginx Proxy Manager and Cloudflare Dynamic DNS |
 | Persistence | Dedicated Rockstor share |
 
-The image uses a stable patch tag. Its registry digest must be recorded during
-the runtime validation on the target architecture.
+The image uses a stable patch tag pinned by its multi-architecture index
+digest; see the implementation notes for the reviewed versions.
 
 ## Directory Structure
 
@@ -237,6 +237,127 @@ User files alone are not a complete Nextcloud backup.
 Sprint 010 centralizes encrypted backup and disposable restore through
 `./operation/backup.sh` and `./operation/restore-test.sh`. The component steps
 above remain the application-level recovery contract.
+
+## Upgrade
+
+Maintenance upgrades stay on the pinned major branch and are pinned by tag
+and digest. The official image runs `occ upgrade` when it starts a newer
+version. Nextcloud does not support downgrades: once the database has been
+upgraded, rollback means restoring the pre-upgrade recovery point. Proposed
+versions, advisories and compatibility are recorded in
+[IMPLEMENTATION_NOTES.md](IMPLEMENTATION_NOTES.md).
+
+Keep evidence sanitized and in the private evidence location
+(`<evidence-dir>`); never store user names, domains or `config.php` content
+in Git.
+
+**Order matters.** Create the recovery point before the new pin reaches the
+NAS, so the recovery point and the running version always match. `backup.sh`
+restarts the containers it stopped with `docker compose start` and never
+recreates them, so it cannot apply a new pin by itself.
+
+1. Pre-checks, on the current repository revision:
+
+   ```bash
+   ./operation/backup-preflight.sh
+   ./operation/npm-access-audit.sh
+   docker exec --user www-data homelab07-nextcloud php occ status --output=json
+   docker exec --user www-data homelab07-nextcloud php occ app:list --enabled --output=json \
+     | jq -S '.enabled | keys' > <evidence-dir>/nextcloud-apps-before.json
+   ```
+
+2. Recovery point, still on the current revision:
+
+   ```bash
+   ./operation/backup.sh
+   ./operation/restore-test.sh latest <empty-restore-dir>
+   ```
+
+   Confirm that the disposable restore contains Nextcloud state, using counts
+   only, then delete it because it holds private configuration:
+
+   ```bash
+   find <empty-restore-dir> -path '*/html/config/config.php' | wc -l
+   find <empty-restore-dir> -path '*/data/.ocdata' | wc -l
+   grep -c '^CREATE DATABASE.*`<nextcloud-database-name>`' \
+     "$(find <empty-restore-dir> -name mariadb-all.sql)"
+   rm -rf -- <empty-restore-dir>
+   ```
+
+   Each count must be at least `1`, and the database count exactly `1`.
+
+3. Deploy the reviewed revision that changes the pin for both `nextcloud` and
+   `nextcloud-cron`:
+
+   ```bash
+   git pull
+   ./operation/compose.sh nextcloud config --quiet
+   ```
+
+4. Upgrade:
+
+   ```bash
+   ./operation/compose.sh nextcloud pull
+   ./operation/compose.sh nextcloud up -d
+   ./operation/compose.sh nextcloud logs --tail=200 nextcloud
+   ```
+
+   Wait until the health check reports `healthy`; the first start copies the
+   new code and runs the database migration.
+
+5. Validation:
+
+   ```bash
+   occ() { docker exec --user www-data homelab07-nextcloud php occ "$@"; }
+   occ status --output=json          # new version, maintenance false, needsDbUpgrade false
+   occ db:add-missing-indices
+   occ db:add-missing-columns
+   occ db:add-missing-primary-keys
+   occ integrity:check-core          # must report no modified or missing file
+   occ app:list --enabled --output=json | jq -S '.enabled | keys' \
+     | diff <evidence-dir>/nextcloud-apps-before.json -
+   occ setupchecks
+   ./operation/npm-access-audit.sh
+   ```
+
+   The application diff must be empty and `setupchecks` must show no new error.
+   Then validate in the browser and clients: local administrator login with
+   2FA, Keycloak login, upload, download, a share link, desktop or mobile sync
+   and an image preview. Confirm that cron ran after the upgrade
+   (`occ config:app:get core lastcron` shows a recent Unix time) and that
+   `status.php` through the published route reports the new version.
+
+6. Security scan and comparison with the previous run, as described in
+   [Comparing an image between scan runs](../../docs/security/VULNERABILITY_MANAGEMENT.md#comparing-an-image-between-scan-runs)
+   with the image prefix `nextcloud:`:
+
+   ```bash
+   ./operation/security-scan.sh scan
+   ```
+
+Update non-shipped applications such as `user_oidc` separately, after the
+server upgrade has been validated.
+
+Rollback, decided during validation because files uploaded after the upgrade
+are lost:
+
+1. Stop Nextcloud and its cron container:
+
+   ```bash
+   ./operation/compose.sh nextcloud stop
+   ```
+
+2. Restore `html`, `data` and the Nextcloud database from the pre-upgrade
+   recovery point following
+   [`docs/backup/DISASTER_RECOVERY.md`](../../docs/backup/DISASTER_RECOVERY.md).
+3. Revert the pin to the previous tag and digest from the implementation
+   notes, deploy that revision and start the service:
+
+   ```bash
+   ./operation/compose.sh nextcloud up -d
+   ```
+
+4. Repeat the validation in step 5 against the previous version.
 
 ## Historical Recovery
 

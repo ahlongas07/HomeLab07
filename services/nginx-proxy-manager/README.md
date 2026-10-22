@@ -433,11 +433,19 @@ the private evidence location (`<evidence-dir>`).
 
 ## 1. Recovery point before the upgrade
 
-Update the repository on the NAS first; this changes no running container,
-and `backup.sh` requires a clean worktree. The manifest records the image the
-container is actually running (2.15.1) in its service inventory:
+Create the recovery point before the new pin reaches the NAS. During the
+2.16.0 upgrade the repository was updated first and `backup.sh`, which then
+restarted services with `docker compose up -d`, performed the upgrade
+unattended; the recovery point itself was still taken from 2.15.1. The backup
+now restarts the containers it stopped with `docker compose start` and never
+recreates them.
+
+Run the preflight first, outside the maintenance window: it stops nothing
+and reports storage, repository and runtime problems before any service is
+interrupted. `backup.sh` runs it again before stopping services.
 
 ```bash
+./operation/backup-preflight.sh
 ./operation/backup.sh
 ./operation/restore-test.sh latest <empty-restore-dir>
 ```

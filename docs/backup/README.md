@@ -62,7 +62,10 @@ The operation:
 5. creates a transactionally consistent logical MariaDB dump, including the
    dedicated Keycloak database, and a Git bundle;
 6. writes an encrypted platform-state snapshot;
-7. checks repository integrity and restores the previous runtime state;
+7. checks repository integrity and restores the previous runtime state by
+   restarting the stopped containers with `docker compose start`; it never
+   recreates them, so a Compose change in the repository is not applied by a
+   backup;
 8. generates a versioned `backup-manifest.json` with checksums and results;
 9. writes a coordinated manifest snapshot referencing the data snapshot;
 10. removes sensitive staging files.

@@ -69,27 +69,29 @@ Because the database schema does not change, the previous image can start on
 the upgraded database. The supported rollback still restores the pre-upgrade
 recovery point (see the README).
 
-### Target evidence to record
+### Target result (2026-10-22)
 
-Fill in after the target-host upgrade, sanitized:
+Upgrade complete on the target host. Detailed evidence remains in the private
+evidence location.
 
-- [ ] Pre-upgrade recovery point created and disposable restore passed,
-      including the NPM data and certificate trees and the NPM database.
-- [ ] Rendered host configuration fingerprint captured before the upgrade.
-- [ ] Access audit passed before the upgrade: number of hosts with access
-      lists and with certificates, and any blocked host IDs with the
-      decision taken.
-- [ ] Runtime image identity after the upgrade.
-- [ ] Start-up logs without migration or configuration errors; `nginx -t`
-      passes.
-- [ ] Rendered host configuration fingerprint unchanged and access audit
-      passed after the upgrade.
-- [ ] Administration UI reachable from the LAN only; WAN check of port `81`
-      refused.
-- [ ] Proxy hosts, access lists and redirections present; representative
-      published services answer through HTTPS.
-- [ ] Certificates valid with unchanged expiry; one renewal dry run passes.
-- [ ] Security scan run after the upgrade and compared with the previous
-      run on the private share; record here only that it was performed and
-      whether new `CRITICAL` or `HIGH` findings were accepted.
-- [ ] Platform status and observability show no new failure.
+- Pre-upgrade recovery point created with 2.15.1 stopped. The backup's restart
+  then recreated NPM with the new pin (the repository had been updated first);
+  `backup.sh` has since been changed to restart containers without recreating
+  them. Disposable restore and the WAN check of port `81` were confirmed by the
+  project owner.
+- Runtime image `jc21/nginx-proxy-manager:2.16.0@sha256:4393e642…`; no
+  restart loop; database migration version unchanged (no new migration).
+- `nginx -t` passes; no `.conf.err` file.
+- Access audit identical before and after the upgrade: six active hosts, each
+  with its access list rendered (rule count and `deny all`) and its
+  certificate and HTTPS redirect; one warning for a host without Force SSL.
+- Every published host answers through Cloudflare; direct origin requests are
+  denied with `403`.
+- Certbot renewal dry run passes for every certificate in use.
+- Platform status clean.
+- Security scan compared with the last 2.15.1 run on the private share; the
+  upgrade removes most findings, and the two new high findings in certbot
+  Python dependencies were accepted as not applicable to HTTP-01 validation.
+- Follow-up: an expired certificate of a deleted host was deleted in the UI;
+  its files remain on disk and its renewal keeps failing until removed.
+  Enabling Force SSL on the remaining host is a separate decision.

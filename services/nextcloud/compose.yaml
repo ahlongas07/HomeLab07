@@ -1,6 +1,6 @@
 services:
   nextcloud:
-    image: nextcloud:33.0.6-apache
+    image: nextcloud:33.0.10-apache@sha256:a4f8627d317e6de663b700f6a0d022530f038980930a4b81e967e7c19501b839
     container_name: homelab07-nextcloud
     restart: unless-stopped
     security_opt:
@@ -37,7 +37,7 @@ services:
       start_period: 180s
 
   nextcloud-cron:
-    image: nextcloud:33.0.6-apache
+    image: nextcloud:33.0.10-apache@sha256:a4f8627d317e6de663b700f6a0d022530f038980930a4b81e967e7c19501b839
     container_name: homelab07-nextcloud-cron
     restart: unless-stopped
     security_opt:

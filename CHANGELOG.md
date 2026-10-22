@@ -35,8 +35,17 @@
   read-only storage and operation evidence, observability self-health, and
   gated exporter or functional-probe candidates.
 
+### Fixed
+
+- Restart the containers stopped by `backup.sh` with `docker compose start`
+  instead of `up -d`, so a backup never recreates services or applies an
+  image pin already present in the repository.
+
 ### Changed
 
+- Upgrade Nextcloud from 33.0.6 to 33.0.10 pinned by digest (same major
+  branch) for upstream advisory GHSA-7hwf-8pcj-33h4 and current Debian
+  packages, and document the maintenance upgrade and rollback procedure.
 - Upgrade Nginx Proxy Manager from 2.15.1 to 2.16.0 pinned by digest for
   CVE-2026-40519, with a backup-first upgrade, rendered-configuration and
   certificate baseline, validation, scan comparison and rollback procedure;
