@@ -101,10 +101,21 @@ immediately before the upgrade with a disposable 26.7.0 container
 (`export --users realm_file --cache=local`) into the private evidence
 location. The export contains users and client secrets and never enters Git.
 
-Target evidence:
+Target result (2026-10-22, update at 20:42 UTC, about 40 seconds without
+login). Detailed evidence remains in the private evidence location.
 
-- [ ] Runtime image identity; healthy start without migration errors.
-- [ ] Realm discovery for the platform realm; custom login theme served.
-- [ ] Nextcloud and Paperless-ngx redirect to Keycloak; owner login with OTP.
-- [ ] NPM access audit passes.
-- [ ] Security scan compared with the last 26.7.0 run on the private share.
+- [x] Runtime `quay.io/keycloak/keycloak:26.7.5@sha256:37dbaf6f…`, healthy,
+      no restarts; Liquibase database update without errors. Startup
+      warnings are the default deprecated-feature notice and an empty-query
+      notice from the MariaDB driver.
+- [x] Discovery answers for every realm, locally and through Cloudflare; the
+      admin console answers.
+- [x] The login page reached from Nextcloud serves the custom `homelab07`
+      theme and the login form.
+- [x] Nextcloud and Paperless-ngx redirect to Keycloak; the project owner
+      completed a login with OTP. The application on the second realm also
+      authenticates through Keycloak.
+- [x] NPM access audit passes.
+- [x] Security scan compared with the last 26.7.0 run on the private share:
+      no new finding; the only remaining critical finding is in the base
+      image CA bundle without a published fix. Accepted.

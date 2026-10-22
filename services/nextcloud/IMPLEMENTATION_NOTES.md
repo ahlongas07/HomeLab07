@@ -123,8 +123,9 @@ downtime). Detailed evidence remains in the private evidence location.
 - [x] The image's newer `redis.config.php` and `s3.config.php` templates add
       optional Unix-socket and SSE-KMS support; the installed files were left
       unchanged because neither feature is used.
-- [ ] Owner functional checks: local and Keycloak login, upload, download,
-      share link, client sync and image preview.
+- [x] Owner functional checks confirmed by the project owner: local and
+      Keycloak login, upload, download, share link, client sync and image
+      preview.
 
 ## Runtime Evidence
 

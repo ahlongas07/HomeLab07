@@ -91,8 +91,9 @@ downtime). Detailed evidence remains in the private evidence location.
 - [x] Security scan compared with the last 10.11.11 run on the private share:
       no new finding. Accepted; the remaining .NET runtime findings wait for a
       Jellyfin release with .NET 10.0.13.
-- [ ] Owner checks: full scan of all libraries, users and playback history,
-      direct play and one VA-API transcode through the published route.
+- [x] Owner checks confirmed by the project owner: full scan of all
+      libraries, users and playback history, direct play and one VA-API
+      transcode through the published route.
 
 ## Hardware Discovery
 
