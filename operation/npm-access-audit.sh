@@ -128,9 +128,9 @@ done')"
 
 # Field of the row whose first column is the given ID, or the default.
 lookup() {
-    local table="$1" id="$2" column="$3" default="$4"
-    awk -F '\t' -v id="${id}" -v column="${column}" -v default="${default}" \
-        '$1 == id { print $column; found = 1; exit } END { if (!found) print default }' <<<"${table}"
+    local table="$1" id="$2" column="$3" fallback="$4"
+    awk -F '\t' -v id="${id}" -v column="${column}" -v fallback="${fallback}" \
+        '$1 == id { print $column; found = 1; exit } END { if (!found) print fallback }' <<<"${table}"
 }
 
 if docker exec "${NPM_CONTAINER}" nginx -t >/dev/null 2>&1; then
