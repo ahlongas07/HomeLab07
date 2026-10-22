@@ -99,20 +99,32 @@ administrator, fewer administrators, restricted preview providers, HSTS of at
 least 180 days, public link policy) are listed in the private review; they
 were not approved with this update.
 
-Target evidence to record after approval:
+Target result (2026-10-22, upgrade at 20:01 UTC, about one minute of
+downtime). Detailed evidence remains in the private evidence location.
 
-- [ ] Pre-upgrade recovery point and disposable restore containing `html`,
-      `data` and the Nextcloud database.
-- [ ] Runtime image identity for application and cron.
-- [ ] `occ status` reports 33.0.10, no maintenance mode, no pending database
-      upgrade; missing indices, columns and primary keys added.
-- [ ] `occ integrity:check-core` clean; enabled application inventory
+- [x] Pre-upgrade recovery point: the platform backup taken earlier the same
+      day with Nextcloud in maintenance mode (chosen by the project owner
+      instead of a new backup).
+- [x] Application and cron run `nextcloud:33.0.10-apache@sha256:a4f8627d…`
+      without restarts; the entrypoint upgraded from 33.0.6.2.
+- [x] `occ status` reports 33.0.10, no maintenance mode and no pending
+      database upgrade; no missing indices, columns or primary keys.
+- [x] `occ integrity:check-core` clean; enabled application inventory
       unchanged.
-- [ ] Local and Keycloak login, upload, download, share link, client sync,
-      preview and cron validated.
-- [ ] NPM access audit passes; published headers unchanged.
-- [ ] Security scan comparison performed on the private share; record only
-      whether it was accepted.
+- [x] `setupchecks` shows no new warning; the HSTS warning remains (set at the
+      edge, outside this update).
+- [x] Published route reports 33.0.10; security headers unchanged;
+      administration and WebDAV return `401` without a session; Keycloak login
+      redirects to the realm.
+- [x] Cron ran after the upgrade without errors; NPM access audit passes.
+- [x] Security scan compared with the last 33.0.6 run on the private share:
+      no new finding, and no remaining finding with an available fix.
+      Accepted.
+- [x] The image's newer `redis.config.php` and `s3.config.php` templates add
+      optional Unix-socket and SSE-KMS support; the installed files were left
+      unchanged because neither feature is used.
+- [ ] Owner functional checks: local and Keycloak login, upload, download,
+      share link, client sync and image preview.
 
 ## Runtime Evidence
 

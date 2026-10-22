@@ -13,7 +13,7 @@ The README links here instead of maintaining a separate sprint summary.
 |---|---|---|
 | Sprint 012 — Vulnerability Management | In progress | Review the private baseline and remediation priorities; run a new private target-host scan covering all Git refs and full history before closure. |
 | Platform Enhancement — Nginx Proxy Manager 2.16.0 security upgrade | Complete — target validation 2026-10-22 | Run `operation/npm-access-audit.sh` after access-list, host or certificate changes until upstream fixes issue #5919. |
-| Platform Enhancement — Nextcloud 33.0.10 security update | Approved (version only); pin in repository | Deploy the pin and complete the validation in the service README. |
+| Platform Enhancement — Nextcloud 33.0.10 security update | Deployed 2026-10-22; technical validation complete | Owner functional checks (logins, files, shares, sync, previews); account mitigations remain unapproved. |
 | Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
 | Sprint 014 — NAS Command Center | Implementation complete; target validation pending | Execute the controlled target-host validation defined in the Sprint document. |
 | Sprint 015 — Medical Records Ingestion | Validated on target — closure pending residual work | Image scan, first daily run check and manual review of flagged documents. |
