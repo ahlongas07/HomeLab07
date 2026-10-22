@@ -726,7 +726,8 @@ operating-system changes. See
 Deliverables
 
 - Idempotent Paperless data-model script and `sync-medico` service user
-- Daily sync with encrypted-PDF handling, date and title rules
+- Change-triggered sync with a daily fallback, encrypted-PDF handling, date and
+  title rules
 - Initial load of existing exams; modified files reported, not re-uploaded
 - Sync metrics and failure alert
 

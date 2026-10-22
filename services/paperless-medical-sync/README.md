@@ -3,13 +3,16 @@
 ## Purpose
 
 Uploads the owner's medical exams from an authoritative NAS folder into
-Paperless-ngx once a day, with document type, tags, date, title and OCR text.
-The folder is never modified. Sprint 015 delivers this service.
+Paperless-ngx within minutes of being added, with document type, tags, date,
+title and OCR text. A daily run is kept as a fallback. The folder is never
+modified. Sprint 015 delivers this service.
 
 ## Responsibilities
 
 - Walk the read-only source folder and upload new PDF, PNG and JPG exams
   through the Paperless-ngx API (version 10).
+- Detect changes in the source folder by polling and start a sync once they
+  settle.
 - Decrypt password-protected PDFs in memory-backed temporary storage before
   upload.
 - Derive dates, titles and category tags from paths, removing personal data
@@ -30,7 +33,8 @@ failure, rebuild or removal never restarts or changes Paperless.
 | Image | Built locally from `python:3.13-alpine3.24` pinned by digest |
 | PDF decryption | `qpdf` 12.3.2-r0 |
 | Code | Python standard library only, no `pip` packages |
-| Scheduling | Container entrypoint loop; no host cron or systemd |
+| Scheduling | Container entrypoint loop: run at start, on settled source changes and daily; no host cron or systemd |
+| Change detection | Standard-library `stat` polling of the source folder; no inotify, works on any mount |
 | Paperless access | REST API version 10 on `homelab07-internal` |
 
 ## Directory Structure
@@ -42,16 +46,20 @@ services/paperless-medical-sync/
 ├── README.md
 ├── compose.yaml
 ├── entrypoint.sh
-└── medical_sync.py
+├── medical_sync.py
+└── tests/
+    └── test_watcher.py
 ```
+
+The tests are not copied into the image.
 
 Runtime mounts:
 
 | Container path | Source | Access |
 |---|---|---|
-| `/source` | `SYNC_SOURCE_ROOT` (original exams) | read-only |
+| `/source` | `SYNC_SOURCE_ROOT` (original exams, polled for changes) | read-only |
 | `/metrics` | `SYNC_METRICS_ROOT` (observability textfile directory) | read-write |
-| `/run/sync` | size-limited `tmpfs` (decrypted copies, lock, heartbeat) | read-write |
+| `/run/sync` | size-limited `tmpfs` (decrypted copies, lock, heartbeat, source snapshot) | read-write |
 
 The root filesystem is read-only, all capabilities are dropped and the process
 runs as `SYNC_UID:SYNC_GID`.
@@ -71,7 +79,9 @@ chmod 600 ../HomeLab07.private/env/paperless-medical-sync.env
 | `SYNC_UID`, `SYNC_GID` | Identity that can read the source and write metrics |
 | `SYNC_MEMORY_LIMIT`, `SYNC_TMPFS_SIZE` | Memory limit and decrypted-copy space; the `tmpfs` counts against the limit |
 | `TZ` | Same value as `PAPERLESS_TIME_ZONE` |
-| `SYNC_HOUR` | Local hour of the daily run |
+| `SYNC_HOUR` | Local hour of the daily fallback run |
+| `SYNC_WATCH_INTERVAL` | Seconds between source-folder polls (default 30; `0` disables the watcher) |
+| `SYNC_SETTLE_SECONDS` | Seconds a change must stay stable before a sync, and minimum age of a file before upload (default 30) |
 | `SYNC_RETRY_SECONDS` | Retry delay when Paperless is unreachable |
 | `SYNC_OWNER_USERNAME` | Paperless user that owns every exam |
 | `SYNC_CATEGORY_MAP` | JSON: folder name → category tag |
@@ -87,6 +97,18 @@ through stdin with an environment that contains only `PATH`.
 Personal-data patterns must include their labels (for example `CC`) and allow
 `_`, `-` or spaces between words, because they are applied to raw paths in
 logs and to normalized names in titles.
+
+Set `SYNC_PERSONAL_PATTERNS` and `SYNC_CATEGORY_MAP` to real values before the
+first load of real exams; the example values match nothing. Check them with
+the preview (Deployment step 7).
+
+Category tag names are compared in Unicode NFC, so a tag typed with a
+decomposed accent (NFD, common from macOS) matches the same name in
+`SYNC_CATEGORY_MAP`. Every category tag must be visible to `sync-medico`:
+create it with `model-init` (add the category to `SYNC_CATEGORY_MAP` and run it
+again), or, if it was created in the Paperless interface, grant `sync-medico`
+view permission on it. Otherwise every run stops with
+`Missing Paperless object`.
 
 ## Deployment
 
@@ -136,12 +158,66 @@ Follow this order. Steps 1–3 run once.
    failure.
 
 7. After synthetic validation passes, point `SYNC_SOURCE_ROOT` at the real
-   folder, recreate the service and review documents tagged `revisar-fecha`
-   and `revisar-titulo`.
+   folder and set the real `SYNC_PERSONAL_PATTERNS` and `SYNC_CATEGORY_MAP`.
+   Preview the result before anything is uploaded. The preview reads only the
+   source folder and the environment file: it does not contact Paperless and
+   uploads nothing.
+
+   ```bash
+   ./operation/compose.sh paperless-medical-sync stop
+   ./operation/compose.sh paperless-medical-sync build
+   ./operation/compose.sh paperless-medical-sync run --rm \
+     paperless-medical-sync medical-sync preview
+   ```
+
+   Each line shows the masked path, date, category, title and review tags.
+   Check that no title contains personal data, that every folder has a
+   category, and that `-` dates and `revisar-titulo` are the expected cases.
+   Adjust the patterns or the map and repeat until the output is correct.
+   The terminal shows the derived titles: do not store or share it.
+
+8. Recreate the service for the initial load and review documents tagged
+   `revisar-fecha` and `revisar-titulo`:
+
+   ```bash
+   ./operation/compose.sh paperless-medical-sync up -d
+   ```
 
 On start-up the container waits up to `SYNC_STARTUP_WAIT` seconds (default
 600) for Paperless to answer before the first run, so a NAS reboot does not
 produce a failed attempt.
+
+### Change-triggered runs
+
+After each run the container polls the source folder every
+`SYNC_WATCH_INTERVAL` seconds with a `stat`-only walk (path, size and mtime;
+no file is read). When the result differs from the snapshot taken at the start
+of the last run and then stays unchanged for `SYNC_SETTLE_SECONDS`, it starts
+`medical-sync sync`. Copying several files at once therefore starts one run,
+usually within two minutes of the copy finishing.
+
+The watcher only starts the existing sync; upload, deduplication and title
+rules are unchanged. A full run still happens at start-up and daily at
+`SYNC_HOUR` as a fallback. While Paperless is unreachable the watcher pauses
+and the next attempt follows `SYNC_RETRY_SECONDS`.
+
+Every run, whatever started it, defers files changed less than
+`SYNC_SETTLE_SECONDS` ago (by mtime or ctime), so a file still being copied is
+never uploaded half written. Deferred files are counted as `deferred` and
+start another run once they settle.
+
+The snapshot is taken before the walk, so a file copied while a run is in
+progress starts another run. A run that finds the lock held exits without
+touching the snapshot, so the change is picked up again instead of being
+treated as handled.
+
+Disk standby: each poll only reads directory entries and file metadata, which
+the NAS usually serves from its cache. If that cache is evicted, the poll can
+wake the disks every `SYNC_WATCH_INTERVAL` seconds and keep them from entering
+standby. If the disks do not enter standby, raise `SYNC_WATCH_INTERVAL` (for
+example to `120`, so new exams arrive within about four minutes) or set it to
+`0` to keep only the daily run. The two-minute target needs an interval of about 45
+seconds or less.
 
 Run a sync manually; a run in progress holds a lock and the second exits
 without uploading:
@@ -154,6 +230,17 @@ Never store or share the full output of `docker compose config`: it contains
 the rendered secrets. Use `--quiet`.
 
 ## Validation
+
+Before building, run the watcher tests (standard library only, about 20
+seconds, no Paperless needed):
+
+```bash
+python3 -m unittest discover -s services/paperless-medical-sync/tests
+```
+
+They cover a deferred file retried without further folder changes, a file
+copied during a run, a run that finds the lock held, a batch copy that settles
+once and NFD tag lookup.
 
 ```bash
 ./operation/compose.sh paperless-medical-sync ps
@@ -174,6 +261,12 @@ acceptance criteria are the checklist. Confirm at least:
    `SYNC_RETRY_SECONDS`.
 6. Logs contain no tokens, passwords, document content or unmasked personal
    data.
+7. A file copied over SMB appears in Paperless in less than 2 minutes, a batch
+   copy produces a single `SUMMARY` line, and a large file being copied is
+   logged as `DEFERRED` instead of uploaded.
+8. With `SYNC_WATCH_INTERVAL=0`, a file added during the day is uploaded by
+   the daily run.
+9. A category tag whose name uses a decomposed accent (NFD) is found.
 
 Task polling follows the API v10 task format (lowercase `status`,
 `related_document_ids` and `result_data` with `document_id` and
@@ -200,6 +293,10 @@ The sync writes `paperless-medical-sync.prom` with
 `homelab07_paperless_medical_sync_last_status`,
 `..._last_run_timestamp_seconds`, `..._last_success_timestamp_seconds`,
 `..._last_duration_seconds` and `..._files{result=…}`.
+
+Metrics and the healthcheck describe the latest completed run, whether it was
+started by a change or by the daily schedule; the daily run guarantees at least
+one per day.
 
 Alerts: "Platform batch operation failed" covers a failed or absent status and
 "Medical records sync is stale" fires after 48 hours without an attempt. The

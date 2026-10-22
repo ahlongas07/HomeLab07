@@ -2,6 +2,20 @@
 
 ### Added
 
+- Add the Sprint 015 medical records ingestion: a dedicated
+  `paperless-medical-sync` container (Python standard library and pinned
+  `qpdf`) that uploads exams from a read-only NAS folder through the
+  Paperless-ngx API v10 with type, tags, date, title and decrypted PDFs, never
+  modifying the originals; an idempotent `model-init` data model with the
+  `sync-medico` service user and ownership workflow; batch metrics with failure
+  and 48-hour stale alerts.
+- Trigger the medical sync on settled source-folder changes through
+  standard-library `stat` polling, with deferral of files still being copied
+  and the start-up and daily runs kept as fallback.
+- Add `medical-sync preview` to check dates, categories and titles before the
+  first load without contacting Paperless, and standard-library tests for the
+  watcher.
+
 - Add the Sprint 014 NAS Command Center implementation with a provisioned
   dashboard and an explicit four-state health decision over existing evidence.
 - Add required-evidence freshness handling and controlled validation for the
@@ -12,6 +26,9 @@
 
 ### Changed
 
+- Compare medical category tag names in Unicode NFC and document tag sharing
+  with `sync-medico`, real personal-data patterns and the category map before
+  the first load.
 - Upgrade Paperless-ngx from 2.20.15 to 3.3.3 pinned by digest, rename the
   consumer polling setting, keep archive generation and duplicate rejection
   explicit, set a safe login proxy count and document the backup-first upgrade

@@ -104,7 +104,7 @@ NAS host.
 |---|---|
 | Image | Built from `services/paperless-medical-sync/Dockerfile`: `python:3.13-alpine` pinned by digest plus a pinned `qpdf` package; no `pip` dependencies |
 | Script | Python standard library only (HTTP, multipart upload, NFC normalization, task pagination) |
-| Scheduling | A shell entrypoint runs the sync once a day and then sleeps; idle cost is a single `sleep` process. A manual run uses `docker compose exec` |
+| Scheduling | A shell entrypoint runs the sync at start-up, after a settled change in the source folder and once a day as a fallback. Change detection is a standard-library `stat` poll (see Enhancement: change-triggered sync). A manual run uses `docker compose exec` |
 | Failure handling | The entrypoint never exits on a sync failure: it records the result in metrics and continues its cycle. If Paperless is unreachable (for example after a NAS reboot), the next attempt runs after 1 hour instead of 24 |
 | Concurrency | A `flock` on a lock file in the `tmpfs` prevents a manual run from overlapping the scheduled run; the second run exits without uploading |
 | Lifecycle | `restart: unless-stopped` covers only crashes of the entrypoint itself; healthcheck based on the age of the last completed run |
@@ -359,6 +359,78 @@ and stops on workflow drift; the container waits for Paperless after start-up;
 alert changes load only after the first sync metrics exist. Synthetic
 validation runs first against a disposable Paperless-ngx 3.3.3 instance, then
 on the NAS.
+
+## Enhancement: change-triggered sync
+
+Identified during target validation. Objective: a new exam reaches Paperless
+within minutes instead of waiting for the daily run.
+
+Design:
+
+- After each run the entrypoint calls `medical-sync wait-change`, which walks
+  `/source` every `SYNC_WATCH_INTERVAL` seconds (default 30) collecting only
+  path, size and mtime. When the snapshot differs from the one taken at the
+  start of the last run and stays unchanged for `SYNC_SETTLE_SECONDS`
+  (default 30), it returns and the entrypoint runs `medical-sync sync`. The
+  existing `flock` still prevents overlaps.
+- The watcher only triggers the existing sync; upload, deduplication and title
+  logic are unchanged. The full run at start-up and the daily run at
+  `SYNC_HOUR` remain as the fallback for missed changes.
+- Polling with the standard library was chosen over inotify (`watchfiles` or
+  `inotify-tools`): it keeps the standard-library-only contract and the
+  supply-chain scope unchanged, and works on any mount, so no forced-polling
+  switch or inotify test on the NAS is needed.
+- Every run defers files changed less than `SYNC_SETTLE_SECONDS` ago (mtime or
+  ctime) and drops the snapshot baseline, so the watcher retries them once
+  they settle. This also protects the start-up and daily runs from uploading a
+  file still being copied.
+- Healthcheck and stale alert remain based on the latest completed run.
+
+Minor improvements from the first deployment:
+
+- Category tag names from `SYNC_CATEGORY_MAP` and from Paperless are compared
+  in Unicode NFC; when the server-side `iexact` filter misses a name stored in
+  another form, the sync searches the tag pages locally.
+- New `medical-sync preview` command: prints masked path, date, category,
+  title and review tags without contacting Paperless, to check
+  `SYNC_PERSONAL_PATTERNS` and `SYNC_CATEGORY_MAP` before the first load.
+- The README documents that category tags created in the Paperless interface
+  must be shared with `sync-medico` (view) or created through `model-init`,
+  and that personal patterns and the category map need real values before the
+  first load.
+
+Acceptance criteria:
+
+- **Given** a file copied over SMB, **when** the copy finishes, **then** it
+  appears in Paperless in less than 2 minutes.
+- **Given** several files copied at once, **when** the copy finishes, **then**
+  a single sync runs.
+- **Given** a large file being copied, **when** a sync runs, **then** it is
+  deferred and uploaded only once complete.
+- **Given** the watcher disabled (`SYNC_WATCH_INTERVAL=0`) or a missed change,
+  **when** the daily run starts, **then** pending files are uploaded.
+- **Given** a category tag with an accent in NFD or NFC, **when** the sync
+  resolves it, **then** it is found in both cases.
+
+Deployment: Paperless holds no exams yet, so the first run of the new version
+performs the initial load. Build the image and run the preview before starting
+the service (README, Deployment steps 7 and 8).
+
+Design review follow-ups: the baseline is taken before the walk and re-read
+on every poll, so a file copied during a run, or during a concurrent manual
+run, starts another run; a run that finds the lock held leaves the baseline
+untouched, so the change is retried; a run with deferred files drops the
+baseline, so they are retried after `SYNC_SETTLE_SECONDS` with no further
+change. The README explains when to raise `SYNC_WATCH_INTERVAL` so the NAS
+disks can enter standby.
+
+Static validation completed: `py_compile`, `sh -n`, and
+`services/paperless-medical-sync/tests/test_watcher.py` (standard-library
+`unittest`), which covers the unchanged folder, a deferred file retried
+without further changes, a file copied during a run, a locked run, a batch
+copy settling once and NFD tag lookup. Pending on the target host:
+image build, ShellCheck, Hadolint, vulnerability scan and the acceptance
+criteria above.
 
 ## Closure record
 

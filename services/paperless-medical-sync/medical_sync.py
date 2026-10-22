@@ -2,10 +2,13 @@
 """HomeLab07 medical exam synchronization for Paperless-ngx (Sprint 015).
 
 Commands:
-  sync         upload new exams from the read-only source folder
-  model-init   create the Paperless data model (requires an administrator token)
-  next-delay   print seconds until the next scheduled run
-  wait-ready   wait until Paperless answers HTTP (used once at start-up)
+  sync                 upload new exams from the read-only source folder
+  preview              print the date, category and title of every source file;
+                       no Paperless access, nothing uploaded
+  model-init           create the Paperless data model (requires an administrator token)
+  next-delay           print seconds until the next scheduled run
+  wait-ready           wait until Paperless answers HTTP (used once at start-up)
+  wait-change SECONDS  wait up to SECONDS for a stable change in the source folder
 
 Only the Python standard library is used.
 """
@@ -59,6 +62,7 @@ SOURCE_DIR = "/source"
 METRICS_DIR = "/metrics"
 WORK_DIR = "/run/sync"
 LOCK_FILE = os.path.join(WORK_DIR, "sync.lock")
+SNAPSHOT_FILE = os.path.join(WORK_DIR, "snapshot")
 METRICS_FILE = "paperless-medical-sync.prom"
 METRICS_PREFIX = "homelab07_paperless_medical_sync"
 
@@ -78,7 +82,7 @@ MONTHS = {
 
 RESULTS = (
     "uploaded", "skipped", "modified", "duplicate",
-    "encrypted_no_password", "unsupported", "failed",
+    "encrypted_no_password", "unsupported", "failed", "deferred",
 )
 
 
@@ -108,6 +112,13 @@ def fold(value):
     """Case- and accent-insensitive form used for folder matching."""
     decomposed = unicodedata.normalize("NFD", value.casefold())
     return "".join(c for c in decomposed if unicodedata.category(c) != "Mn").strip()
+
+
+def int_env(name, default):
+    try:
+        return int(os.environ.get(name, "").strip() or default)
+    except ValueError:
+        raise SystemExit(f"{name} must be an integer") from None
 
 
 def json_env(name, default):
@@ -183,10 +194,28 @@ class Paperless:
         return items
 
     def find_by_name(self, path, name, field="name"):
-        for item in self.results(path, **{f"{field}__iexact": name}):
-            if str(item.get(field, "")).casefold() == name.casefold():
+        wanted = nfc(name).casefold()
+
+        def match(items):
+            for item in items:
+                if nfc(str(item.get(field, ""))).casefold() == wanted:
+                    return item
+            return None
+
+        if item := match(self.results(path, **{f"{field}__iexact": name})):
+            return item
+        # The server compares raw strings, so a name stored in another Unicode
+        # form (for example NFD from a macOS client) is only found locally.
+        page = 1
+        while True:
+            data = self.get(path, page=page, page_size=100)
+            if not isinstance(data, dict):
+                return match(data or [])
+            if item := match(data.get("results", [])):
                 return item
-        return None
+            if not data.get("next"):
+                return None
+            page += 1
 
     def check_version(self):
         try:
@@ -283,7 +312,7 @@ def derive_date(stem, folders):
 
 class Namer:
     def __init__(self, category_map, personal_patterns):
-        self.categories = {fold(key): value for key, value in category_map.items()}
+        self.categories = {fold(key): nfc(value) for key, value in category_map.items()}
         self.patterns = [re.compile(pattern, re.IGNORECASE) for pattern in personal_patterns]
 
     def mask(self, text):
@@ -312,6 +341,14 @@ class Namer:
             return text, False
         parts = [DOCUMENT_TYPE, category, date.isoformat() if date else None]
         return " ".join(p for p in parts if p), True
+
+    def describe(self, relative):
+        """Return (date, category, title, needs_title_review) for a source path."""
+        stem = os.path.splitext(os.path.basename(relative))[0]
+        folders = relative.split("/")[:-1]
+        date = derive_date(stem, folders)
+        category = self.category(folders)
+        return (date, category, *self.title(stem, category, date))
 
 
 # -----------------------------------------------------------------------------
@@ -343,6 +380,53 @@ def decrypt_if_needed(source, passwords):
             return target, target
         os.unlink(target)
     raise PermissionError("no configured password opens the PDF")
+
+
+def source_files():
+    """Yield (absolute, relative) for every visible file in the source folder."""
+    for root, directories, files in os.walk(SOURCE_DIR):
+        directories[:] = sorted(d for d in directories if not d.startswith("."))
+        for name in sorted(files):
+            if name.startswith("."):
+                continue
+            absolute = os.path.join(root, name)
+            yield absolute, nfc(os.path.relpath(absolute, SOURCE_DIR).replace(os.sep, "/"))
+
+
+def source_snapshot():
+    """Digest of (path, size, mtime) for every source file; cheap stat-only walk."""
+    snapshot = hashlib.sha256()
+    for absolute, relative in source_files():
+        try:
+            info = os.stat(absolute)
+        except OSError:
+            continue
+        snapshot.update(f"{relative}\0{info.st_size}\0{info.st_mtime_ns}\n".encode())
+    return snapshot.hexdigest()
+
+
+def remember_snapshot():
+    try:
+        with open(SNAPSHOT_FILE, "w", encoding="utf-8") as handle:
+            handle.write(source_snapshot())
+    except OSError as error:
+        log(f"WARNING: unable to record the source snapshot: {error.__class__.__name__}")
+
+
+def read_snapshot():
+    """Baseline of the last run, or None when no run recorded one or it was dropped."""
+    try:
+        with open(SNAPSHOT_FILE, encoding="utf-8") as handle:
+            return handle.read().strip() or None
+    except OSError:
+        return None
+
+
+def forget_snapshot():
+    try:
+        os.unlink(SNAPSHOT_FILE)
+    except FileNotFoundError:
+        pass
 
 
 def digests(path):
@@ -396,11 +480,12 @@ def publish_metrics(status, started, counts):
 # -----------------------------------------------------------------------------
 
 class Sync:
-    def __init__(self, api, namer, passwords, task_timeout):
+    def __init__(self, api, namer, passwords, task_timeout, settle_seconds):
         self.api = api
         self.namer = namer
         self.passwords = passwords
         self.task_timeout = task_timeout
+        self.settle_seconds = settle_seconds
         self.counts = dict.fromkeys(RESULTS, 0)
 
     def resolve_model(self):
@@ -472,7 +557,7 @@ class Sync:
             raise ApiError("custom fields were not stored with the upload")
 
     def process(self, absolute, relative, original_hash, ident):
-        stem, extension = os.path.splitext(os.path.basename(relative))
+        extension = os.path.splitext(relative)[1]
         if extension.lower() not in SUPPORTED_EXTENSIONS:
             self.counts["unsupported"] += 1
             log(f"UNSUPPORTED {ident}")
@@ -505,10 +590,7 @@ class Sync:
                 log(f"WARNING duplicate content already in Paperless: {ident}")
                 return
 
-            folders = relative.split("/")[:-1]
-            date = derive_date(stem, folders)
-            category = self.namer.category(folders)
-            title, review_title = self.namer.title(stem, category, date)
+            date, category, title, review_title = self.namer.describe(relative)
             tags = [self.tags[TAG_MEDICAL]]
             if category:
                 tags.append(self.category_tags[category])
@@ -547,25 +629,30 @@ class Sync:
     def run(self):
         self.api.check_version()
         self.resolve_model()
-        for root, directories, files in os.walk(SOURCE_DIR):
-            directories[:] = sorted(d for d in directories if not d.startswith("."))
-            for name in sorted(files):
-                if name.startswith("."):
+        for absolute, relative in source_files():
+            ident = self.namer.mask(relative)
+            try:
+                # A file still being copied is left for the next run. ctime is
+                # used too because a copy may restore the original mtime.
+                info = os.stat(absolute)
+                if time.time() - max(info.st_mtime, info.st_ctime) < self.settle_seconds:
+                    self.counts["deferred"] += 1
+                    log(f"DEFERRED recently changed, retried after it settles: {ident}")
                     continue
-                absolute = os.path.join(root, name)
-                relative = nfc(os.path.relpath(absolute, SOURCE_DIR).replace(os.sep, "/"))
-                ident = self.namer.mask(relative)
-                try:
-                    original_hash, _ = digests(absolute)
-                    ident = f"{ident}#{original_hash[:12]}"
-                    self.process(absolute, relative, original_hash, ident)
-                except OSError as error:
-                    self.counts["failed"] += 1
-                    log(f"ERROR unreadable {ident}: {error.__class__.__name__}")
-                except ApiError as error:
-                    # Includes HTTP 5xx: only this file fails; the run continues.
-                    self.counts["failed"] += 1
-                    log(f"ERROR {ident}: {self.namer.mask(str(error))}")
+                original_hash, _ = digests(absolute)
+                ident = f"{ident}#{original_hash[:12]}"
+                self.process(absolute, relative, original_hash, ident)
+            except OSError as error:
+                self.counts["failed"] += 1
+                log(f"ERROR unreadable {ident}: {error.__class__.__name__}")
+            except ApiError as error:
+                # Includes HTTP 5xx: only this file fails; the run continues.
+                self.counts["failed"] += 1
+                log(f"ERROR {ident}: {self.namer.mask(str(error))}")
+        if self.counts["deferred"]:
+            # Without a baseline the watcher treats the folder as changed and
+            # starts another run once it is stable.
+            forget_snapshot()
         summary = " ".join(f"{key}={value}" for key, value in self.counts.items())
         log(f"SUMMARY {summary}")
         return self.counts["failed"] == 0 and self.counts["encrypted_no_password"] == 0
@@ -578,8 +665,13 @@ def command_sync():
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
+        lock.close()
         log("Another sync run holds the lock; nothing to do.")
         return EXIT_LOCKED
+
+    # Baseline for wait-change, taken before the walk so that changes made
+    # during this run start another one.
+    remember_snapshot()
 
     # Secrets are read once and removed from the process environment.
     token = os.environ.pop("PAPERLESS_SYNC_TOKEN", "")
@@ -594,7 +686,8 @@ def command_sync():
         namer = Namer(json_env("SYNC_CATEGORY_MAP", {}), json_env("SYNC_PERSONAL_PATTERNS", []))
         api = Paperless(os.environ.get("PAPERLESS_INTERNAL_URL", "http://homelab07-paperless-ngx:8000"), token)
         api.redact = namer.mask
-        sync = Sync(api, namer, passwords, int(os.environ.get("SYNC_TASK_TIMEOUT", "900")))
+        sync = Sync(api, namer, passwords, int(os.environ.get("SYNC_TASK_TIMEOUT", "900")),
+                    int_env("SYNC_SETTLE_SECONDS", 30))
         counts = sync.counts
         ok = sync.run()
         publish_metrics(1 if ok else 0, started, counts)
@@ -639,7 +732,7 @@ def command_model_init():
     owner_username = os.environ.get("SYNC_OWNER_USERNAME", "").strip()
     if not owner_username:
         raise SystemExit("SYNC_OWNER_USERNAME is required")
-    category_map = json_env("SYNC_CATEGORY_MAP", {})
+    category_map = {key: nfc(value) for key, value in json_env("SYNC_CATEGORY_MAP", {}).items()}
     prompt = "Temporary Paperless administrator token: "
     admin_token = getpass.getpass(prompt) if sys.stdin.isatty() else sys.stdin.readline().strip()
     if not admin_token:
@@ -770,18 +863,73 @@ def command_wait_ready():
     return EXIT_OK
 
 
+def command_wait_change(seconds):
+    """Return after a stable source change or when SECONDS elapse, whichever is first.
+
+    The folder is polled every SYNC_WATCH_INTERVAL seconds with a stat-only walk.
+    A snapshot that differs from the last run's baseline must stay unchanged for
+    SYNC_SETTLE_SECONDS, so a copy in progress or a batch of files starts one run.
+    """
+    deadline = time.monotonic() + seconds
+    interval = int_env("SYNC_WATCH_INTERVAL", 30)
+    settle = int_env("SYNC_SETTLE_SECONDS", 30)
+    if interval <= 0:  # Watcher disabled: daily run only.
+        time.sleep(max(0, seconds))
+        return EXIT_OK
+    pending, since = None, None
+    while (remaining := deadline - time.monotonic()) > 0:
+        time.sleep(min(interval, remaining))
+        current = source_snapshot()
+        # Re-read every poll: a concurrent manual run may have replaced the
+        # baseline or dropped it after deferring files.
+        if current == read_snapshot():
+            pending = None
+        elif current != pending:
+            pending, since = current, time.monotonic()
+        elif time.monotonic() - since >= settle:
+            log("Source folder changed and settled; starting sync.")
+            return EXIT_OK
+    return EXIT_OK
+
+
+def command_preview():
+    """Show what a sync would derive, before the first load. Nothing is uploaded."""
+    namer = Namer(json_env("SYNC_CATEGORY_MAP", {}), json_env("SYNC_PERSONAL_PATTERNS", []))
+    for _, relative in source_files():
+        extension = os.path.splitext(relative)[1].lower()
+        if extension not in SUPPORTED_EXTENSIONS:
+            print(f"UNSUPPORTED {namer.mask(relative)}")
+            continue
+        date, category, title, review_title = namer.describe(relative)
+        review = [tag for tag, flag in ((TAG_REVIEW_DATE, date is None),
+                                        (TAG_REVIEW_TITLE, review_title)) if flag]
+        print(" | ".join((
+            namer.mask(relative),
+            date.isoformat() if date else "-",
+            category or "-",
+            title,
+            ",".join(review) or "-",
+        )))
+    return EXIT_OK
+
+
 def main(arguments):
     commands = {
         "sync": command_sync,
+        "preview": command_preview,
         "model-init": command_model_init,
         "next-delay": command_next_delay,
         "wait-ready": command_wait_ready,
+        "wait-change": command_wait_change,
     }
-    if len(arguments) != 1 or arguments[0] not in commands:
+    name, rest = (arguments[0], arguments[1:]) if arguments else (None, [])
+    if name == "wait-change" and len(rest) == 1 and rest[0].isdigit():
+        rest = [int(rest[0])]
+    elif name not in commands or rest or name == "wait-change":
         print(__doc__, file=sys.stderr)
         return 2
     try:
-        return commands[arguments[0]]()
+        return commands[name](*rest)
     except SystemExit as error:
         if isinstance(error.code, str):
             log(f"ERROR {error.code}")
