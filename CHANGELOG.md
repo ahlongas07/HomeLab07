@@ -43,6 +43,9 @@
 
 ### Changed
 
+- Update Keycloak from 26.7.0 to 26.7.5 pinned by digest for the upstream
+  advisories fixed within the 26.7 line, with a realm export taken before
+  the update.
 - Upgrade Jellyfin from 10.11.11 to 12.2 pinned by digest: the 10.11 branch
   is no longer maintained and the 2026-09-22 upstream advisories are fixed only
   in 12.0 and later; VA-API on the Sandy Bridge GPU was verified with the new

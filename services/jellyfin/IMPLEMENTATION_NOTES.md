@@ -74,13 +74,25 @@ Known residual risk in 12.2: the bundled ASP.NET Core and .NET runtime 10.0.12
 has fixes available in 10.0.13 that only a future Jellyfin release can ship,
 and `libxml2` has no published fix. Re-evaluate at the next release.
 
-Target evidence:
+Target result (2026-10-22, upgrade at 20:23 UTC, about ten seconds of
+downtime). Detailed evidence remains in the private evidence location.
 
-- [ ] Runtime image identity; database migration completed in the logs.
-- [ ] Users, libraries and settings present; full library scan completed.
-- [ ] Direct play and one VA-API transcode through the published route.
-- [ ] NPM access audit passes.
-- [ ] Security scan compared with the last 10.11.11 run on the private share.
+- [x] Runtime `jellyfin/jellyfin:12.2@sha256:357724bf…`, healthy, no restarts;
+      all 23 database migrations applied, no error in the logs.
+- [x] The three libraries and the VA-API settings unchanged; the `i965`
+      driver loads in the running container; media mounts read-only; no host
+      port.
+- [x] Setup wizard and library management endpoints return `401` without
+      credentials, locally and through Cloudflare. The anonymous public system
+      information now reports the wizard as not completed and omits the
+      version for remote callers; the stored setting remains completed.
+- [x] Web interface answers through the published route; NPM access audit
+      passes.
+- [x] Security scan compared with the last 10.11.11 run on the private share:
+      no new finding. Accepted; the remaining .NET runtime findings wait for a
+      Jellyfin release with .NET 10.0.13.
+- [ ] Owner checks: full scan of all libraries, users and playback history,
+      direct play and one VA-API transcode through the published route.
 
 ## Hardware Discovery
 

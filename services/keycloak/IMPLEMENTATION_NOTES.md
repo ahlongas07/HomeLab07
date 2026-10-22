@@ -68,3 +68,43 @@ Acceptance completed on 2026-08-06 with sanitized evidence:
 Jellyfin remains locally authenticated. A third-party SSO plugin was reviewed
 and rejected because its support, client coverage and account-permission risks
 were not justified by the platform requirement.
+
+## Security Update 26.7.0 → 26.7.5
+
+Approved on 2026-10-22 as a patch update within the 26.7 minor line; no
+configuration change.
+
+| | Previous | Target |
+|---|---|---|
+| Tag | `quay.io/keycloak/keycloak:26.7.0` | `quay.io/keycloak/keycloak:26.7.5` |
+| Index digest | `sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13` | `sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85` |
+| amd64 manifest | — | `sha256:6529db34610ce6328824218dce3bbe55c4ba4757bc5c8a09b5a4c746e28b6e9d` |
+| arm64 manifest | — | `sha256:e301e41716af5db8261488ae16c4ef77bb5e9bcdcf981685570929e0cb8f3905` |
+| Upstream release | 2026-07-09 | 2026-09-30, latest 26.7 patch |
+
+Digests were read from Quay on 2026-10-22.
+
+Upstream advisories affecting 26.7.0 and fixed within 26.7:
+GHSA-4gv3-mc9p-5wqc (critical, account takeover through the reset-credentials
+flow; fixed in 26.7.2), GHSA-xpwp-2pcm-8xq3 (high, replay protection bypass;
+26.7.4), and GHSA-2888-g6qc-w4mj, GHSA-95rm-h7g9-rhcf, GHSA-fgq2-hxm5-8xg2,
+GHSA-f8m4-v488-rmrm, GHSA-95cx-vmr5-3cmr, GHSA-hmr6-pxx9-552p and
+GHSA-3692-rrj9-24qw (26.7.1). 26.7.5 adds further fixes listed in its release
+notes. Applicability on 2026-10-22: password reset and self-registration are
+disabled in every realm and no external identity provider is configured, which
+reduces the critical and SAML broker issues; the remaining issues were
+treated as applicable. 26.8 adds no further security fix and was not chosen.
+
+Recovery artifacts: the platform recovery point taken earlier the same day
+(MariaDB dump including the Keycloak database) and a full realm export taken
+immediately before the upgrade with a disposable 26.7.0 container
+(`export --users realm_file --cache=local`) into the private evidence
+location. The export contains users and client secrets and never enters Git.
+
+Target evidence:
+
+- [ ] Runtime image identity; healthy start without migration errors.
+- [ ] Realm discovery for the platform realm; custom login theme served.
+- [ ] Nextcloud and Paperless-ngx redirect to Keycloak; owner login with OTP.
+- [ ] NPM access audit passes.
+- [ ] Security scan compared with the last 26.7.0 run on the private share.
