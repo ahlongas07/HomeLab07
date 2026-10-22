@@ -52,6 +52,16 @@ SYNC_PERMISSIONS = [
     "view_paperlesstask",
 ]
 
+# Read-only users (SYNC_READER_USERNAMES) can view exams and their metadata
+# but never add, change or delete anything.
+READER_PERMISSIONS = [
+    "view_document",
+    "view_tag",
+    "view_correspondent",
+    "view_documenttype",
+    "view_customfield",
+]
+
 # Paperless enums used by the workflow definition.
 MATCH_NONE = 0
 TRIGGER_DOCUMENT_ADDED = 2
@@ -193,6 +203,19 @@ class Paperless:
         items = data.get("results", []) if isinstance(data, dict) else (data or [])
         return items
 
+    def all_results(self, path, **query):
+        """Yield every item of a paginated list endpoint."""
+        page = 1
+        while True:
+            data = self.get(path, page=page, page_size=100, **query)
+            if not isinstance(data, dict):
+                yield from data or []
+                return
+            yield from data.get("results", [])
+            if not data.get("next"):
+                return
+            page += 1
+
     def find_by_name(self, path, name, field="name"):
         wanted = nfc(name).casefold()
 
@@ -206,16 +229,7 @@ class Paperless:
             return item
         # The server compares raw strings, so a name stored in another Unicode
         # form (for example NFD from a macOS client) is only found locally.
-        page = 1
-        while True:
-            data = self.get(path, page=page, page_size=100)
-            if not isinstance(data, dict):
-                return match(data or [])
-            if item := match(data.get("results", [])):
-                return item
-            if not data.get("next"):
-                return None
-            page += 1
+        return match(self.all_results(path))
 
     def check_version(self):
         try:
@@ -730,10 +744,49 @@ def ensure_shared(api, path, name, payload, sharing):
     return created["id"]
 
 
+def reader_usernames(owner_username):
+    readers = json_env("SYNC_READER_USERNAMES", [])
+    if not isinstance(readers, list) or not all(isinstance(r, str) and r.strip() for r in readers):
+        raise SystemExit("SYNC_READER_USERNAMES must be a JSON list of user names")
+    readers = sorted({r.strip() for r in readers})
+    # A reader is reduced to view-only rights: never the owner or the uploader.
+    if any(r.casefold() in (owner_username.casefold(), SYNC_USERNAME) for r in readers):
+        raise SystemExit("SYNC_READER_USERNAMES must not include the exam owner or sync-medico")
+    return readers
+
+
+def grant_readers(api, reader_ids, medical_tag):
+    """Add view for read-only users without removing existing permissions or owners."""
+    view = {
+        "view": {"users": reader_ids, "groups": []},
+        "change": {"users": [], "groups": []},
+    }
+    for object_type in ("tags", "correspondents"):
+        ids = [item["id"] for item in api.all_results(f"/api/{object_type}/")]
+        if ids:
+            api.post("/api/bulk_edit_objects/", {
+                "objects": ids,
+                "object_type": object_type,
+                "operation": "set_permissions",
+                "permissions": view,
+                "merge": True,
+            })
+        log(f"granted read-only view on {len(ids)} {object_type}")
+    documents = [d["id"] for d in api.all_results("/api/documents/", tags__id__all=medical_tag, fields="id")]
+    if documents:
+        api.post("/api/documents/bulk_edit/", {
+            "documents": documents,
+            "method": "set_permissions",
+            "parameters": {"set_permissions": view, "merge": True},
+        })
+    log(f"granted read-only view on {len(documents)} exams")
+
+
 def command_model_init():
     owner_username = os.environ.get("SYNC_OWNER_USERNAME", "").strip()
     if not owner_username:
         raise SystemExit("SYNC_OWNER_USERNAME is required")
+    readers = reader_usernames(owner_username)
     category_map = {key: nfc(value) for key, value in json_env("SYNC_CATEGORY_MAP", {}).items()}
     prompt = "Temporary Paperless administrator token: "
     admin_token = getpass.getpass(prompt) if sys.stdin.isatty() else sys.stdin.readline().strip()
@@ -746,6 +799,14 @@ def command_model_init():
     owner = api.find_by_name("/api/users/", owner_username, field="username")
     if not owner:
         raise SystemExit("SYNC_OWNER_USERNAME does not match a Paperless user")
+    # Resolve every read-only user before the first write: a missing one stops
+    # model-init without changes. model-init never creates them.
+    reader_ids = []
+    for name in readers:
+        reader = api.find_by_name("/api/users/", name, field="username")
+        if not reader:
+            raise SystemExit(f"Read-only user {name!r} does not exist in Paperless; create it first")
+        reader_ids.append(reader["id"])
 
     sync_user = api.find_by_name("/api/users/", SYNC_USERNAME, field="username")
     if sync_user:
@@ -769,12 +830,22 @@ def command_model_init():
         })["id"]
         log(f"created /api/users/ {SYNC_USERNAME}")
 
+    for name, reader_id in zip(readers, reader_ids):
+        api.request("PATCH", f"/api/users/{reader_id}/", body={
+            "is_staff": False,
+            "is_superuser": False,
+            "user_permissions": READER_PERMISSIONS,
+        })
+        log(f"reconciled /api/users/ {name} read-only permissions")
+
     # Types and tags are owned objects in Paperless: global view permission is
-    # not enough. The exam owner owns them and sync-medico gets view access.
+    # not enough. The exam owner owns them; sync-medico and the read-only users
+    # get view access.
+    viewers = [sync_user_id, *reader_ids]
     sharing = {
         "owner": owner["id"],
         "set_permissions": {
-            "view": {"users": [sync_user_id], "groups": []},
+            "view": {"users": viewers, "groups": []},
             "change": {"users": [], "groups": []},
         },
     }
@@ -804,7 +875,7 @@ def command_model_init():
         )
         action_ok = any(
             a.get("assign_owner") == owner["id"]
-            and sync_user_id in (a.get("assign_view_users") or [])
+            and set(viewers) <= set(a.get("assign_view_users") or [])
             for a in actions
         )
         if not (existing_workflow.get("enabled") and trigger_ok and action_ok):
@@ -813,9 +884,17 @@ def command_model_init():
                 "delete it in Paperless and run model-init again"
             )
         log(f"verified /api/workflows/ {WORKFLOW_NAME}")
-        log("Data model ready. Revoke the temporary administrator token now.")
-        return EXIT_OK
+    else:
+        create_workflow(api, owner["id"], viewers, type_id, medical_tag)
 
+    if reader_ids:
+        grant_readers(api, reader_ids, medical_tag)
+    log("Data model ready. Revoke the temporary administrator token now.")
+    return EXIT_OK
+
+
+def create_workflow(api, owner_id, viewers, type_id, medical_tag):
+    no_matching = {"matching_algorithm": MATCH_NONE, "match": ""}
     ensure(api, "/api/workflows/", WORKFLOW_NAME, {
         "name": WORKFLOW_NAME,
         "order": 0,
@@ -829,12 +908,10 @@ def command_model_init():
         "actions": [{
             "type": ACTION_ASSIGNMENT,
             "assign_document_type": type_id,
-            "assign_owner": owner["id"],
-            "assign_view_users": [sync_user_id],
+            "assign_owner": owner_id,
+            "assign_view_users": viewers,
         }],
     })
-    log("Data model ready. Revoke the temporary administrator token now.")
-    return EXIT_OK
 
 
 def command_next_delay():

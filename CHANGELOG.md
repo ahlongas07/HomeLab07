@@ -9,6 +9,10 @@
   modifying the originals; an idempotent `model-init` data model with the
   `sync-medico` service user and ownership workflow; batch metrics with failure
   and 48-hour stale alerts.
+- Add read-only Paperless users to the medical data model
+  (`SYNC_READER_USERNAMES`): `model-init` reconciles them to view-only
+  rights, shares the contract objects and the exam workflow with them and
+  merges view access into other tags, correspondents and existing exams.
 - Trigger the medical sync on settled source-folder changes through
   standard-library `stat` polling, with deferral of files still being copied
   and the start-up and daily runs kept as fallback.

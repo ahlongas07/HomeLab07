@@ -469,6 +469,56 @@ Validation: `bash -n` of the changed scripts. Pending on the target host:
 ShellCheck, `backup-preflight.sh` and one `backup.sh` run with the sync running
 and one with it stopped.
 
+## Enhancement: read-only users in the data model
+
+Problem: `model-init` replaced the owner and permissions of the document type
+and the contract tags with view for `sync-medico` only, so every rerun removed
+access granted by hand to a read-only account, and nothing granted such an
+account access to other tags, correspondents or the uploaded exams.
+
+- New private setting `SYNC_READER_USERNAMES` (JSON list, default empty),
+  used only by `model-init`. Users must exist beforehand; a missing one, the
+  exam owner or `sync-medico` in the list stops `model-init` before any write.
+- Each read-only user is reset to non-staff, non-superuser with exactly
+  `view_document`, `view_tag`, `view_correspondent`, `view_documenttype` and
+  `view_customfield`.
+- Contract objects (document type, `medico`, `revisar-fecha`,
+  `revisar-titulo`, category tags): owner is the exam owner; view is
+  `sync-medico` plus the read-only users (replaced, as before).
+- Every other tag and every correspondent: read-only users added to view with
+  `POST /api/bulk_edit_objects/` and `merge: true`, without changing owners or
+  removing permissions.
+- Documents tagged `medico`: read-only users added to view with
+  `POST /api/documents/bulk_edit/`, method `set_permissions` and `merge:
+  true`. Both bulk operations and their merge semantics were verified in the
+  Paperless-ngx 3.3.3 source: without `owner`, merge never changes an existing
+  owner.
+- Workflow "Exámenes médicos": created with `sync-medico` and the read-only
+  users as viewers; verification requires all of them and otherwise stops as
+  before (delete the workflow and rerun).
+- Unchanged: the sync itself uses only `sync-medico`; ownership verification
+  and deduplication are unchanged.
+
+Acceptance criteria (target):
+
+- **Given** `SYNC_READER_USERNAMES=[]`, **when** `model-init` runs, **then** it
+  behaves as before.
+- **Given** a read-only account in the list, **when** `model-init` runs,
+  **then** it sees every exam, every tag, every correspondent and the
+  document type, and `DELETE` or `PATCH` with its token returns `403`.
+- **Given** two consecutive runs, **when** the second finishes, **then**
+  nothing changes and the read-only account keeps its access.
+- **Given** a new exam uploaded by the sync, **when** the workflow runs,
+  **then** the read-only account sees it without manual steps.
+- **Given** a read-only user that does not exist, **when** `model-init` runs,
+  **then** it stops without changes.
+
+Validation: `py_compile` and the standard-library test suite (14 tests,
+including 7 for `model-init` against an in-memory Paperless). Pending on the
+target host: the acceptance criteria above. Rollout: the existing workflow
+lacks the read-only user, so delete it in Paperless before running
+`model-init` with the new setting.
+
 ## Closure record
 
 **Outcome:** Implementation complete and deployed on the target host. Initial

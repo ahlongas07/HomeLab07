@@ -84,6 +84,7 @@ chmod 600 ../HomeLab07.private/env/paperless-medical-sync.env
 | `SYNC_SETTLE_SECONDS` | Seconds a change must stay stable before a sync, and minimum age of a file before upload (default 30) |
 | `SYNC_RETRY_SECONDS` | Retry delay when Paperless is unreachable |
 | `SYNC_OWNER_USERNAME` | Paperless user that owns every exam |
+| `SYNC_READER_USERNAMES` | JSON list of existing Paperless users with read-only access to exams (`model-init` only; default `[]`) |
 | `SYNC_CATEGORY_MAP` | JSON: folder name → category tag |
 | `SYNC_PERSONAL_PATTERNS` | JSON list of case-insensitive regular expressions removed from titles and masked in logs |
 | `PAPERLESS_SYNC_TOKEN` | Secret: `sync-medico` API token |
@@ -148,10 +149,28 @@ Follow this order. Steps 1–3 run once.
    On every run it also replaces the owner and the view and change
    permissions of the `Examen médico` document type and of every contract tag
    (`medico`, `revisar-fecha`, `revisar-titulo` and the categories in
-   `SYNC_CATEGORY_MAP`). The exam owner becomes the owner, `sync-medico`
-   gets view, and nobody else gets either: permissions granted by hand to
-   other users or groups on those objects are removed and must be granted
-   again afterwards.
+   `SYNC_CATEGORY_MAP`). The exam owner becomes the owner; `sync-medico` and
+   the read-only users get view; nobody else gets either: permissions granted
+   by hand to other users or groups on those objects are removed and must be
+   granted again afterwards.
+
+   Read-only users (`SYNC_READER_USERNAMES`), for example an agent account,
+   must already exist in Paperless; `model-init` never creates them, and if
+   one is missing it stops before changing anything. The list must not
+   include the exam owner or `sync-medico`. On every run `model-init`:
+
+   - resets each read-only user to `is_staff=false`, `is_superuser=false` and
+     exactly `view_document`, `view_tag`, `view_correspondent`,
+     `view_documenttype` and `view_customfield` (no add, change or delete);
+   - adds them to the view permission of every other tag and every
+     correspondent, and of every document tagged `medico`, without removing
+     existing permissions or changing owners (`merge`);
+   - creates the workflow with `sync-medico` and the read-only users as
+     viewers, so new exams are visible to them without manual steps.
+
+   An existing workflow that lacks a read-only user counts as drift: delete
+   it in Paperless and run `model-init` again. With an empty list the command
+   behaves as before.
 
 3. Create the `sync-medico` token in `/admin/` → Auth tokens and store it as
    `PAPERLESS_SYNC_TOKEN` in the private environment file.
@@ -270,8 +289,8 @@ the rendered secrets. Use `--quiet`.
 
 ## Validation
 
-Before building, run the watcher tests (standard library only, about 25
-seconds, no Paperless needed):
+Before building, run the tests (standard library only, about 25 seconds, no
+Paperless needed):
 
 ```bash
 python3 -m unittest discover -s services/paperless-medical-sync/tests
@@ -280,7 +299,10 @@ python3 -m unittest discover -s services/paperless-medical-sync/tests
 They cover a deferred file retried without further folder changes, a file
 with a future modification time that is not deferred, a file copied during a
 run, a run that finds the lock held, a batch copy that settles once and NFD
-tag lookup.
+tag lookup. The `model-init` tests use an in-memory Paperless and cover
+read-only users: unchanged behavior without them, view-only rights and merged
+permissions, idempotent reruns, a missing user stopping without writes, the
+owner or `sync-medico` rejected as readers and workflow drift.
 
 ```bash
 ./operation/compose.sh paperless-medical-sync ps
