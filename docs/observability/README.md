@@ -30,7 +30,8 @@ monitored service.
 2. Treat `Unknown` as insufficient evidence, never as healthy.
 3. Use **Platform Overview** for host and storage detail.
 4. Use **Applications** to compare endpoint behavior and approved proxy logs.
-5. Use **Operations** for backup, security and Rockstor freshness.
+5. Use **Operations** for backup, security, medical sync and Rockstor
+   freshness.
 6. Follow the linked alert runbook before changing platform state.
 7. Use Rockstor or the owning application for detailed diagnosis.
 

@@ -6,7 +6,7 @@
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
       "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
-      "gridPos": {"h": 6, "w": 8, "x": 0, "y": 0},
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
       "id": 1,
       "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
       "targets": [{"editorMode": "code", "expr": "homelab07_backup_last_status", "instant": true, "legendFormat": "Backup", "range": false, "refId": "A"}],
@@ -16,7 +16,7 @@
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
       "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
-      "gridPos": {"h": 6, "w": 8, "x": 8, "y": 0},
+      "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
       "id": 2,
       "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
       "targets": [{"editorMode": "code", "expr": "homelab07_security_last_status", "instant": true, "legendFormat": "Security scan", "range": false, "refId": "A"}],
@@ -25,11 +25,21 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"index": 0, "text": "Failed"}, "1": {"index": 1, "text": "OK"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
+      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
+      "id": 6,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
+      "targets": [{"editorMode": "code", "expr": "homelab07_paperless_medical_sync_last_status", "instant": true, "legendFormat": "Medical sync", "range": false, "refId": "A"}],
+      "title": "Latest medical sync status",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
       "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 86400}, {"color": "red", "value": 172800}]}, "unit": "s"}, "overrides": []},
-      "gridPos": {"h": 6, "w": 8, "x": 16, "y": 0},
+      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0},
       "id": 3,
       "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
-      "targets": [{"editorMode": "code", "expr": "time() - homelab07_backup_last_success_timestamp_seconds", "instant": true, "legendFormat": "Backup age", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "time() - homelab07_security_last_success_timestamp_seconds", "instant": true, "legendFormat": "Scan age", "range": false, "refId": "B"}],
+      "targets": [{"editorMode": "code", "expr": "time() - homelab07_backup_last_success_timestamp_seconds", "instant": true, "legendFormat": "Backup age", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "time() - homelab07_security_last_success_timestamp_seconds", "instant": true, "legendFormat": "Scan age", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "time() - homelab07_paperless_medical_sync_last_success_timestamp_seconds", "instant": true, "legendFormat": "Medical sync age", "range": false, "refId": "C"}],
       "title": "Operation age",
       "type": "stat"
     },
@@ -52,6 +62,17 @@
       "targets": [{"editorMode": "code", "expr": "homelab07_storage_device_errors_total", "instant": true, "legendFormat": "{{storage}}", "range": false, "refId": "A"}],
       "title": "Btrfs device errors",
       "type": "bargauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
+      "fieldConfig": {"defaults": {"custom": {"align": "auto", "cellOptions": {"type": "auto"}}, "mappings": []}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 13},
+      "id": 7,
+      "options": {"cellHeight": "sm", "showHeader": true, "sortBy": [{"desc": true, "displayName": "Files"}]},
+      "targets": [{"editorMode": "code", "expr": "homelab07_paperless_medical_sync_files", "format": "table", "instant": true, "legendFormat": "{{result}}", "range": false, "refId": "A"}],
+      "title": "Medical sync files by result (latest run)",
+      "transformations": [{"id": "filterFieldsByName", "options": {"include": {"names": ["result", "Value"]}}}, {"id": "organize", "options": {"indexByName": {"result": 0, "Value": 1}, "renameByName": {"result": "Result", "Value": "Files"}}}],
+      "type": "table"
     }
   ],
   "refresh": "30s",

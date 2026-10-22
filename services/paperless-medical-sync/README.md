@@ -294,6 +294,11 @@ The sync writes `paperless-medical-sync.prom` with
 `..._last_run_timestamp_seconds`, `..._last_success_timestamp_seconds`,
 `..._last_duration_seconds` and `..._files{result=…}`.
 
+The "HomeLab07 — Operations" dashboard shows the latest status (OK or Failed),
+the age of the last success in "Operation age" and a table of files per result
+in the latest run. Grafana reloads the provisioned dashboard within a minute of
+a change; no restart is needed.
+
 Metrics and the healthcheck describe the latest completed run, whether it was
 started by a change or by the daily schedule; the daily run guarantees at least
 one per day.

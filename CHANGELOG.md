@@ -15,6 +15,8 @@
 - Add `medical-sync preview` to check dates, categories and titles before the
   first load without contacting Paperless, and standard-library tests for the
   watcher.
+- Add the medical sync status, last-success age and files-by-result table to
+  the existing Operations dashboard.
 
 - Add the Sprint 014 NAS Command Center implementation with a provisioned
   dashboard and an explicit four-state health decision over existing evidence.

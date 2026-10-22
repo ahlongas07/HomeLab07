@@ -46,7 +46,8 @@ Excluded:
 - Tika, Gotenberg, Paperless AI features and remote OCR;
 - any package, systemd unit, cron entry or other change to the NAS operating
   system;
-- new Grafana dashboards or panels;
+- new Grafana dashboards; the sync only adds panels to the existing
+  "HomeLab07 — Operations" dashboard;
 - shipping the sync container logs to Loki (Alloy collects only Nginx Proxy
   Manager logs today); logs are read with `docker logs`.
 
@@ -203,7 +204,17 @@ The sync publishes metrics in the same format as the existing batch jobs
 - one counter per result (uploaded, skipped, modified, duplicate, encrypted
   without password, unsupported, failed)
 
-Alerting reuses the existing Grafana rules, with no new dashboard or panel:
+The existing "HomeLab07 — Operations" dashboard shows the sync next to backup
+and security scan, with no new dashboard:
+
+- "Latest medical sync status" (`..._last_status`, OK or Failed), styled like
+  "Latest backup status";
+- "Medical sync age" (`time() - ..._last_success_timestamp_seconds`) in
+  "Operation age", with the same 24-hour and 48-hour thresholds;
+- "Medical sync files by result (latest run)", a table of
+  `homelab07_paperless_medical_sync_files` by `result`.
+
+Alerting reuses the existing Grafana rules:
 
 - the job is added to "Platform batch operation failed" (failed or absent
   status);
