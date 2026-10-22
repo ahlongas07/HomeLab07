@@ -43,6 +43,10 @@
 
 ### Changed
 
+- Upgrade Jellyfin from 10.11.11 to 12.2 pinned by digest: the 10.11 branch
+  is no longer maintained and the 2026-09-22 upstream advisories are fixed only
+  in 12.0 and later; VA-API on the Sandy Bridge GPU was verified with the new
+  image before the upgrade.
 - Upgrade Nextcloud from 33.0.6 to 33.0.10 pinned by digest (same major
   branch) for upstream advisory GHSA-7hwf-8pcj-33h4 and current Debian
   packages, and document the maintenance upgrade and rollback procedure.

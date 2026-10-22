@@ -20,7 +20,7 @@ the platform lifecycle.
 
 | Capability | Selection |
 |---|---|
-| Application | `jellyfin/jellyfin:10.11.11` |
+| Application | `jellyfin/jellyfin:12.2`, pinned by digest |
 | Application state | Dedicated NAS-backed `/config` |
 | Cache/transcodes | Dedicated replaceable `/cache` |
 | Media | Rockstor bind mounts, read-only |
@@ -28,7 +28,8 @@ the platform lifecycle.
 | Authentication | Jellyfin local users |
 | Acceleration | Intel VA-API through scoped `renderD128` access |
 
-Record the target-architecture runtime digest before publication.
+The image is pinned by its multi-architecture index digest; see the
+implementation notes for the reviewed versions.
 
 ## Directory Structure
 
@@ -158,6 +159,58 @@ Enable only:
 Disable HEVC, VP9, AV1, HDR tone mapping, Intel low-power encoding and QSV.
 Direct play remains preferred. Preserve the hardware setting only after
 playback information and `intel_gpu_top` prove acceptable operation.
+
+## Upgrade
+
+Upgrades are pinned by tag and digest and reviewed in
+[IMPLEMENTATION_NOTES.md](IMPLEMENTATION_NOTES.md). Jellyfin migrates its
+database on start and does not support downgrades: rollback restores `/config`
+from the pre-upgrade recovery point.
+
+1. Create the recovery point before the new pin reaches the NAS:
+
+   ```bash
+   sudo ./operation/backup-preflight.sh
+   sudo ./operation/backup.sh
+   ```
+
+2. Before a major upgrade, check the new image's VA-API support without
+   touching the running server, using the private UID, GID and render GID:
+
+   ```bash
+   docker run --rm --network none --read-only --tmpfs /tmp \
+     --user <uid>:<gid> --group-add <render-gid> --device /dev/dri/renderD128 \
+     --entrypoint /usr/lib/jellyfin-ffmpeg/ffmpeg <new-image> \
+     -hide_banner -loglevel error -vaapi_device /dev/dri/renderD128 \
+     -f lavfi -i testsrc=duration=2:size=1280x720:rate=30 \
+     -vf format=nv12,hwupload -c:v h264_vaapi -f null -
+   ```
+
+   Exit code `0` means the bundled driver still encodes H.264 on this GPU.
+
+3. Deploy the revision with the new pin and recreate the service:
+
+   ```bash
+   git pull
+   ./operation/compose.sh jellyfin config --quiet
+   ./operation/compose.sh jellyfin pull
+   ./operation/compose.sh jellyfin up -d
+   ./operation/compose.sh jellyfin logs --tail=200
+   ```
+
+   Wait for `healthy`; the first start runs the database migrations.
+
+4. Validate: the `Validation` section above, a full scan of all libraries
+   when the release notes require it, playback through the published route
+   and `./operation/npm-access-audit.sh`.
+
+5. Run `./operation/security-scan.sh scan` and compare the image as described
+   in [Comparing an image between scan runs](../../docs/security/VULNERABILITY_MANAGEMENT.md#comparing-an-image-between-scan-runs)
+   with the prefix `jellyfin/jellyfin:`.
+
+Rollback: stop Jellyfin, restore `/config` from the pre-upgrade recovery point
+following [`docs/backup/DISASTER_RECOVERY.md`](../../docs/backup/DISASTER_RECOVERY.md),
+revert the pin to the previous digest and start the service.
 
 ## Backup
 
