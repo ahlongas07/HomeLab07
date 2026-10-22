@@ -61,3 +61,32 @@ Target-host acceptance completed on 2026-07-27.
   acceptance.
 
 No sensitive or environment-specific value is retained in this evidence.
+
+## Image Update Review (2026-10-22)
+
+Reviewed with the other platform security updates; **deferred** by the
+project owner until a stable image ships Node.js 24.22.1 or later.
+
+- Running image: official stable `2026-07-20` (Ubuntu 24.04, Node.js 24.18.0,
+  Homebridge UI 5.27.0). Homebridge core 2.2.1 and the camera plugin 4.1.0
+  live in the persistent `/homebridge` root and do not change with the image.
+- No upstream advisory exists for Homebridge, Homebridge UI, the Docker image
+  or the camera plugin. The scan's critical findings are kernel headers
+  (`linux-libc-dev`), not applicable to a container.
+- The relevant risk is Node.js: the July 2026 security release (24.18.1) and
+  the October 2026 security release (24.22.1, published 2026-10-20) are not in
+  the running image. Homebridge is LAN-only, which limits exposure.
+- Latest stable image `2026-10-16`
+  (`sha256:d2370beb6a0208d3f20f869288bc070b5cc34d86b52a5872311ce2bcff02a670`)
+  ships Node.js 24.22.0, Homebridge UI 5.29.0 and FFmpeg for Homebridge
+  v2.2.2: it covers the July release but not the October one, and adds
+  `python3-pip`, whose vendored libraries are flagged but unused at runtime.
+  Updating twice in a short period was judged worse than waiting for one
+  update.
+
+Resume when a stable `homebridge/homebridge` date tag lists NodeJS 24.22.1 or
+later in its release notes. The digest is set privately in `HOMEBRIDGE_IMAGE`;
+pre-pull the image, create the recovery point with Homebridge stopped, then
+recreate it and validate bridges, cameras and automations as described in the
+README. Updating Homebridge core (2.2.1 → 2.3.x) in the persistent root is a
+separate reviewed change.

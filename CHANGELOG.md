@@ -37,6 +37,11 @@
 
 ### Fixed
 
+- Show actionable vulnerability counts on the Operations dashboard: findings
+  with a published fix, deduplicated per image, CVE and package and excluding
+  kernel header packages; raw totals remain in the private scan report
+  (scan manifest contract 1.3.0).
+
 - Restart the containers stopped by `backup.sh` with `docker compose start`
   instead of `up -d`, so a backup never recreates services or applies an
   image pin already present in the repository.

@@ -438,11 +438,30 @@ finding_counts="$({
     }
 ')"
 
+# Actionable view for dashboards: findings with a published fix, counted once
+# per scanned artifact, CVE and package. Kernel header packages are excluded
+# because containers run on the host kernel. Raw totals stay in the report.
+fixable_counts="$({
+    printf '%s\n' "${staging_root}/repository/trivy.json"
+    find "${staging_root}/images" -type f -name '*.json' -print
+} | xargs jq -n '
+    [inputs | input_filename as $artifact | .Results[]? | .Vulnerabilities[]?
+      | select((.FixedVersion // "") != "")
+      | select(.PkgName | test("^linux-(libc-dev|headers)") | not)
+      | {artifact: $artifact, id: .VulnerabilityID, package: .PkgName, severity: .Severity}]
+    | unique_by([.artifact, .id, .package])
+    | {
+        fixable_critical: (map(select(.severity == "CRITICAL")) | length),
+        fixable_high: (map(select(.severity == "HIGH")) | length)
+      }
+')"
+finding_counts="$(printf '%s\n%s\n' "${finding_counts}" "${fixable_counts}" | jq -s 'add')"
+
 jq -s '.' "${staging_root}/image-map.ndjson" >"${staging_root}/image-map.json"
 git_revision="$(git -C "${PROJECT_ROOT}" rev-parse HEAD)"
 
 jq -n \
-    --arg contract_version "1.2.0" \
+    --arg contract_version "1.3.0" \
     --arg run_id "${run_id}" \
     --arg git_revision "${git_revision}" \
     --arg trivy_runtime "${trivy_image}" \
@@ -491,6 +510,8 @@ jq -n \
     echo "- Vulnerabilities: $(jq -r '.vulnerabilities' <<<"${finding_counts}")"
     echo "- Critical: $(jq -r '.critical' <<<"${finding_counts}")"
     echo "- High: $(jq -r '.high' <<<"${finding_counts}")"
+    echo "- Critical with an available fix (unique, kernel headers excluded): $(jq -r '.fixable_critical' <<<"${finding_counts}")"
+    echo "- High with an available fix (unique, kernel headers excluded): $(jq -r '.fixable_high' <<<"${finding_counts}")"
     echo "- Misconfigurations: $(jq -r '.misconfigurations' <<<"${finding_counts}")"
     echo "- Secret findings: $(jq -r '.secrets' <<<"${finding_counts}")"
     echo "- Git history possible-secret findings: ${gitleaks_history_findings}"
@@ -528,6 +549,8 @@ rmdir "${lock_directory}"
 observability_publish_batch_metrics security 1 "${scan_started_epoch}" \
     "homelab07_security_critical_findings $(jq -r '.critical' <<<"${finding_counts}")" \
     "homelab07_security_high_findings $(jq -r '.high' <<<"${finding_counts}")" \
+    "homelab07_security_fixable_critical_findings $(jq -r '.fixable_critical' <<<"${finding_counts}")" \
+    "homelab07_security_fixable_high_findings $(jq -r '.fixable_high' <<<"${finding_counts}")" \
     "homelab07_security_gitleaks_findings ${gitleaks_history_findings}"
 trap - EXIT INT TERM
 

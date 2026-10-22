@@ -45,12 +45,13 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}, "overrides": []},
+      "description": "Vulnerabilities with a published fix that the deployed images do not include yet, counted once per image, CVE and package. Kernel header packages are excluded because containers use the host kernel. Raw detections, findings without an upstream fix and applicability reviews remain in the private scan report.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 1}]}}, "overrides": [{"matcher": {"id": "byName", "options": "Critical with fix"}, "properties": [{"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}]}, {"matcher": {"id": "byName", "options": "Git history secrets"}, "properties": [{"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}]}]},
       "gridPos": {"h": 7, "w": 12, "x": 0, "y": 6},
       "id": 4,
       "options": {"displayMode": "gradient", "minVizHeight": 10, "minVizWidth": 0, "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "valueMode": "color"},
-      "targets": [{"editorMode": "code", "expr": "homelab07_security_critical_findings", "instant": true, "legendFormat": "Critical", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_security_high_findings", "instant": true, "legendFormat": "High", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "homelab07_security_gitleaks_findings", "instant": true, "legendFormat": "Gitleaks", "range": false, "refId": "C"}],
-      "title": "Sanitized security findings",
+      "targets": [{"editorMode": "code", "expr": "homelab07_security_fixable_critical_findings", "instant": true, "legendFormat": "Critical with fix", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_security_fixable_high_findings", "instant": true, "legendFormat": "High with fix", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "homelab07_security_gitleaks_findings", "instant": true, "legendFormat": "Git history secrets", "range": false, "refId": "C"}],
+      "title": "Actionable security findings",
       "type": "bargauge"
     },
     {
