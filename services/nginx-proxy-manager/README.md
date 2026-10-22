@@ -433,8 +433,9 @@ the private evidence location (`<evidence-dir>`).
 
 ## 1. Recovery point before the upgrade
 
-Run the backup while the repository still holds the previous version, so the
-manifest records the version in production:
+Update the repository on the NAS first; this changes no running container,
+and `backup.sh` requires a clean worktree. The manifest records the image the
+container is actually running (2.15.1) in its service inventory:
 
 ```bash
 ./operation/backup.sh
