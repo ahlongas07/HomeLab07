@@ -37,7 +37,8 @@
 
 ### Fixed
 
-- Show actionable vulnerability counts on the Operations dashboard: findings
+- Show actionable vulnerability counts on the Operations dashboard and the
+  NAS Command Center security posture panel: findings
   with a published fix, deduplicated per image, CVE and package and excluding
   kernel header packages; raw totals remain in the private scan report
   (scan manifest contract 1.3.0).
