@@ -280,11 +280,18 @@ chmod 0700 "${trivy_tmp_root}"
 echo
 echo "Rendering Compose definitions and building the image inventory..."
 : >"${staging_root}/image-references.txt"
+: >"${staging_root}/local-images.txt"
 
 for compose_file in "${compose_files[@]}"; do
     service_id="$(basename "$(dirname "${compose_file}")")"
     compose "${service_id}" config --quiet
     compose "${service_id}" config --images >>"${staging_root}/image-references.txt"
+    # Images built from a repository Dockerfile exist only in the local engine.
+    # Only their names leave the pipe: the rendered JSON contains env_file values.
+    compose "${service_id}" config --format json |
+        jq -r --arg service "${service_id}" \
+            '.services[] | select(.build) | .image // empty | "\(.)|\($service)"' \
+            >>"${staging_root}/local-images.txt"
 done
 
 sort -u "${staging_root}/image-references.txt" -o "${staging_root}/image-references.txt"
@@ -368,28 +375,53 @@ gitleaks_history_findings="$(jq 'length' "${gitleaks_safe_report}")"
 while IFS= read -r image_reference; do
     [[ -n "${image_reference}" ]] || continue
     artifact_key="$(sha256_text "${image_reference}")"
+    local_service="$(awk -F '|' -v image="${image_reference}" \
+        '$1 == image { print $2; exit }' "${staging_root}/local-images.txt")"
+    image_archive=""
+    image_id=""
 
-    echo "Scanning image ${image_reference}..."
+    if [[ -n "${local_service}" ]]; then
+        image_source="local"
+        if ! image_id="$(docker image inspect --format '{{.Id}}' "${image_reference}" 2>/dev/null)"; then
+            echo "Locally built image is missing: ${image_reference}"
+            echo "Build it with ./operation/compose.sh ${local_service} build and rerun the scan."
+            exit 1
+        fi
+        # Exported into the private Trivy temporary root so the scanner still
+        # receives no Docker socket.
+        image_archive="local-${artifact_key}.tar"
+        docker save --output "${trivy_tmp_root}/${image_archive}" "${image_reference}"
+        image_target=(--input "/tmp/${image_archive}")
+    else
+        image_source="remote"
+        image_target=(--image-src remote "${image_reference}")
+    fi
+
+    echo "Scanning ${image_source} image ${image_reference}..."
     run_trivy image \
-        --image-src remote \
         --scanners vuln,misconfig,secret \
         --image-config-scanners misconfig,secret \
         --severity "${severities}" \
         --format json \
         --output "/output/images/${artifact_key}.json" \
-        "${image_reference}"
+        "${image_target[@]}"
 
     echo "Generating SBOM for ${image_reference}..."
     run_trivy image \
-        --image-src remote \
         --format cyclonedx \
         --output "/output/sbom/${artifact_key}.cdx.json" \
-        "${image_reference}"
+        "${image_target[@]}"
+
+    [[ -z "${image_archive}" ]] || rm -f -- "${trivy_tmp_root}/${image_archive}"
 
     jq -cn \
         --arg image "${image_reference}" \
         --arg key "${artifact_key}" \
-        '{image: $image, artifact_key: $key}' >>"${staging_root}/image-map.ndjson"
+        --arg source "${image_source}" \
+        --arg image_id "${image_id}" \
+        '{image: $image, artifact_key: $key, source: $source}
+         + (if $image_id == "" then {} else {local_image_id: $image_id} end)' \
+        >>"${staging_root}/image-map.ndjson"
 done <"${staging_root}/image-references.txt"
 
 finding_counts="$({
@@ -410,7 +442,7 @@ jq -s '.' "${staging_root}/image-map.ndjson" >"${staging_root}/image-map.json"
 git_revision="$(git -C "${PROJECT_ROOT}" rev-parse HEAD)"
 
 jq -n \
-    --arg contract_version "1.1.0" \
+    --arg contract_version "1.2.0" \
     --arg run_id "${run_id}" \
     --arg git_revision "${git_revision}" \
     --arg trivy_runtime "${trivy_image}" \
@@ -466,7 +498,7 @@ jq -n \
     echo "Detailed evidence is restricted to this private report run."
 } >"${staging_root}/summary.md"
 
-rm "${staging_root}/image-map.ndjson"
+rm "${staging_root}/image-map.ndjson" "${staging_root}/local-images.txt"
 
 (
     cd "${staging_root}"

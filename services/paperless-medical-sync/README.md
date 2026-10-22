@@ -411,7 +411,9 @@ policy removes them.
   risk: they are visible through `docker inspect`, like other platform
   passwords.
 - Accepted risk: the container UID can write to the shared metrics directory.
-- The image is included in the Sprint 012 vulnerability scan scope.
+- The image is included in the Sprint 012 vulnerability scan scope as a
+  locally built image: `./operation/security-scan.sh scan` exports it with
+  `docker save` and scans the archive, so build it before scanning.
 
 ## Related Sprint
 

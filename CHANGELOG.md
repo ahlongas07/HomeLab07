@@ -19,6 +19,9 @@
   the existing Operations dashboard.
 - Add the medical records ingestion living specification and the Sprint 015
   closure record.
+- Scan locally built images, such as the Paperless medical sync, as
+  `docker save` archives instead of failing on a remote lookup; the scan
+  manifest (contract 1.2.0) records each image's source and local image ID.
 - Stop and restore the medical sync around the platform backup, add it to the
   image inventory, preflight runtime list and recovery documentation. The
   original exam folder stays outside Restic and is protected by the NAS data

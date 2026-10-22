@@ -541,7 +541,9 @@ open items under "Residual work".
       [`specs/medical-records.md`](../specs/medical-records.md) and update the
       Roadmap status.
 - [ ] ShellCheck, Hadolint, image build and vulnerability scan of the final
-      image on the target host.
+      image on the target host. `security-scan.sh` previously looked the
+      locally built image up in a registry and aborted; it now scans it as a
+      `docker save` archive.
 - [ ] Confirm the first daily run reports `skipped=59 duplicate=0`.
 - [ ] Manual review in Paperless of `revisar-titulo` and `revisar-fecha`
       documents, correspondents and missing categories.
