@@ -137,6 +137,14 @@ Follow this order. Steps 1–3 run once.
    workflow. It does not rewrite an existing workflow; on drift it stops and
    asks for the workflow to be deleted and the command run again.
 
+   On every run it also replaces the owner and the view and change
+   permissions of the `Examen médico` document type and of every contract tag
+   (`medico`, `revisar-fecha`, `revisar-titulo` and the categories in
+   `SYNC_CATEGORY_MAP`). The exam owner becomes the owner, `sync-medico`
+   gets view, and nobody else gets either: permissions granted by hand to
+   other users or groups on those objects are removed and must be granted
+   again afterwards.
+
 3. Create the `sync-medico` token in `/admin/` → Auth tokens and store it as
    `PAPERLESS_SYNC_TOKEN` in the private environment file.
 
@@ -202,9 +210,11 @@ rules are unchanged. A full run still happens at start-up and daily at
 and the next attempt follows `SYNC_RETRY_SECONDS`.
 
 Every run, whatever started it, defers files changed less than
-`SYNC_SETTLE_SECONDS` ago (by mtime or ctime), so a file still being copied is
-never uploaded half written. Deferred files are counted as `deferred` and
-start another run once they settle.
+`SYNC_SETTLE_SECONDS` ago, so a file still being copied is never uploaded half
+written. Deferred files are counted as `deferred` and start another run once
+they settle. The age comes from the inode change time (ctime), which every
+write updates; the modification time is ignored because the copying client
+sets it and may set it in the future.
 
 The snapshot is taken before the walk, so a file copied while a run is in
 progress starts another run. A run that finds the lock held exits without
@@ -219,6 +229,25 @@ example to `120`, so new exams arrive within about four minutes) or set it to
 `0` to keep only the daily run. The two-minute target needs an interval of about 45
 seconds or less.
 
+### Moved or renamed files
+
+An exam is identified by `Ruta origen`, its relative path. Moving or renaming
+an already uploaded file or folder makes it a new path whose content already
+exists in Paperless, so every run reports it as a duplicate (counted as
+`duplicate`, run status unaffected) and never uploads it. Nothing is reported
+for the old path. The warning stops only when one of these is done, as the
+exam owner, in Paperless:
+
+- set `Ruta origen` on the existing document to the new relative path; this
+  keeps manual edits such as correspondent and corrected title; or
+- delete the document and also empty it from the Paperless trash, because a
+  document in the trash still counts as a duplicate; the next run uploads it
+  again with the new path, and manual edits are lost.
+
+Prefer leaving uploaded files where they are.
+
+### Manual run
+
 Run a sync manually; a run in progress holds a lock and the second exits
 without uploading:
 
@@ -231,7 +260,7 @@ the rendered secrets. Use `--quiet`.
 
 ## Validation
 
-Before building, run the watcher tests (standard library only, about 20
+Before building, run the watcher tests (standard library only, about 25
 seconds, no Paperless needed):
 
 ```bash
@@ -239,8 +268,9 @@ python3 -m unittest discover -s services/paperless-medical-sync/tests
 ```
 
 They cover a deferred file retried without further folder changes, a file
-copied during a run, a run that finds the lock held, a batch copy that settles
-once and NFD tag lookup.
+with a future modification time that is not deferred, a file copied during a
+run, a run that finds the lock held, a batch copy that settles once and NFD
+tag lookup.
 
 ```bash
 ./operation/compose.sh paperless-medical-sync ps

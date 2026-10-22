@@ -632,10 +632,12 @@ class Sync:
         for absolute, relative in source_files():
             ident = self.namer.mask(relative)
             try:
-                # A file still being copied is left for the next run. ctime is
-                # used too because a copy may restore the original mtime.
-                info = os.stat(absolute)
-                if time.time() - max(info.st_mtime, info.st_ctime) < self.settle_seconds:
+                # A file still being copied is left for the next run. Only
+                # ctime is used: the copying client sets mtime, which may be in
+                # the past or the future, but every write updates ctime. A
+                # ctime ahead of the clock never defers, so it cannot loop.
+                age = time.time() - os.stat(absolute).st_ctime
+                if 0 <= age < self.settle_seconds:
                     self.counts["deferred"] += 1
                     log(f"DEFERRED recently changed, retried after it settles: {ident}")
                     continue
@@ -788,7 +790,7 @@ def command_model_init():
     for name in (FIELD_PATH, FIELD_HASH):
         ensure(api, "/api/custom_fields/", name, {"name": name, "data_type": "string"})
 
-    existing_workflow =api.find_by_name("/api/workflows/", WORKFLOW_NAME)
+    existing_workflow = api.find_by_name("/api/workflows/", WORKFLOW_NAME)
     if existing_workflow:
         # Nested workflow updates are not reconciled automatically: verify the
         # contract and stop on drift so the operator recreates it deliberately.

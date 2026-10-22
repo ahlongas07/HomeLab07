@@ -96,6 +96,21 @@ class WatcherTest(unittest.TestCase):
         self.assertEqual(counts["deferred"], 0)
         self.assertEqual(self.processed, ["2024/Laboratorio/a.pdf"])
 
+    def test_future_mtime_is_not_deferred_forever(self):
+        # The copying client set a modification time one day ahead.
+        self.write("2024/Laboratorio/a.pdf")
+        future = time.time() + 86400
+        os.utime(os.path.join(ms.SOURCE_DIR, "2024/Laboratorio/a.pdf"), (future, future))
+        time.sleep(1.1)
+        counts = self.run_sync()
+        self.assertEqual(counts["deferred"], 0)
+        self.assertEqual(self.processed, ["2024/Laboratorio/a.pdf"])
+        self.assertIsNotNone(ms.read_snapshot())
+        # No baseline drop, so the watcher does not start a run every interval.
+        started = time.monotonic()
+        ms.command_wait_change(3)
+        self.assertGreaterEqual(time.monotonic() - started, 2.9)
+
     def test_file_copied_during_a_run_triggers_another_run(self):
         self.write("2024/Laboratorio/a.pdf")
         time.sleep(1.1)

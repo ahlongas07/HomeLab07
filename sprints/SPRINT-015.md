@@ -391,8 +391,10 @@ Design:
   `inotify-tools`): it keeps the standard-library-only contract and the
   supply-chain scope unchanged, and works on any mount, so no forced-polling
   switch or inotify test on the NAS is needed.
-- Every run defers files changed less than `SYNC_SETTLE_SECONDS` ago (mtime or
-  ctime) and drops the snapshot baseline, so the watcher retries them once
+- Every run defers files changed less than `SYNC_SETTLE_SECONDS` ago (by
+  ctime; mtime is set by the copying client and may lie in the future, which
+  would defer the file on every run) and drops the snapshot baseline, so the
+  watcher retries them once
   they settle. This also protects the start-up and daily runs from uploading a
   file still being copied.
 - Healthcheck and stale alert remain based on the latest completed run.
@@ -438,8 +440,9 @@ disks can enter standby.
 Static validation completed: `py_compile`, `sh -n`, and
 `services/paperless-medical-sync/tests/test_watcher.py` (standard-library
 `unittest`), which covers the unchanged folder, a deferred file retried
-without further changes, a file copied during a run, a locked run, a batch
-copy settling once and NFD tag lookup. Pending on the target host:
+without further changes, a file with a future mtime that is not deferred, a
+file copied during a run, a locked run, a batch copy settling once and NFD tag
+lookup. Pending on the target host:
 image build, ShellCheck, Hadolint, vulnerability scan and the acceptance
 criteria above.
 
