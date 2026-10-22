@@ -12,6 +12,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Work item | Status | Next action |
 |---|---|---|
 | Sprint 012 — Vulnerability Management | In progress | Review the private baseline and remediation priorities; run a new private target-host scan covering all Git refs and full history before closure. |
+| Platform Enhancement — Nginx Proxy Manager 2.16.0 security upgrade | Ready for target upgrade; pin and procedure in repository | Run `operation/npm-access-audit.sh` now and block any failing host; then create and verify the recovery point, upgrade and complete the validation in the service README. |
 | Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
 | Sprint 014 — NAS Command Center | Implementation complete; target validation pending | Execute the controlled target-host validation defined in the Sprint document. |
 | Sprint 015 — Medical Records Ingestion | Validated on target — closure pending residual work | Image scan, first daily run check and manual review of flagged documents. |

@@ -13,6 +13,20 @@ returns non-zero when a required control fails. Warnings identify documented
 exceptions or checks that require external evidence. It does not prove router,
 firewall or provider state.
 
+## Reverse Proxy Access Audit
+
+Confirm that every Nginx Proxy Manager host enforces the access list and SSL
+recorded in its database:
+
+```bash
+./operation/npm-access-audit.sh
+```
+
+The command is read-only, reports hosts, access lists and certificates by
+numeric ID only and returns non-zero when a restriction or SSL configuration
+is not rendered. Failing hosts are blocked and corrected as described in the
+[Nginx Proxy Manager README](../../services/nginx-proxy-manager/README.md#when-a-host-fails).
+
 ## Vulnerability Scanner
 
 Validate the private report mount, disposable cache, Docker runtime and pinned

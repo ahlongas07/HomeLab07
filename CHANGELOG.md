@@ -37,6 +37,14 @@
 
 ### Changed
 
+- Upgrade Nginx Proxy Manager from 2.15.1 to 2.16.0 pinned by digest for
+  CVE-2026-40519, with a backup-first upgrade, rendered-configuration and
+  certificate baseline, validation, scan comparison and rollback procedure;
+  record still-open upstream issues and their mitigations.
+- Add `operation/npm-access-audit.sh`, a read-only check that every Nginx
+  Proxy Manager host renders its access list rules, basic authentication and
+  SSL as recorded in the database, with a block-then-correct procedure for
+  failing hosts.
 - Compare medical category tag names in Unicode NFC and document tag sharing
   with `sync-medico`, real personal-data patterns and the category map before
   the first load.
