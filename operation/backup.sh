@@ -48,8 +48,6 @@ nextcloud_root="$(read_backup_private_value nextcloud NEXTCLOUD_ROOT)"
 paperless_root="$(read_backup_private_value paperless-ngx PAPERLESS_ROOT)"
 jellyfin_root="$(read_backup_private_value jellyfin JELLYFIN_ROOT)"
 homebridge_root="$(read_backup_private_value homebridge HOMEBRIDGE_DATA_ROOT)"
-# Authoritative medical exam originals: the only copy outside Paperless.
-medical_source_root="$(read_backup_private_value paperless-medical-sync SYNC_SOURCE_ROOT)"
 npm_root="${npm_data_root}/nginx-proxy-manager"
 
 for required_root in \
@@ -57,8 +55,7 @@ for required_root in \
     "${nextcloud_root}" \
     "${paperless_root}" \
     "${jellyfin_root}/config" \
-    "${homebridge_root}" \
-    "${medical_source_root}"; do
+    "${homebridge_root}"; do
     if [[ ! -d "${required_root}" ]]; then
         echo "A required production state root is unavailable."
         exit 1
@@ -246,7 +243,6 @@ restic_command backup --json \
     "${paperless_root}" \
     "${jellyfin_root}/config" \
     "${homebridge_root}" \
-    "${medical_source_root}" \
     > "${data_backup_events}"
 
 data_summary="$(jq -s '[.[] | select(.message_type == "summary")] | last' "${data_backup_events}")"
@@ -357,8 +353,8 @@ jq -n \
       components: [
         "repository", "private-configuration", "mariadb",
         "nginx-proxy-manager", "nextcloud", "keycloak", "paperless-ngx",
-        "paperless-medical-sync", "medical-exam-source", "jellyfin",
-        "homebridge", "landing-page", "valkey", "cloudflare-ddns"
+        "paperless-medical-sync", "jellyfin", "homebridge", "landing-page",
+        "valkey", "cloudflare-ddns"
       ],
       services: $images,
       databases_exported: $databases,

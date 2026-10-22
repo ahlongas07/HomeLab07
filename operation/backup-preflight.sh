@@ -192,7 +192,6 @@ nextcloud|NEXTCLOUD_ROOT|collaboration state
 paperless-ngx|PAPERLESS_ROOT|document state
 jellyfin|JELLYFIN_ROOT|media application state
 homebridge|HOMEBRIDGE_DATA_ROOT|HomeKit state
-paperless-medical-sync|SYNC_SOURCE_ROOT|medical exam originals
 ROOTS
 
 npm_data_root="$(read_private_value nginx-proxy-manager HOMELAB07_DATA_ROOT || true)"
@@ -211,7 +210,6 @@ validate_readable_tree "$(read_private_value nextcloud NEXTCLOUD_ROOT || true)" 
 validate_readable_tree "$(read_private_value paperless-ngx PAPERLESS_ROOT || true)" "document state"
 validate_readable_tree "$(read_private_value jellyfin JELLYFIN_ROOT || true)/config" "media application state"
 validate_readable_tree "$(read_private_value homebridge HOMEBRIDGE_DATA_ROOT || true)" "HomeKit state"
-validate_readable_tree "$(read_private_value paperless-medical-sync SYNC_SOURCE_ROOT || true)" "medical exam originals"
 
 if [[ -n "${HOMELAB07_BACKUP_STAGING_ROOT:-}" && -d "${HOMELAB07_BACKUP_STAGING_ROOT}" ]]; then
     overlap_found=false

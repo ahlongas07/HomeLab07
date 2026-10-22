@@ -20,7 +20,8 @@ Resolve the versioned manifest first and follow
 7. Restore Nginx Proxy Manager state and certificates.
 8. Restore Nextcloud state and database while maintenance mode remains active.
 9. Restore Paperless state and database.
-10. Restore the medical exam originals, then start the medical sync.
+10. Restore the medical exam originals from the NAS data backup, then start
+    the medical sync.
 11. Restore Jellyfin configuration and reattach read-only source media.
 12. Restore Homebridge only while production remains stopped and isolated.
 13. Start services through the Operation Layer and execute application tests.
@@ -54,12 +55,12 @@ download. The consume directory is an inbox, not authoritative backup evidence.
 
 ## Medical exam originals and sync
 
-The exam folder (`SYNC_SOURCE_ROOT`) is the source of truth for medical exams
-and is restored from the same snapshot as Paperless. Restore it into an empty
-folder with the same relative paths, because the sync identifies each exam by
-its relative path (`Ruta origen`) and hash; renamed or moved files would be
-reported as duplicates. Grant the sync UID read access and compare the file
-count and representative checksums with the snapshot.
+The exam folder (`SYNC_SOURCE_ROOT`) is the source of truth for medical exams.
+It is outside Restic scope and protected by the NAS data backup. Restore it
+from that backup before starting the sync, keeping the same relative paths:
+the sync identifies each exam by its relative path (`Ruta origen`) and hash,
+so renamed or moved files would be reported as duplicates. Grant the sync UID
+read access.
 
 The sync container holds no persistent state (only `tmpfs`). Recover it from
 the repository and its private environment file, create a new `sync-medico`

@@ -51,7 +51,6 @@ production_roots=(
     "$(read_backup_private_value paperless-ngx PAPERLESS_ROOT)"
     "$(read_backup_private_value jellyfin JELLYFIN_ROOT)"
     "$(read_backup_private_value homebridge HOMEBRIDGE_DATA_ROOT)"
-    "$(read_backup_private_value paperless-medical-sync SYNC_SOURCE_ROOT)"
 )
 
 for production_root in "${production_roots[@]}"; do

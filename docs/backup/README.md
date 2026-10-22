@@ -67,10 +67,9 @@ The operation:
 9. writes a coordinated manifest snapshot referencing the data snapshot;
 10. removes sensitive staging files.
 
-The platform snapshot also captures the authoritative medical exam folder
-(`SYNC_SOURCE_ROOT` from the private medical sync configuration), which has no
-other copy outside the NAS. The backup operator must be able to read it; the
-preflight checks this.
+The original medical exam folder read by the medical sync (`SYNC_SOURCE_ROOT`)
+is outside Restic scope; the NAS data backup protects it. The medical sync is
+stopped only so that it records no failed attempt while Paperless is stopped.
 
 An interrupted run attempts to restore the previous runtime state. Always run
 `./operation/status.sh` after an unexpected host or process failure.

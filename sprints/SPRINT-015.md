@@ -248,9 +248,9 @@ Alerting reuses the existing Grafana rules:
   category table and a `PAPERLESS_IGNORE_DATES` placeholder in the Paperless
   `.env.example`.
 - Paperless documents and metadata are covered through MariaDB and
-  `PAPERLESS_ROOT`. The source folder is added to the Restic platform snapshot
-  (see Enhancement: backup scope); it is the source of truth and had no copy
-  outside the NAS.
+  `PAPERLESS_ROOT`. The source folder is outside Restic scope; the NAS data
+  backup protects it. The platform backup only coordinates with the sync (see
+  Enhancement: backup coordination).
 
 ## Requirements and acceptance criteria
 
@@ -447,31 +447,25 @@ lookup. Pending on the target host:
 image build, ShellCheck, Hadolint, vulnerability scan and the acceptance
 criteria above.
 
-## Enhancement: backup scope
+## Enhancement: backup coordination
 
-Identified after the initial load: the authoritative exam folder had no copy
-outside the NAS.
+The platform backup coordinates with the sync; its Restic scope is unchanged.
 
-- `operation/backup.sh` reads `SYNC_SOURCE_ROOT` from the private sync
-  configuration and adds it to the platform snapshot paths; the manifest lists
-  the `paperless-medical-sync` and `medical-exam-source` components.
 - `homelab07-paperless-medical-sync` is stopped before Paperless and restored
   afterwards only if it was running (`container_was_running` /
   `restore_runtime_state`), so the backup produces no failed sync attempt or
   false alert. It restarts after Paperless and runs a full pass.
 - The container joins the `images.txt` inventory and the preflight runtime
-  list.
-- The preflight treats the folder as a production root: it must exist, be
-  readable by the backup operator and not share a filesystem with a local
-  Restic repository. `restore-test.sh` refuses it as a restore destination.
-- The recovery matrix and disaster recovery procedure cover restoring the
-  originals with the same relative paths and recreating the sync from the
-  repository, the private environment file and a new token
-  (`up -d --build`).
+  list, and the manifest lists the `paperless-medical-sync` component.
+- The original exam folder is not added to Restic: the NAS data backup already
+  protects it. The recovery matrix and disaster recovery procedure restore it
+  from that backup with the same relative paths, so they match `Ruta origen`,
+  before the sync starts, and recreate the sync from the repository, the
+  private environment file and a new token (`up -d --build`).
 
 Validation: `bash -n` of the changed scripts. Pending on the target host:
-ShellCheck, `backup-preflight.sh`, one `backup.sh` run with the sync running
-and stopped, and a disposable restore that contains the exam folder.
+ShellCheck, `backup-preflight.sh` and one `backup.sh` run with the sync running
+and one with it stopped.
 
 ## Closure record
 

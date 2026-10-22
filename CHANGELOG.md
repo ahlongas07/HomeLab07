@@ -17,10 +17,10 @@
   watcher.
 - Add the medical sync status, last-success age and files-by-result table to
   the existing Operations dashboard.
-- Include the authoritative medical exam folder in the Restic platform
-  snapshot, stop and restore the medical sync around the backup, and add it to
-  the image inventory, preflight, restore boundaries and recovery
-  documentation.
+- Stop and restore the medical sync around the platform backup, add it to the
+  image inventory, preflight runtime list and recovery documentation. The
+  original exam folder stays outside Restic and is protected by the NAS data
+  backup.
 
 - Add the Sprint 014 NAS Command Center implementation with a provisioned
   dashboard and an explicit four-state health decision over existing evidence.
