@@ -519,6 +519,29 @@ target host: the acceptance criteria above. Rollout: the existing workflow
 lacks the read-only user, so delete it in Paperless before running
 `model-init` with the new setting.
 
+## Enhancement: agent access and proxy scheme
+
+The medical AI agent was excluded from the original scope. On 2026-10-22 the
+project owner approved read-only access for `agente-medico` after its
+validation passed (12 of 12 checks): API token through the public route,
+without Keycloak or OTP, with exam content reaching the agent's model
+provider as an accepted risk. The decision, client requirements (own
+User-Agent; Cloudflare Browser Integrity Check stays enabled), onboarding,
+token rotation and revocation are in
+[`docs/security/MEDICAL_AGENT_ACCESS.md`](../docs/security/MEDICAL_AGENT_ACCESS.md).
+
+Related changes:
+
+- `model-init` also empties the groups of read-only users, so no group can
+  grant add or change rights.
+- The `model-init` token must belong to a superuser; removing a reader from
+  the list does not revoke it (documented in the sync README).
+- Paperless-ngx receives `PAPERLESS_PROXY_SSL_HEADER` through Compose so API
+  pagination links use `https`. Safety conditions verified on the target: the
+  proxy host is Cloudflare-only with Force SSL and Paperless has no host port;
+  Nginx Proxy Manager forwards Cloudflare's `X-Forwarded-Proto` rather than
+  overwriting it (Paperless-ngx README).
+
 ## Closure record
 
 **Outcome:** Implementation complete and deployed on the target host. Initial

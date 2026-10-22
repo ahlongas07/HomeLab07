@@ -124,7 +124,7 @@ class ModelInitTest(unittest.TestCase):
         reader_id, sync_id = 2, self.sync_id()
 
         reader_patch = next(w[2] for w in self.writes if w[0] == "PATCH" and w[1] == f"/api/users/{reader_id}/")
-        self.assertEqual(reader_patch, {"is_staff": False, "is_superuser": False,
+        self.assertEqual(reader_patch, {"is_staff": False, "is_superuser": False, "groups": [],
                                         "user_permissions": ms.READER_PERMISSIONS})
         self.assertFalse(any(p.startswith(("add_", "change_", "delete_")) for p in ms.READER_PERMISSIONS))
 

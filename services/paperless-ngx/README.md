@@ -205,6 +205,43 @@ Create the Proxy Host using private values:
 Do not publish a Docker host port. Configure upload limits and timeouts only as
 needed for the controlled validation documents.
 
+### HTTPS scheme behind the proxy
+
+Paperless only sees plain HTTP from Nginx Proxy Manager, so without help it
+builds absolute links, such as API pagination (`next`, `previous`), with
+`http://`. Set in the private environment file:
+
+```dotenv
+PAPERLESS_PROXY_SSL_HEADER='["HTTP_X_FORWARDED_PROTO", "https"]'
+```
+
+and recreate the service:
+
+```bash
+./operation/compose.sh paperless-ngx up -d
+```
+
+Paperless trusts this header blindly, so it is safe only when a client cannot
+make an insecure request look secure. Verified on 2026-10-22 for this route:
+
+- Nginx Proxy Manager does not overwrite `X-Forwarded-Proto`; it forwards an
+  incoming `http` or `https` value and otherwise sends its own scheme.
+- The Paperless proxy host only accepts Cloudflare addresses (Cloudflare-only
+  access list; direct origin requests return `403`), and Cloudflare sets the
+  header to the visitor's real scheme.
+- The proxy host forces SSL, so every request that reaches Paperless has
+  crossed TLS at Nginx Proxy Manager; a forged `https` value cannot claim more
+  than is already true.
+- Paperless publishes no host port and is reachable only through the proxy
+  network.
+
+Keep all four conditions. If the access list, Force SSL or the absence of a
+host port changes, remove the setting first.
+
+Validation: `GET /api/tags/?page_size=1` through the public route returns
+`next` with `https://<paperless-domain>/...`; local login and Keycloak login
+still work. Rollback: remove the setting and recreate the service.
+
 ## Validation
 
 ```bash

@@ -9,6 +9,11 @@
   modifying the originals; an idempotent `model-init` data model with the
   `sync-medico` service user and ownership workflow; batch metrics with failure
   and 48-hour stale alerts.
+- Document read-only medical agent access through the public route with an
+  API token: client User-Agent requirement, onboarding, token rotation and
+  revocation; `model-init` empties reader groups.
+- Pass `PAPERLESS_PROXY_SSL_HEADER` to Paperless-ngx so API pagination links
+  use `https` behind the Cloudflare-only, Force SSL proxy route.
 - Add read-only Paperless users to the medical data model
   (`SYNC_READER_USERNAMES`): `model-init` reconciles them to view-only
   rights, shares the contract objects and the exam workflow with them and

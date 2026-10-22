@@ -17,6 +17,7 @@ rule identifiers and credentials belong outside Git.
 | LAN integration | Approved LAN → Homebridge host listeners | No public DNS or reverse-proxy publication |
 | Internal data service | Internal Docker network | No host ports and no public route |
 | Outbound automation | Service → provider API | No inbound listener |
+| Read-only API client | Client with its own User-Agent → Cloudflare → Nginx Proxy Manager → application API | Token of a read-only account; no Cloudflare exception; see [Medical Agent Access](MEDICAL_AGENT_ACCESS.md) |
 
 Only approved public gateway forwards are retained. Nginx Proxy Manager is the
 only service that declares public gateway ports. Its administration listener

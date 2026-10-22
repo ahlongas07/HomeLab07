@@ -831,9 +831,12 @@ def command_model_init():
         log(f"created /api/users/ {SYNC_USERNAME}")
 
     for name, reader_id in zip(readers, reader_ids):
+        # Groups are emptied too: a group with add or change rights would
+        # override the read-only contract.
         api.request("PATCH", f"/api/users/{reader_id}/", body={
             "is_staff": False,
             "is_superuser": False,
+            "groups": [],
             "user_permissions": READER_PERMISSIONS,
         })
         log(f"reconciled /api/users/ {name} read-only permissions")

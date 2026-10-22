@@ -140,6 +140,8 @@ Follow this order. Steps 1–3 run once.
      paperless-medical-sync medical-sync model-init
    ```
 
+   The temporary token must belong to a **superuser**: Paperless lets other
+   users bulk-edit permissions only on objects they own or that have no owner.
    Delete the temporary token in `/admin/` immediately afterwards. The command
    is idempotent: it creates missing objects, resets the `sync-medico`
    permissions and staff flags to the contract, and verifies an existing
@@ -154,13 +156,15 @@ Follow this order. Steps 1–3 run once.
    by hand to other users or groups on those objects are removed and must be
    granted again afterwards.
 
+   <a id="read-only-users"></a>
    Read-only users (`SYNC_READER_USERNAMES`), for example an agent account,
    must already exist in Paperless; `model-init` never creates them, and if
    one is missing it stops before changing anything. The list must not
    include the exam owner or `sync-medico`. On every run `model-init`:
 
-   - resets each read-only user to `is_staff=false`, `is_superuser=false` and
-     exactly `view_document`, `view_tag`, `view_correspondent`,
+   - resets each read-only user to `is_staff=false`, `is_superuser=false`, no
+     groups (a group with add or change rights would override the contract)
+     and exactly `view_document`, `view_tag`, `view_correspondent`,
      `view_documenttype` and `view_customfield` (no add, change or delete);
    - adds them to the view permission of every other tag and every
      correspondent, and of every document tagged `medico`, without removing
@@ -171,6 +175,11 @@ Follow this order. Steps 1–3 run once.
    An existing workflow that lacks a read-only user counts as drift: delete
    it in Paperless and run `model-init` again. With an empty list the command
    behaves as before.
+
+   Removing a user from the list does **not** revoke its access, because the
+   merge only adds permissions. Adding, rotating and revoking read-only
+   access, including the medical agent, follow
+   [Medical Agent Access](../../docs/security/MEDICAL_AGENT_ACCESS.md).
 
 3. Create the `sync-medico` token in `/admin/` → Auth tokens and store it as
    `PAPERLESS_SYNC_TOKEN` in the private environment file.
@@ -427,6 +436,10 @@ policy removes them.
 - No published ports, no proxy network and no public route.
 - `sync-medico` is a token-only local user, not staff and not superuser, that
   sees only exams.
+- Read-only users (`SYNC_READER_USERNAMES`), such as the medical agent, have
+  view-only rights reconciled by `model-init` and use API tokens through the
+  public route; see
+  [Medical Agent Access](../../docs/security/MEDICAL_AGENT_ACCESS.md).
 - Every exam is owned by the owner's personal user through the workflow; an
   unowned exam would be visible to every user with global view permission.
 - Secrets live only in the private environment file (mode `600`). Accepted
