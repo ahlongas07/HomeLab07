@@ -57,7 +57,8 @@ The operation:
 1. validates prerequisites and storage boundaries;
 2. records which stateful services are running;
 3. enables Nextcloud maintenance mode;
-4. stops filesystem-backed stateful applications without stopping MariaDB;
+4. stops filesystem-backed stateful applications and the medical sync without
+   stopping MariaDB;
 5. creates a transactionally consistent logical MariaDB dump, including the
    dedicated Keycloak database, and a Git bundle;
 6. writes an encrypted platform-state snapshot;
@@ -65,6 +66,11 @@ The operation:
 8. generates a versioned `backup-manifest.json` with checksums and results;
 9. writes a coordinated manifest snapshot referencing the data snapshot;
 10. removes sensitive staging files.
+
+The platform snapshot also captures the authoritative medical exam folder
+(`SYNC_SOURCE_ROOT` from the private medical sync configuration), which has no
+other copy outside the NAS. The backup operator must be able to read it; the
+preflight checks this.
 
 An interrupted run attempts to restore the previous runtime state. Always run
 `./operation/status.sh` after an unexpected host or process failure.

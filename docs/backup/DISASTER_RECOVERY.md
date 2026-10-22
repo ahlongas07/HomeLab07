@@ -20,9 +20,10 @@ Resolve the versioned manifest first and follow
 7. Restore Nginx Proxy Manager state and certificates.
 8. Restore Nextcloud state and database while maintenance mode remains active.
 9. Restore Paperless state and database.
-10. Restore Jellyfin configuration and reattach read-only source media.
-11. Restore Homebridge only while production remains stopped and isolated.
-12. Start services through the Operation Layer and execute application tests.
+10. Restore the medical exam originals, then start the medical sync.
+11. Restore Jellyfin configuration and reattach read-only source media.
+12. Restore Homebridge only while production remains stopped and isolated.
+13. Start services through the Operation Layer and execute application tests.
 
 ## MariaDB
 
@@ -50,6 +51,25 @@ Disable maintenance mode only after validation.
 Restore data, media and database from the same snapshot. Run the application
 sanity checker and validate representative originals, archives, search and
 download. The consume directory is an inbox, not authoritative backup evidence.
+
+## Medical exam originals and sync
+
+The exam folder (`SYNC_SOURCE_ROOT`) is the source of truth for medical exams
+and is restored from the same snapshot as Paperless. Restore it into an empty
+folder with the same relative paths, because the sync identifies each exam by
+its relative path (`Ruta origen`) and hash; renamed or moved files would be
+reported as duplicates. Grant the sync UID read access and compare the file
+count and representative checksums with the snapshot.
+
+The sync container holds no persistent state (only `tmpfs`). Recover it from
+the repository and its private environment file, create a new `sync-medico`
+token (API tokens are not part of the Paperless restore), then:
+
+```bash
+./operation/compose.sh paperless-medical-sync up -d --build
+```
+
+The first run must report the existing exams as `skipped` and upload nothing.
 
 ## Jellyfin
 

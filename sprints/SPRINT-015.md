@@ -247,9 +247,10 @@ Alerting reuses the existing Grafana rules:
 - The repository ships only `paperless-medical-sync.env.example`, a fictitious
   category table and a `PAPERLESS_IGNORE_DATES` placeholder in the Paperless
   `.env.example`.
-- Backup scope is unchanged: Paperless documents and metadata are already
-  covered through MariaDB and `PAPERLESS_ROOT`. The source folder is not in
-  Restic scope; its protection depends on NAS storage.
+- Paperless documents and metadata are covered through MariaDB and
+  `PAPERLESS_ROOT`. The source folder is added to the Restic platform snapshot
+  (see Enhancement: backup scope); it is the source of truth and had no copy
+  outside the NAS.
 
 ## Requirements and acceptance criteria
 
@@ -445,6 +446,32 @@ file copied during a run, a locked run, a batch copy settling once and NFD tag
 lookup. Pending on the target host:
 image build, ShellCheck, Hadolint, vulnerability scan and the acceptance
 criteria above.
+
+## Enhancement: backup scope
+
+Identified after the initial load: the authoritative exam folder had no copy
+outside the NAS.
+
+- `operation/backup.sh` reads `SYNC_SOURCE_ROOT` from the private sync
+  configuration and adds it to the platform snapshot paths; the manifest lists
+  the `paperless-medical-sync` and `medical-exam-source` components.
+- `homelab07-paperless-medical-sync` is stopped before Paperless and restored
+  afterwards only if it was running (`container_was_running` /
+  `restore_runtime_state`), so the backup produces no failed sync attempt or
+  false alert. It restarts after Paperless and runs a full pass.
+- The container joins the `images.txt` inventory and the preflight runtime
+  list.
+- The preflight treats the folder as a production root: it must exist, be
+  readable by the backup operator and not share a filesystem with a local
+  Restic repository. `restore-test.sh` refuses it as a restore destination.
+- The recovery matrix and disaster recovery procedure cover restoring the
+  originals with the same relative paths and recreating the sync from the
+  repository, the private environment file and a new token
+  (`up -d --build`).
+
+Validation: `bash -n` of the changed scripts. Pending on the target host:
+ShellCheck, `backup-preflight.sh`, one `backup.sh` run with the sync running
+and stopped, and a disposable restore that contains the exam folder.
 
 ## Closure record
 

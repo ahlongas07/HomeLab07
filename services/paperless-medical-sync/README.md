@@ -348,16 +348,28 @@ are masked with the personal-data patterns before logging.
 
 ## Backup
 
-The service holds no persistent state. Uploaded exams are protected with
-Paperless (MariaDB and `PAPERLESS_ROOT`). The source folder is not in Restic
-scope; its protection depends on NAS storage. API tokens are not part of
+The service holds no persistent state (only `tmpfs`). Uploaded exams are
+protected with Paperless (MariaDB and `PAPERLESS_ROOT`). The source folder
+(`SYNC_SOURCE_ROOT`) is the source of truth and is captured in every platform
+recovery point by `./operation/backup.sh`; the backup operator needs read
+access to it. During a backup the container is stopped before Paperless and
+started again afterwards if it was running, so no failed attempt or false
+alert is recorded; the restart runs a full pass. API tokens are not part of
 Paperless exports and must be recreated after a restore.
 
 ## Restore
 
 1. Restore Paperless-ngx.
-2. Recreate the `sync-medico` token and update the private environment file.
-3. Start the service; existing exams are skipped by `Ruta origen` and hash.
+2. Restore the source folder from the same recovery point, keeping the
+   relative paths, and grant `SYNC_UID` read access.
+3. Recover the repository and the private environment file, recreate the
+   `sync-medico` token and update `PAPERLESS_SYNC_TOKEN`.
+4. Start the service with
+   `./operation/compose.sh paperless-medical-sync up -d --build`; existing
+   exams are skipped by `Ruta origen` and hash.
+
+The full order is in the
+[recovery matrix](../../docs/backup/RECOVERY_MATRIX.md).
 
 ## Rollback
 

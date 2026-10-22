@@ -20,7 +20,9 @@
 
 Production restore remains a reviewed operator action. Backup credentials,
 destinations and private paths stay outside Git. Source media and other NAS
-authoritative data follow their own storage protection policy. The capability
+authoritative data follow their own storage protection policy, except the
+medical exam originals read by the Paperless medical sync, which are captured
+in every recovery point (Sprint 015). The capability
 does not claim an automatic schedule or RPO unless separately implemented and
 validated.
 
@@ -30,3 +32,4 @@ validated.
 - [Recovery manifest contract](../architecture/RECOVERY_MANIFEST.md)
 - [Recovery matrix](../docs/backup/RECOVERY_MATRIX.md)
 - [Sprint 010 decision and evidence](../sprints/SPRINT-010.md)
+- [Sprint 015 medical exam originals in backup scope](../sprints/SPRINT-015.md)

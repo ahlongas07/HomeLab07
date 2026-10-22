@@ -48,6 +48,8 @@ nextcloud_root="$(read_backup_private_value nextcloud NEXTCLOUD_ROOT)"
 paperless_root="$(read_backup_private_value paperless-ngx PAPERLESS_ROOT)"
 jellyfin_root="$(read_backup_private_value jellyfin JELLYFIN_ROOT)"
 homebridge_root="$(read_backup_private_value homebridge HOMEBRIDGE_DATA_ROOT)"
+# Authoritative medical exam originals: the only copy outside Paperless.
+medical_source_root="$(read_backup_private_value paperless-medical-sync SYNC_SOURCE_ROOT)"
 npm_root="${npm_data_root}/nginx-proxy-manager"
 
 for required_root in \
@@ -55,7 +57,8 @@ for required_root in \
     "${nextcloud_root}" \
     "${paperless_root}" \
     "${jellyfin_root}/config" \
-    "${homebridge_root}"; do
+    "${homebridge_root}" \
+    "${medical_source_root}"; do
     if [[ ! -d "${required_root}" ]]; then
         echo "A required production state root is unavailable."
         exit 1
@@ -80,6 +83,7 @@ npm_running=false
 nextcloud_running=false
 nextcloud_cron_running=false
 paperless_running=false
+medical_sync_running=false
 jellyfin_running=false
 homebridge_running=false
 
@@ -87,6 +91,7 @@ container_was_running homelab07-nginx-proxy-manager && npm_running=true
 container_was_running homelab07-nextcloud && nextcloud_running=true
 container_was_running homelab07-nextcloud-cron && nextcloud_cron_running=true
 container_was_running homelab07-paperless-ngx && paperless_running=true
+container_was_running homelab07-paperless-medical-sync && medical_sync_running=true
 container_was_running homelab07-jellyfin && jellyfin_running=true
 container_was_running homelab07-homebridge && homebridge_running=true
 
@@ -101,6 +106,10 @@ restore_runtime_state() {
     fi
     if [[ "${paperless_running}" == true ]]; then
         compose_service paperless-ngx up -d >/dev/null 2>&1 || restore_failure=1
+    fi
+    # After Paperless: the sync waits for it and then runs a full pass.
+    if [[ "${medical_sync_running}" == true ]]; then
+        compose_service paperless-medical-sync up -d >/dev/null 2>&1 || restore_failure=1
     fi
     if [[ "${jellyfin_running}" == true ]]; then
         compose_service jellyfin up -d >/dev/null 2>&1 || restore_failure=1
@@ -176,6 +185,8 @@ fi
 if [[ "${nextcloud_running}" == true || "${nextcloud_cron_running}" == true ]]; then
     compose_service nextcloud stop >/dev/null
 fi
+# Stop the sync before Paperless so it records no failed attempt or alert.
+[[ "${medical_sync_running}" == true ]] && compose_service paperless-medical-sync stop >/dev/null
 [[ "${paperless_running}" == true ]] && compose_service paperless-ngx stop >/dev/null
 [[ "${jellyfin_running}" == true ]] && compose_service jellyfin stop >/dev/null
 [[ "${homebridge_running}" == true ]] && compose_service homebridge stop >/dev/null
@@ -210,6 +221,7 @@ docker inspect -f '{{.Name}}|{{.Config.Image}}|{{.Image}}' \
     homelab07-nextcloud-cron \
     homelab07-keycloak \
     homelab07-paperless-ngx \
+    homelab07-paperless-medical-sync \
     homelab07-jellyfin \
     homelab07-homebridge \
     homelab07-cloudflare-ddns \
@@ -234,6 +246,7 @@ restic_command backup --json \
     "${paperless_root}" \
     "${jellyfin_root}/config" \
     "${homebridge_root}" \
+    "${medical_source_root}" \
     > "${data_backup_events}"
 
 data_summary="$(jq -s '[.[] | select(.message_type == "summary")] | last' "${data_backup_events}")"
@@ -344,8 +357,8 @@ jq -n \
       components: [
         "repository", "private-configuration", "mariadb",
         "nginx-proxy-manager", "nextcloud", "keycloak", "paperless-ngx",
-        "jellyfin", "homebridge", "landing-page", "valkey",
-        "cloudflare-ddns"
+        "paperless-medical-sync", "medical-exam-source", "jellyfin",
+        "homebridge", "landing-page", "valkey", "cloudflare-ddns"
       ],
       services: $images,
       databases_exported: $databases,
