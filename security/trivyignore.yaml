@@ -1,0 +1,30 @@
+# HomeLab07 Trivy exceptions. Policy: security/README.md.
+#
+# Each entry is scoped to one rule and the smallest practical path set, and
+# records reason, owner, review trigger and expiry. Trivy stops applying an
+# entry after expired_at, so the finding returns if the exception is not
+# renewed through a reviewed repository change.
+
+secrets:
+  # jc21/nginx-proxy-manager:2.16.0 ships the OpenResty 1.31.1.1 build tree.
+  # The matches are public test fixtures and documentation examples of
+  # OpenResty and lua-resty modules; platform TLS keys live in NPM data, not
+  # in the image.
+  # Owner: platform owner. Review: every NPM image update. Reviewed: 2026-10-22.
+  - id: private-key
+    paths:
+      - "/tmp/openresty/openresty-1.31.1.1/**"
+      - "/etc/nginx/pod/lua-resty-rsa-1.1.1/lua-resty-rsa-1.1.1.pod"
+      - "/app/schema/paths/nginx/certificates/certID/upload/post.json"
+    expired_at: 2027-04-22
+    statement: Upstream test fixtures and API examples in the NPM image
+
+  # nextcloud:33.0.10-apache bundles the Azure Storage SDK. The match is its
+  # DEV_STORE_CONNECTION_STRING constant: the public, documented key of the
+  # local storage emulator (devstoreaccount1 on 127.0.0.1).
+  # Owner: platform owner. Review: every Nextcloud image update. Reviewed: 2026-10-22.
+  - id: azure-storage-account-key
+    paths:
+      - "/usr/src/nextcloud/3rdparty/microsoft/azure-storage-common/src/Common/Internal/Resources.php"
+    expired_at: 2027-04-22
+    statement: Public Azure storage emulator key in a bundled SDK constant

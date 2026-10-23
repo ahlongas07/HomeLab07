@@ -1,0 +1,11 @@
+# HomeLab07 Gitleaks exceptions. Policy: security/README.md.
+#
+# One fingerprint per reviewed false positive: commit:file:rule:line.
+# Gitleaks has no native expiry; security-scan.sh preflight fails when an
+# "expires:" date below has passed.
+
+# The generic-api-key rule matched the image reference
+# valkey/valkey:8.1.10-alpine3.24 ("valkey" contains "key"). No credential.
+# Owner: platform owner. Reviewed: 2026-10-22. expires: 2027-04-22
+58b7a47dcf8bed01efdaeed6c229b4df299a9e0f:services/valkey/compose.yaml:generic-api-key:3
+58b7a47dcf8bed01efdaeed6c229b4df299a9e0f:services/valkey/README.md:generic-api-key:56

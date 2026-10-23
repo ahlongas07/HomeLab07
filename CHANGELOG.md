@@ -2,6 +2,13 @@
 
 ### Added
 
+- Add reviewed, expiring security scan exceptions for confirmed false
+  positives: `security/trivyignore.yaml` for upstream test keys in the Nginx
+  Proxy Manager image and the public Azure emulator key bundled with
+  Nextcloud, and `security/gitleaksignore` for two Git history matches of the
+  Valkey image reference. The scan preflight requires both files and fails on
+  expired Gitleaks exceptions.
+
 - Add the Sprint 015 medical records ingestion: a dedicated
   `paperless-medical-sync` container (Python standard library and pinned
   `qpdf`) that uploads exams from a read-only NAS folder through the

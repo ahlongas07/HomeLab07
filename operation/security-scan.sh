@@ -207,6 +207,29 @@ else
     pass "Service Compose definitions discovered: ${#compose_files[@]}"
 fi
 
+trivy_ignore_file="${PROJECT_ROOT}/security/trivyignore.yaml"
+gitleaks_ignore_file="${PROJECT_ROOT}/security/gitleaksignore"
+
+for exception_file in "${trivy_ignore_file}" "${gitleaks_ignore_file}"; do
+    if [[ -f "${exception_file}" ]]; then
+        pass "Reviewed exception file is present: ${exception_file#"${PROJECT_ROOT}/"}"
+    else
+        fail "Reviewed exception file is missing: ${exception_file#"${PROJECT_ROOT}/"}"
+    fi
+done
+
+# Trivy stops applying an entry after its expired_at date. Gitleaks has no
+# expiry, so a stale fingerprint exception blocks the scan until reviewed.
+if [[ -f "${gitleaks_ignore_file}" ]]; then
+    expired_dates="$(grep -oE 'expires: [0-9]{4}-[0-9]{2}-[0-9]{2}' "${gitleaks_ignore_file}" |
+        awk -v today="$(date -u '+%Y-%m-%d')" '$2 < today { print $2 }')"
+    if [[ -z "${expired_dates}" ]]; then
+        pass "Gitleaks exceptions are within their review dates"
+    else
+        fail "Gitleaks exceptions expired on: $(paste -sd ' ' - <<<"${expired_dates}")"
+    fi
+fi
+
 if ((failure_count > 0)); then
     echo
     echo "Preflight failed with ${failure_count} required-control failure(s)."
@@ -327,6 +350,7 @@ echo "Scanning repository files..."
 run_trivy filesystem \
     --scanners vuln,secret,misconfig \
     --severity "${severities}" \
+    --ignorefile /workspace/security/trivyignore.yaml \
     --format json \
     --output /output/repository/trivy.json \
     /workspace
@@ -344,6 +368,7 @@ docker run --rm \
     git \
     --log-opts="--all --full-history" \
     --redact=100 \
+    --gitleaks-ignore-path /workspace/security/gitleaksignore \
     --report-format json \
     --report-path /output/repository/gitleaks-history.raw.json \
     --exit-code 0 \
@@ -402,6 +427,7 @@ while IFS= read -r image_reference; do
         --scanners vuln,misconfig,secret \
         --image-config-scanners misconfig,secret \
         --severity "${severities}" \
+        --ignorefile /workspace/security/trivyignore.yaml \
         --format json \
         --output "/output/images/${artifact_key}.json" \
         "${image_target[@]}"
