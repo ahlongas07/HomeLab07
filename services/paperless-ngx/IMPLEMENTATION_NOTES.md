@@ -53,6 +53,34 @@ Target validation of the 3.3.3 upgrade, including the Valkey failure/retry
 gate, was confirmed complete by the project owner on 2026-10-20. Detailed
 evidence remains in the private evidence location.
 
+## Security Update 3.3.3 → 3.3.4
+
+Reviewed and approved on 2026-10-23 as a version update only.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `3.3.3` | `3.3.4` (upstream release 2026-10-22) |
+| Index digest | `sha256:dba0242c1df1843643df4eb50ce5639f3a7900f414879088fd5bed8eaf2d456d` | `sha256:9bc6e8248891bcfa6f52fffe8b81e4ea8cae75790c3ec1b9906961a7ba55c969` |
+| amd64 manifest | `sha256:4097c7925229c1fd6c2a5230d50ba0e056fb9dde076a08654f5c19ae88dff7db` | `sha256:b3f480cc5a8beb3ad45cb484b7c606f93240ae58fbfaf4f609be1cfa248267e8` |
+| arm64 manifest | `sha256:bf51fc62a57abc327dd8408ac487f2509507ab8d78841424ca62dd3f50019c54` | `sha256:d04b5709f31ea22003a39b24ca51bbc3cec7d3410d215bf6cbe3a2863191bf4b` |
+
+Digests were read from GHCR on 2026-10-23.
+
+Upstream security maintenance release: certifi 2026.10.19 for the emSign CA
+incident (GHSA-6q48-6c7w-9gw2), Pillow 13.0.0 (CVE-2026-112393,
+CVE-2026-112403, CVE-2026-112900), aiohttp 3.14.4 and yarl 1.25.1. No
+database migrations and no setting changes; `PAPERLESS_SCRATCH_DIR` is only
+newly documented with its existing default.
+
+Pillow moves to a new major version. Upstream ships and tests it; validate
+image and PDF ingestion, OCR and thumbnails after the update.
+
+Candidate scan with the pinned scanner and policy: critical findings with an
+available fix drop from 4 to 0. Detailed results stay in the private review.
+
+Rollback restores the pre-upgrade recovery point; see the README Upgrade
+section.
+
 ## Decision Gates
 
 - Stop if Valkey produces protocol errors or silently loses documents.

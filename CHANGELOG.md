@@ -65,6 +65,9 @@
 
 ### Changed
 
+- Update Paperless-ngx from 3.3.3 to 3.3.4 pinned by digest, an upstream
+  security maintenance release with certifi for the emSign CA incident and
+  fixed Pillow and aiohttp dependencies; no migrations or setting changes.
 - Update Keycloak from 26.7.0 to 26.7.5 pinned by digest for the upstream
   advisories fixed within the 26.7 line, with a realm export taken before
   the update.

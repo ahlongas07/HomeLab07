@@ -20,7 +20,7 @@ infrastructure.
 
 | Capability | Selection |
 |---|---|
-| Application | `ghcr.io/paperless-ngx/paperless-ngx:3.3.3` pinned by index digest |
+| Application | `ghcr.io/paperless-ngx/paperless-ngx:3.3.4` pinned by index digest |
 | Database | Shared MariaDB 11.4 |
 | Broker | Shared Valkey 8 compatibility PoC |
 | OCR | OCRmyPDF and Tesseract from the official image |
