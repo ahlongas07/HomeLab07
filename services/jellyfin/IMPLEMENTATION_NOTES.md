@@ -125,6 +125,24 @@ Candidate checks before the pin reaches the NAS:
   and render group; `iHD` fails before the expected `i965` fallback, as in
   12.2.
 
+Target result (2026-10-23, upgrade at 03:12 UTC, about fifteen seconds of
+downtime). Detailed evidence remains in the private evidence location.
+
+- [x] Pre-upgrade recovery point: the platform backup taken by the project
+      owner at 03:02 UTC the same day, chosen instead of a new backup.
+- [x] Runtime `jellyfin/jellyfin:12.3@sha256:2038fe03…`, healthy, no
+      restarts; the log reports 12.3.0 with no error; the application runs
+      ASP.NET Core 10.0.13.
+- [x] The `i965` driver loads in the running container; media mounts
+      read-only; no host port.
+- [x] `/health` and public system information return `200`; the setup
+      wizard and library management endpoints return `401` without
+      credentials.
+- [x] NPM access audit passes; its only warning concerns the identity proxy
+      host, not Jellyfin.
+- [ ] Owner checks: libraries and users, direct play and one VA-API
+      transcode through the published route.
+
 ## Hardware Discovery
 
 Target-host discovery completed on 2026-07-23 with the official Jellyfin
