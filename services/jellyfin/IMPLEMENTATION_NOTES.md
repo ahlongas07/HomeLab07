@@ -95,6 +95,36 @@ downtime). Detailed evidence remains in the private evidence location.
       libraries, users and playback history, direct play and one VA-API
       transcode through the published route.
 
+## Security Update 12.2 → 12.3
+
+Reviewed and approved on 2026-10-23 as a version update only. Resolves the
+residual .NET runtime risk recorded for 12.2.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `jellyfin/jellyfin:12.2` | `jellyfin/jellyfin:12.3` (same image as `12` and `latest`) |
+| Index digest | `sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037` | `sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5` |
+| amd64 manifest | `sha256:da3cd1e48322a35e4b60f3d0a49fca2649e7acce90346dd6e42db777f94e3bbd` | `sha256:720ad28968e040f1ea049749f4ce546b28c7251244a6eb8aacf9147d8afbc24d` |
+| arm64 manifest | `sha256:c2544f368e2e6c317832caebe96c375f5161b8ab73e2a041f6cf4af519d58805` | `sha256:2fe4523231dee34a7144d6fcd0313a60730c25695fa4e9f6ae09f98d4dbe9370` |
+| Upstream release | 2026-10-05 | 2026-10-23, image built 01:41 UTC |
+| Runtime | ASP.NET Core and .NET 10.0.12 | ASP.NET Core and .NET 10.0.13 |
+
+Digests were read from Docker Hub on 2026-10-23. The `12.3` tag was rebuilt
+three times on release day; the pin is the final build.
+
+Minor release with bug fixes and updated Microsoft packages. The 10.0.13
+runtime fixes CVE-2026-70188 and CVE-2026-88092 in ASP.NET Core. No database
+migration files changed between the two releases.
+
+Candidate checks before the pin reaches the NAS:
+
+- Scan with the pinned scanner and policy: critical findings with an
+  available fix drop from 2 to 0 and high findings with a fix from 22 to 0.
+  Detailed results stay in the private review.
+- VA-API: the H.264 `h264_vaapi` test encode exits `0` with the private UID
+  and render group; `iHD` fails before the expected `i965` fallback, as in
+  12.2.
+
 ## Hardware Discovery
 
 Target-host discovery completed on 2026-07-23 with the official Jellyfin

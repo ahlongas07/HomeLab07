@@ -81,6 +81,26 @@ available fix drop from 4 to 0. Detailed results stay in the private review.
 Rollback restores the pre-upgrade recovery point; see the README Upgrade
 section.
 
+Target result (2026-10-23, upgrade at 03:06 UTC, about one minute of
+downtime). Detailed evidence remains in the private evidence location.
+
+- [x] Pre-upgrade recovery point: platform backup run by the project owner
+      immediately before the upgrade. The restore test was skipped by owner
+      decision.
+- [x] Paperless-ngx runs `3.3.4@sha256:9bc6e824…` healthy without restarts;
+      the log reports v3.3.4 with no errors or deprecated settings.
+- [x] Pillow 13.0.0, certifi 2026.10.19 and aiohttp 3.14.4 in the runtime;
+      no pending migrations; `manage.py check` reports no issues.
+- [x] Celery worker and beat connected to Valkey.
+- [x] Through the proxy network: the UI redirects to login, the login page
+      and Keycloak login entry return `200`, the API returns `401` without a
+      session.
+- [x] Pillow decoded and re-encoded stored thumbnails; OCRmyPDF and Tesseract
+      respond.
+- [x] Medical sync healthy without restarts.
+- [ ] Owner functional checks: local and Keycloak login, ingestion of a
+      synthetic image and PDF with OCR and thumbnail.
+
 ## Decision Gates
 
 - Stop if Valkey produces protocol errors or silently loses documents.

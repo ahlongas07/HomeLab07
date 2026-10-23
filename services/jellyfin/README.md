@@ -20,7 +20,7 @@ the platform lifecycle.
 
 | Capability | Selection |
 |---|---|
-| Application | `jellyfin/jellyfin:12.2`, pinned by digest |
+| Application | `jellyfin/jellyfin:12.3`, pinned by digest |
 | Application state | Dedicated NAS-backed `/config` |
 | Cache/transcodes | Dedicated replaceable `/cache` |
 | Media | Rockstor bind mounts, read-only |

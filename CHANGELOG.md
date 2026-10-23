@@ -65,6 +65,8 @@
 
 ### Changed
 
+- Update Jellyfin from 12.2 to 12.3 pinned by digest for the ASP.NET Core
+  and .NET 10.0.13 runtime fixes; VA-API encode verified with the new image.
 - Update Paperless-ngx from 3.3.3 to 3.3.4 pinned by digest, an upstream
   security maintenance release with certifi for the emSign CA incident and
   fixed Pillow and aiohttp dependencies; no migrations or setting changes.
