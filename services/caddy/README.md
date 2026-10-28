@@ -41,7 +41,8 @@ services/caddy/
 ├── snippets/
 │   └── cloudflare-proxied.caddy
 ├── sites/
-│   └── homelab07.caddy       # HomeLab07 routes
+│   ├── homelab07.caddy       # HomeLab07 routes
+│   └── juanchoai.caddy       # approved external application (JuanchoAI API)
 ├── .env.example
 └── README.md
 ```
@@ -51,7 +52,7 @@ Private, outside Git:
 ```text
 HomeLab07.private/
 ├── env/caddy.env             # domains, ACME contact, UID/GID, data root
-└── caddy/sites/<app>.caddy   # external application routes
+└── caddy/sites/<app>.caddy   # routes that must stay out of Git (optional)
 ```
 
 ## Configuration
@@ -94,10 +95,12 @@ The snippet:
   `X-Forwarded-Scheme` are set. Caddy also sends `X-Forwarded-Host`, equal to
   `Host`, and `Via`.
 
-HomeLab07 routes live in `sites/homelab07.caddy` with domains from
-`caddy.env`. An external application route is a private file in
-`HomeLab07.private/caddy/sites/`, using the same snippet; applications never
-publish their own routes.
+Routes live in `sites/` with domains from `caddy.env`: HomeLab07 services in
+`homelab07.caddy`, and each external application approved by the platform
+owner in its own file (`juanchoai.caddy`). A route whose existence must stay
+out of Git can instead be a private file in `HomeLab07.private/caddy/sites/`,
+using the same snippet. A domain must never be defined in both places: Caddy
+rejects a duplicate site. Applications never publish their own routes.
 
 ### Cloudflare ranges
 

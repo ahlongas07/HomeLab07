@@ -1,7 +1,7 @@
 # Reverse Proxy Capability
 
-**Status:** Implemented in Sprint 017 (Caddy); validated in a target-host
-rehearsal; production cutover pending
+**Status:** Implemented in Sprint 017 (Caddy); in production since
+2026-10-28, soak period until 2026-11-11
 
 ## Required behavior
 
@@ -25,9 +25,9 @@ rehearsal; production cutover pending
 The proxy publishes only ports 80 and 443, runs as a non-root user with no
 capability other than binding those ports, and has no administration listener
 reachable outside its container. It has no database and no Docker socket.
-Applications never publish their own routes: HomeLab07 routes are versioned in
-the repository and external application routes are private files reviewed by
-the platform owner. Domains, addresses and credentials stay outside Git.
+Applications never publish their own routes: HomeLab07 and approved external
+application routes are versioned in the repository, and a route that must stay
+out of Git is a private file reviewed by the platform owner. Domains, addresses and credentials stay outside Git.
 Authentication at the proxy is not provided.
 
 ## Operational references

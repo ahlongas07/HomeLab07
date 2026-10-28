@@ -1,6 +1,6 @@
 # SPRINT-017 — Reverse Proxy Migration to Caddy
 
-**Status:** Implementation complete; rehearsal validated — production cutover pending
+**Status:** Cut over 2026-10-28 — soak until 2026-11-11, then decommission
 
 **Classification:** Platform Enhancement
 
@@ -205,6 +205,8 @@ change, so rollback needs no restore during the soak period.
 
 ## Residual work
 
+- Disable the TLS-ALPN challenge, which cannot succeed behind Cloudflare, so
+  failed attempts do not count against issuance limits.
 - Media route evaluation, after the soak period: rehearse DNS-only playback
   (remote clients, transcoding, long sessions) against the Cloudflare-proxied
   route, then decide and update the edge policy. Changing the route requires
@@ -240,6 +242,38 @@ upstream were removed afterwards.
   observability), `bash -n` and ShellCheck on changed scripts passed;
   ShellCheck reports only pre-existing findings.
 
+### Production cutover (2026-10-28)
+
+Private configuration was prepared on a dedicated `homelab07-caddy` share,
+after a recovery point on the previous revision. Nginx Proxy Manager was
+stopped and Caddy started at 15:39; Alloy was recreated for the new log root.
+
+- Caddy obtained the six Let's Encrypt certificates within ten seconds through
+  HTTP-01. TLS-ALPN attempts failed first, as expected behind Cloudflare.
+- Through Cloudflare, every route answered. The landing page returned `200`,
+  the application routes redirected to their login, and the external
+  application returned `401` from its own API.
+- A direct request to the origin returned `403` on all six routes.
+- Plain HTTP on the identity route redirected with `308` to HTTPS.
+- Keycloak's issuer matched the public HTTPS host, and Nextcloud reported
+  installed and not in maintenance. The Paperless login page and Jellyfin
+  public information returned `200`.
+- Loki received Caddy access logs and both endpoint probes were up.
+- `security-audit.sh`: 32 pass, 0 failures. Nginx Proxy Manager is retired and
+  not running, and Caddy runs non-root with exactly 80 and 443 and a valid
+  configuration.
+
+Owner checks pending during the soak: OIDC login for every client
+application, Paperless login, Nextcloud desktop and mobile synchronization,
+Jellyfin remote playback and an authenticated external application request.
+
+### External application route in the repository (2026-10-28)
+
+At the owner's request, the JuanchoAI route moved from the private
+`caddy/sites/` directory to `services/caddy/sites/juanchoai.caddy`, with its
+domain in `caddy.env` like the other routes. The private directory remains for
+routes that must stay out of Git.
+
 ### Deviations
 
 - Caddy runs as a non-root UID/GID. The official binary carries the
@@ -252,6 +286,8 @@ upstream were removed afterwards.
   versioned file: Caddy's `remote_ip` matcher accepts no block, so the same
   list cannot be shared through an import.
 - Caddy is not stopped during backup; its state is plain files.
+- Caddy state lives on a dedicated `homelab07-caddy` share instead of the
+  former proxy share, which stays untouched until the decommission.
 
 ### Findings outside scope
 

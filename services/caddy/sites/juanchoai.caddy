@@ -1,0 +1,6 @@
+# JuanchoAI API, an external application deployed from its own repository.
+# Approved by the platform owner for versioning here (Sprint 017).
+
+{$CADDY_JUANCHOAI_DOMAIN} {
+	import cloudflare_proxied juanchoai-api:8080
+}
