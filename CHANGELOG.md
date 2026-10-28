@@ -69,6 +69,10 @@
 
 ### Changed
 
+- Update the shared MariaDB from 11.4.12 to 11.4.13, now pinned by digest: an
+  LTS maintenance release with 22 upstream CVE fixes (privilege checks, JSON,
+  GIS and PROXY protocol hardening, InnoDB fixes). No backslash definers or
+  non-InnoDB tables were found before the update.
 - Update the landing page Nginx from 1.30.4-alpine to 1.30.6-alpine, now pinned
   by digest; the Alpine 3.24.3 base removes 15 of 18 high findings with a
   published fix. The configuration test passes with the new image.

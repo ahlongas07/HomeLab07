@@ -59,7 +59,7 @@ This follows the HomeLab07 Storage First architecture:
 
 ## Technology
 
-- MariaDB 11.4.12
+- MariaDB 11.4.13 pinned by digest (LTS series, supported until May 2029)
 - Docker Compose
 - Rockstor persistent storage
 - HomeLab07 operation layer
