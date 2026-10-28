@@ -74,6 +74,18 @@
       "title": "Medical sync files by result (latest run)",
       "transformations": [{"id": "filterFieldsByName", "options": {"include": {"names": ["result", "Value"]}}}, {"id": "organize", "options": {"indexByName": {"result": 0, "Value": 1}, "renameByName": {"result": "Result", "Value": "Files"}}}],
       "type": "table"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
+      "description": "Actionable findings per deployed image from the latest completed scan, using the same rules as \"Actionable security findings\": a published fix, counted once per CVE and package, kernel header packages excluded. The image label omits the digest; the private scan manifest keeps the full reference.",
+      "fieldConfig": {"defaults": {"custom": {"align": "auto", "cellOptions": {"type": "auto"}}, "mappings": []}, "overrides": [{"matcher": {"id": "byName", "options": "Critical with fix"}, "properties": [{"id": "custom.cellOptions", "value": {"type": "color-text"}}, {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}]}, {"matcher": {"id": "byName", "options": "High with fix"}, "properties": [{"id": "custom.cellOptions", "value": {"type": "color-text"}}, {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 1}]}}]}]},
+      "gridPos": {"h": 12, "w": 12, "x": 12, "y": 13},
+      "id": 8,
+      "options": {"cellHeight": "sm", "showHeader": true, "sortBy": [{"desc": true, "displayName": "Critical with fix"}]},
+      "targets": [{"editorMode": "code", "expr": "sum by (image) (homelab07_security_image_fixable_findings{severity=\"critical\"})", "format": "table", "instant": true, "range": false, "refId": "A"}, {"editorMode": "code", "expr": "sum by (image) (homelab07_security_image_fixable_findings{severity=\"high\"})", "format": "table", "instant": true, "range": false, "refId": "B"}],
+      "title": "Actionable security findings by image",
+      "transformations": [{"id": "merge", "options": {}}, {"id": "filterFieldsByName", "options": {"include": {"names": ["image", "Value #A", "Value #B"]}}}, {"id": "organize", "options": {"indexByName": {"image": 0, "Value #A": 1, "Value #B": 2}, "renameByName": {"image": "Image", "Value #A": "Critical with fix", "Value #B": "High with fix"}}}],
+      "type": "table"
     }
   ],
   "refresh": "30s",

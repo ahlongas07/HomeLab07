@@ -40,7 +40,7 @@ observability_publish_batch_metrics() {
     shift 3
 
     local metric_root file temporary now last_success duration prefix extra
-    local extra_pattern='^homelab07_[a-zA-Z0-9_:]+(\{[a-zA-Z0-9_=".,:-]+\})?[[:space:]]+[-+]?[0-9]+([.][0-9]+)?$'
+    local extra_pattern='^homelab07_[a-zA-Z0-9_:]+(\{[a-zA-Z0-9_=".,:/-]+\})?[[:space:]]+[-+]?[0-9]+([.][0-9]+)?$'
 
     if [[ ! "${job}" =~ ^[a-z][a-z0-9_]*$ ]] ||
         [[ ! "${status}" =~ ^[01]$ ]] ||

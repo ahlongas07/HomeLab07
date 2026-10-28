@@ -467,14 +467,16 @@ finding_counts="$({
 # Actionable view for dashboards: findings with a published fix, counted once
 # per scanned artifact, CVE and package. Kernel header packages are excluded
 # because containers run on the host kernel. Raw totals stay in the report.
+fixable_filter='.Results[]? | .Vulnerabilities[]?
+      | select((.FixedVersion // "") != "")
+      | select(.PkgName | test("^linux-(libc-dev|headers)") | not)'
+
 fixable_counts="$({
     printf '%s\n' "${staging_root}/repository/trivy.json"
     find "${staging_root}/images" -type f -name '*.json' -print
-} | xargs jq -n '
-    [inputs | input_filename as $artifact | .Results[]? | .Vulnerabilities[]?
-      | select((.FixedVersion // "") != "")
-      | select(.PkgName | test("^linux-(libc-dev|headers)") | not)
-      | {artifact: $artifact, id: .VulnerabilityID, package: .PkgName, severity: .Severity}]
+} | xargs jq -n "
+    [inputs | input_filename as \$artifact | ${fixable_filter}
+      | {artifact: \$artifact, id: .VulnerabilityID, package: .PkgName, severity: .Severity}]"'
     | unique_by([.artifact, .id, .package])
     | {
         fixable_critical: (map(select(.severity == "CRITICAL")) | length),
@@ -484,6 +486,26 @@ fixable_counts="$({
 finding_counts="$(printf '%s\n%s\n' "${finding_counts}" "${fixable_counts}" | jq -s 'add')"
 
 jq -s '.' "${staging_root}/image-map.ndjson" >"${staging_root}/image-map.json"
+
+# Same actionable rules per image. The label drops the digest so the
+# dashboard stays readable; the manifest keeps the full reference.
+image_metrics=()
+while IFS=$'\t' read -r image_label fixable_critical fixable_high; do
+    image_metrics+=(
+        "homelab07_security_image_fixable_findings{image=\"${image_label}\",severity=\"critical\"} ${fixable_critical}"
+        "homelab07_security_image_fixable_findings{image=\"${image_label}\",severity=\"high\"} ${fixable_high}"
+    )
+done < <(jq -r '.[] | [.image, .artifact_key] | @tsv' "${staging_root}/image-map.json" |
+    while IFS=$'\t' read -r image_reference artifact_key; do
+        jq -r --arg image "${image_reference%%@*}" "
+            [${fixable_filter} | {id: .VulnerabilityID, package: .PkgName, severity: .Severity}]
+            | unique_by([.id, .package])"'
+            | [$image,
+               (map(select(.severity == "CRITICAL")) | length),
+               (map(select(.severity == "HIGH")) | length)]
+            | @tsv' "${staging_root}/images/${artifact_key}.json"
+    done)
+
 git_revision="$(git -C "${PROJECT_ROOT}" rev-parse HEAD)"
 
 jq -n \
@@ -577,7 +599,8 @@ observability_publish_batch_metrics security 1 "${scan_started_epoch}" \
     "homelab07_security_high_findings $(jq -r '.high' <<<"${finding_counts}")" \
     "homelab07_security_fixable_critical_findings $(jq -r '.fixable_critical' <<<"${finding_counts}")" \
     "homelab07_security_fixable_high_findings $(jq -r '.fixable_high' <<<"${finding_counts}")" \
-    "homelab07_security_gitleaks_findings ${gitleaks_history_findings}"
+    "homelab07_security_gitleaks_findings ${gitleaks_history_findings}" \
+    "${image_metrics[@]}"
 trap - EXIT INT TERM
 
 echo

@@ -8,6 +8,10 @@
   Nextcloud, and `security/gitleaksignore` for two Git history matches of the
   Valkey image reference. The scan preflight requires both files and fails on
   expired Gitleaks exceptions.
+- Add an "Actionable security findings by image" table to the Operations
+  dashboard, fed by the new `homelab07_security_image_fixable_findings`
+  metric with the same counting rules as the totals. Batch metric labels may
+  now contain `/`.
 
 - Add the Sprint 015 medical records ingestion: a dedicated
   `paperless-medical-sync` container (Python standard library and pinned
