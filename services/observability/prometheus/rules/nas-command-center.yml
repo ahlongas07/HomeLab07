@@ -55,7 +55,7 @@ groups:
               and on(storage) (homelab07_storage_btrfs_metrics_available == 1)
             ) or vector(0))
             + (max(
-              (homelab07_storage_scrub_age_seconds > bool 2592000)
+              (homelab07_storage_scrub_age_seconds > bool 3024000)
               and on(storage) (homelab07_storage_btrfs_metrics_available == 1)
             ) or vector(0))
             + (max((100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 80) or vector(0))

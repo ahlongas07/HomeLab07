@@ -32,6 +32,19 @@ UUIDs and paths must not appear in metrics or repository evidence.
 An existing directory is not considered a mounted share. This prevents writes
 from falling through to the operating-system filesystem after a mount failure.
 
+## Scrub schedule
+
+Each Btrfs pool needs a monthly scrub. Two host mechanisms provide it, and
+neither is stored in this repository:
+
+| Pool | Mechanism | Schedule |
+|---|---|---|
+| System SSD pool (`/`) | `btrfs-scrub.timer` from the `btrfsmaintenance` package (`BTRFS_SCRUB_MOUNTPOINTS="/"`) | 1st of every month, 00:00 |
+| Data HDD pool | Rockstor scheduled task of type Btrfs Scrub | 2nd of every month, 03:00 |
+
+Recreate both after a NAS reinstall. A scrub counts as fresh for 35 days so a
+monthly run never shows as stale in a 31-day month; a missed month does.
+
 ## Privilege boundary
 
 Alloy never receives Btrfs administration or host-root access. A reviewed

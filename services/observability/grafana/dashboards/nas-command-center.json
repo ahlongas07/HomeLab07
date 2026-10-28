@@ -70,7 +70,7 @@
       "gridPos": {"h": 7, "w": 8, "x": 16, "y": 5},
       "id": 7,
       "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
-      "targets": [{"editorMode": "code", "expr": "homelab07_storage_scrub_status and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} result", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "((homelab07_storage_scrub_age_seconds > bool 0) * (homelab07_storage_scrub_age_seconds < bool 2592000)) and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} fresh (<30d)", "range": false, "refId": "B"}],
+      "targets": [{"editorMode": "code", "expr": "homelab07_storage_scrub_status and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} result", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "((homelab07_storage_scrub_age_seconds > bool 0) * (homelab07_storage_scrub_age_seconds < bool 3024000)) and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} fresh (<35d)", "range": false, "refId": "B"}],
       "title": "Btrfs scrub result and freshness",
       "type": "stat"
     },

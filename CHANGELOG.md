@@ -60,7 +60,9 @@
 - Read the Btrfs scrub start time from the current `btrfs scrub status` output
   (`Scrub started:`). The scrub age was always reported as 0, so the NAS
   Command Center never showed a fresh scrub and the 30-day stale scrub
-  condition could not trigger.
+  condition could not trigger. The stale threshold is now 35 days so a
+  monthly scrub does not show as stale in 31-day months, and the scrub
+  schedule of both pools is documented.
 - Fix the "Fast collector metrics are stale" alert: its expression dropped
   the metric name and produced duplicate Platform and Rockstor series, so the
   rule never evaluated and fired permanently through its error state.
