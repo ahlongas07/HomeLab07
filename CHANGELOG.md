@@ -69,6 +69,12 @@
 
 ### Changed
 
+- Update the observability images, pinned privately by digest: Grafana 13.1.0
+  to 13.1.9, Loki 3.7.6 to 3.7.9 and Prometheus v3.13.2 to v3.13.5 within
+  their series, and Alloy v1.18.1 to v1.21.2 (no patch release exists for
+  1.18; no breaking change in 1.19 to 1.21 affects the components in use).
+  Actionable findings drop from 1 critical and 133 high to 5 high. The
+  Prometheus, Loki and Alloy configurations validate with the new images.
 - Update the shared MariaDB from 11.4.12 to 11.4.13, now pinned by digest: an
   LTS maintenance release with 22 upstream CVE fixes (privilege checks, JSON,
   GIS and PROXY protocol hardening, InnoDB fixes). No backslash definers or
