@@ -197,7 +197,7 @@ while IFS=$'\t' read -r alias mount_path expected_fstype extra; do
                 scrub_status=1
             fi
             scrub_started="$(awk '
-                tolower($0) ~ /^[[:space:]]*start time:/ {
+                tolower($0) ~ /^[[:space:]]*(scrub started|start time):/ {
                     value = $0
                     sub(/^[^:]*:[[:space:]]*/, "", value)
                     print value

@@ -57,6 +57,10 @@
 
 ### Fixed
 
+- Read the Btrfs scrub start time from the current `btrfs scrub status` output
+  (`Scrub started:`). The scrub age was always reported as 0, so the NAS
+  Command Center never showed a fresh scrub and the 30-day stale scrub
+  condition could not trigger.
 - Fix the "Fast collector metrics are stale" alert: its expression dropped
   the metric name and produced duplicate Platform and Rockstor series, so the
   rule never evaluated and fired permanently through its error state.
