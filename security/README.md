@@ -28,5 +28,11 @@ Current exceptions, reviewed on 2026-10-22:
 - Two Git history matches of the Valkey image reference by the generic API key
   rule.
 
+External application targets keep their own `security/trivyignore.yaml` and
+`security/gitleaksignore` in their repositories. The scanner applies them only
+to that target, under this same policy: the application owner reviews and
+records each entry, and an expired Gitleaks exception fails that target
+without affecting HomeLab07.
+
 The scanner runs in report-only mode until a target-host baseline has been
 reviewed. Operational failures remain fatal even in report-only mode.

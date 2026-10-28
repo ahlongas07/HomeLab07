@@ -45,6 +45,9 @@ Create a report-only current-tree, full-history, image and SBOM evidence set:
 Detailed Trivy evidence and sanitized Gitleaks history metadata are written
 only to the configured private report share.
 Review the completed run's `checksums.sha256`, `manifest.json` and `summary.md`.
+When external targets are configured, confirm each target's status in the
+manifest, and for locally built images compare `local_image_id` with the
+running container.
 Do not copy raw secret findings or environment-specific image references into
 version-controlled validation records.
 

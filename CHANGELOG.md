@@ -2,6 +2,17 @@
 
 ### Added
 
+- Add Sprint 016 external application security scan targets: private
+  per-application definitions under `security-scan-targets/`, Compose
+  discovery on every run, the same Trivy, Gitleaks and SBOM coverage per
+  target, and target isolation, so a failing external target is recorded
+  without blocking HomeLab07 evidence. Manifest contract 1.4.0 stores reports
+  under per-target paths. Security finding metrics gain a `target` label, with
+  new per-target status and uncovered-container metrics; both dashboards gain
+  a `Security target` selector and Operations gains target status and
+  coverage panels. A new alert reports failed external targets, and the
+  Gitleaks alert names its target. Preflight warns about containers that were
+  not created from a scanned Compose definition.
 - Add reviewed, expiring security scan exceptions for confirmed false
   positives: `security/trivyignore.yaml` for upstream test keys in the Nginx
   Proxy Manager image and the public Azure emulator key bundled with

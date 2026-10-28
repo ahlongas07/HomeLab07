@@ -1,6 +1,6 @@
 # SPRINT-016 — External Application Security Scan Targets
 
-**Status:** Proposed
+**Status:** Implementation complete — target acceptance pending
 
 **Classification:** Platform Enhancement
 
@@ -25,7 +25,8 @@ results stay attributable to it.
   `HomeLab07.private/env/security-scan-targets/<target-id>.env`, declaring the
   application repository root and, optionally, a Compose discovery pattern
   relative to it (default `services/*/compose.yaml`, the HomeLab07
-  convention). Real paths never enter Git.
+  convention) and an environment root holding `<service>.env` files used only
+  to render the application's Compose definitions. Real paths never enter Git.
 - A repository example under `operation/security-scan-targets.env.example`
   with placeholders only.
 - Compose discovery inside each target on every run, so services added to a
@@ -40,8 +41,8 @@ results stay attributable to it.
 - Target isolation: HomeLab07 remains mandatory, while a failing external
   target is recorded as failed without blocking publication of the run.
 - A runtime coverage check that compares `docker ps -a` with the declared
-  inventory and reports every container whose image is not covered by
-  HomeLab07 or a target.
+  inventory and reports every container that was not created from a Compose
+  definition of HomeLab07 or a target.
 - Manifest contract 1.4.0: every artifact records its `target` (`homelab07`
   or the target ID), target reports are stored under per-target paths, and the
   manifest records each target's status and any uncovered containers.
@@ -130,8 +131,8 @@ Alerts:
 - **Given** a target locally built image that does not exist, **when** the
   scan runs, **then** the target fails with its own build command in the
   terminal output.
-- **Given** a container whose image is not declared by HomeLab07 or any
-  target, **when** preflight or scan runs, **then** the run reports it by
+- **Given** a container that was not created from a Compose definition of
+  HomeLab07 or any target, **when** preflight or scan runs, **then** the run reports it by
   container name and image and the uncovered containers metric counts it,
   without scanning it.
 - **Given** the dashboards with *All* selected, **when** two targets have
@@ -145,9 +146,12 @@ Alerts:
 - A target repository must not overlap the HomeLab07 repository, the private
   configuration root, the report root or the Trivy cache.
 - Target definitions contain paths only; no credentials. Target Compose files
-  are rendered from their own directory with the operator's existing access.
-- The coverage check reads container names and image references only; it
-  does not inspect container configuration or environment.
+  are rendered on the host from their own directory with the operator's
+  existing access; only image names leave the rendered output, and target
+  environment files are never mounted into the scanners.
+- The coverage check reads container names, image references and the Compose
+  `config_files` label only; it does not inspect container configuration or
+  environment.
 - Detailed findings, secret metadata, real paths and image-level counts stay
   on the private report share, as for HomeLab07. Metric labels contain target
   IDs and image references only.
@@ -181,6 +185,58 @@ leaves the totals panels showing one series per target until the scanner is
 reverted.
 
 ## Closure record
+
+### Implementation validation (2026-10-28)
+
+Validated on the platform host in a disposable sandbox: a copy of the working
+tree, a private root with its own scanner configuration, report root and
+metrics directory, and read-only links to the service environment files. The
+production report share, metrics and private configuration were not changed.
+The sandbox was removed afterwards.
+
+- `bash -n` passes. ShellCheck 0.10.0 reports only the pre-existing SC2094
+  information on checksum generation. Dashboards parse as JSON, the alert
+  rules parse as YAML, and every changed PromQL expression is accepted by the
+  running Prometheus.
+- No targets beyond HomeLab07 and one external application: run published,
+  checksums valid, manifest contract 1.4.0, per-target report paths and
+  metrics with the `target` label. The external application's locally built
+  image was scanned as an archive and its `local_image_id` matched the running
+  container.
+- A test target with two services was scanned without configuration changes.
+- A test target with a missing local image failed during image scan with its
+  build command; the run was published with every other target, the failed
+  target's partial evidence was discarded and it published only status
+  metrics.
+- Preflight rejected an invalid target ID and definitions with broad
+  permissions, a missing repository, a shallow clone, a Compose definition
+  linked outside the repository, an environment root inside the repository
+  and an expired Gitleaks exception.
+- A failed run kept every target's last success time; a later target failure
+  reported the time of its previous success.
+- The coverage check reported containers created from another checkout path
+  and treated the external application's container as covered.
+
+### Deviations
+
+- Target definitions gained an optional environment root: the first
+  application's Compose definitions require variables from its own private
+  environment directory to render.
+- Coverage is decided by the Compose `config_files` label rather than by image
+  reference, because image references in the runtime omit digests and may use
+  mutable tags.
+- A definition with permissions broader than owner-only also fails the
+  HomeLab07 policy audit, because it lives in the HomeLab07 private root.
+- Validation found and fixed two defects before acceptance: Compose symbolic
+  links were not resolved, and a failed run discarded target success times.
+
+### Residual work
+
+- Deploy the dashboards and alert rules, then confirm both dashboards show the
+  targets separately.
+- Create the private target definition for the first application and run the
+  acceptance scan on the production report share.
+- Decide whether uncovered containers should fail the run.
 
 Record outcome, sanitized validation summary, deviations and residual work here.
 Detailed private evidence remains in its approved private location.
