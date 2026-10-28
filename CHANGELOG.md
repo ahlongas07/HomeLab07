@@ -69,6 +69,9 @@
 
 ### Changed
 
+- Update the landing page Nginx from 1.30.4-alpine to 1.30.6-alpine, now pinned
+  by digest; the Alpine 3.24.3 base removes 15 of 18 high findings with a
+  published fix. The configuration test passes with the new image.
 - Update Jellyfin from 12.2 to 12.3 pinned by digest for the ASP.NET Core
   and .NET 10.0.13 runtime fixes; VA-API encode verified with the new image.
 - Update Paperless-ngx from 3.3.3 to 3.3.4 pinned by digest, an upstream

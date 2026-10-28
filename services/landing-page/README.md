@@ -30,7 +30,7 @@ LAN-only.
 
 ## Technology
 
-- Nginx `1.30.4-alpine` (official stable image)
+- Nginx `1.30.6-alpine` pinned by digest (official stable image)
 - Docker Compose
 - HTML
 - CSS
@@ -69,7 +69,8 @@ docker inspect homelab07-landing-page \
 docker exec homelab07-landing-page nginx -v
 ```
 
-The expected references are `nginx:1.30.4-alpine` and `nginx/1.30.4`.
+The expected references are `nginx:1.30.6-alpine@sha256:47928bf6…` (the full
+digest is in `compose.yaml`) and `nginx/1.30.6`.
 
 Validate that the rendered page reflects the current platform milestone:
 
