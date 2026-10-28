@@ -57,9 +57,21 @@ Never write test data into an unverified mount path.
 3. Confirm whether the filesystem became read-only.
 4. Preserve backup and recovery evidence before repair activity.
 
+## External security scan target failed
+
+1. HomeLab07 evidence from the same run is complete; this alert concerns only
+   the named target.
+2. Read the target's failure stage in the run's `summary.md` or `manifest.json`.
+3. Run scanner preflight to see the target's definition, repository, shallow
+   clone, Compose or exception problem.
+4. For a missing local image, ask the application owner to build it; do not
+   build or deploy external applications from the platform.
+5. The alert resolves after the next scan in which the target succeeds.
+
 ## Gitleaks findings
 
-1. Review only the restricted security report.
+1. Identify the target from the alert, then review only the restricted
+   security report under `repository/<target>/`.
 2. Classify the finding without publishing matched content.
 3. Rotate a real credential before repository cleanup.
 4. Follow incident response; do not rewrite history without approval.
