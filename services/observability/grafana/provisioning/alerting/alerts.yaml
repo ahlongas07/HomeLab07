@@ -87,7 +87,9 @@ groups:
             relativeTimeRange: {from: 1800, to: 0}
             model:
               <<: *prometheus_query
-              expr: 'time() - {__name__=~"homelab07_(platform|rockstor)_last_run_timestamp_seconds"}'
+              # label_replace keeps each series distinct once the subtraction drops
+              # __name__; $$ escapes provisioning environment interpolation.
+              expr: 'time() - label_replace({__name__=~"homelab07_(platform|rockstor)_last_run_timestamp_seconds"}, "metric", "$$1", "__name__", "(.+)")'
           - refId: B
             datasourceUid: __expr__
             model:

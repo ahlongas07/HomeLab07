@@ -109,6 +109,7 @@ services:
       GF_PLUGINS_PLUGIN_ADMIN_ENABLED: "false"
       GF_SERVER_ENABLE_GZIP: "true"
       GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+      GF_PATHS_BUNDLED_PLUGINS: /var/lib/grafana/plugins-bundled
     volumes:
       - ${HOMELAB07_OBSERVABILITY_ROOT:?HOMELAB07_OBSERVABILITY_ROOT is required}/grafana:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro

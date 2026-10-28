@@ -170,6 +170,10 @@ Historical metrics and logs are not a restore requirement.
   not labels.
 - Default credentials and mutable image references are rejected.
 - Runtime storage is bounded by time and size controls.
+- Grafana runs with a read-only root filesystem. Its bundled plugin path
+  points into the persistent data directory, so Grafana installs and updates
+  its default plugins (including Elasticsearch and Zipkin) there instead of
+  replacing image files. Plugin administration from the UI stays disabled.
 
 ## Related Sprint
 

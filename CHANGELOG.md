@@ -57,6 +57,12 @@
 
 ### Fixed
 
+- Fix the "Fast collector metrics are stale" alert: its expression dropped
+  the metric name and produced duplicate Platform and Rockstor series, so the
+  rule never evaluated and fired permanently through its error state.
+- Let Grafana install and update its default plugins with a read-only root
+  filesystem by moving the bundled plugin path into the data directory, and
+  provision an empty plugin directory so start-up no longer logs errors.
 - Show actionable vulnerability counts on the Operations dashboard and the
   NAS Command Center security posture panel: findings
   with a published fix, deduplicated per image, CVE and package and excluding
