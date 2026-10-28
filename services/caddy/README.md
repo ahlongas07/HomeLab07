@@ -47,13 +47,8 @@ services/caddy/
 └── README.md
 ```
 
-Private, outside Git:
-
-```text
-HomeLab07.private/
-├── env/caddy.env             # domains, ACME contact, UID/GID, data root
-└── caddy/sites/<app>.caddy   # routes that must stay out of Git (optional)
-```
+Private, outside Git: `HomeLab07.private/env/caddy.env` (domains, ACME
+contact, UID/GID, data root).
 
 ## Configuration
 
@@ -70,7 +65,6 @@ Pre-create the persistent directories owned by `CADDY_UID:CADDY_GID`:
 ```bash
 install -d -m 0700 -o <uid> -g <gid> <data-root>/caddy/data <data-root>/caddy/config
 install -d -m 0755 -o <uid> -g <gid> <data-root>/caddy/logs
-mkdir -p ../HomeLab07.private/caddy/sites
 ```
 
 ### Routes
@@ -95,12 +89,12 @@ The snippet:
   `X-Forwarded-Scheme` are set. Caddy also sends `X-Forwarded-Host`, equal to
   `Host`, and `Via`.
 
-Routes live in `sites/` with domains from `caddy.env`: HomeLab07 services in
-`homelab07.caddy`, and each external application approved by the platform
-owner in its own file (`juanchoai.caddy`). A route whose existence must stay
-out of Git can instead be a private file in `HomeLab07.private/caddy/sites/`,
-using the same snippet. A domain must never be defined in both places: Caddy
-rejects a duplicate site. Applications never publish their own routes.
+Every route lives in `sites/`, and its domain is a variable in `caddy.env`:
+HomeLab07 services in `homelab07.caddy`, and each external application
+approved by the platform owner in its own file (`juanchoai.caddy`). To add a
+route, add the site block, add its `CADDY_<NAME>_DOMAIN` variable to
+`compose.yaml`, `.env.example` and the private `caddy.env`, then recreate
+Caddy. Applications never publish their own routes.
 
 ### Cloudflare ranges
 

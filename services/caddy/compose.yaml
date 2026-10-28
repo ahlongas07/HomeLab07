@@ -22,7 +22,6 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./snippets:/etc/caddy/snippets:ro
       - ./sites:/etc/caddy/sites:ro
-      - ${HOMELAB07_PRIVATE_ROOT:?HOMELAB07_PRIVATE_ROOT is required}/caddy/sites:/etc/caddy/external:ro
       - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/caddy/data:/data
       - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/caddy/config:/config
       - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/caddy/logs:/var/log/caddy

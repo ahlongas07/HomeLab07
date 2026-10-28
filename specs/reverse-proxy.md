@@ -26,8 +26,8 @@ The proxy publishes only ports 80 and 443, runs as a non-root user with no
 capability other than binding those ports, and has no administration listener
 reachable outside its container. It has no database and no Docker socket.
 Applications never publish their own routes: HomeLab07 and approved external
-application routes are versioned in the repository, and a route that must stay
-out of Git is a private file reviewed by the platform owner. Domains, addresses and credentials stay outside Git.
+application routes are versioned in the repository, with their domains in the
+private environment. Domains, addresses and credentials stay outside Git.
 Authentication at the proxy is not provided.
 
 ## Operational references

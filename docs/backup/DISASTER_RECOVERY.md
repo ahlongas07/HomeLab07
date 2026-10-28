@@ -38,8 +38,8 @@ Do not import an all-database dump into the active production server as a test.
 ## Caddy
 
 Restore `caddy/data` (certificates and ACME account) and `caddy/config` with
-the Caddy UID/GID as owner; routes come from the repository and the private
-`caddy.env` and `caddy/sites/`. Validate the configuration, certificate expiry,
+the Caddy UID/GID as owner; routes come from the repository and their domains
+from the private `caddy.env`. Validate the configuration, certificate expiry,
 the `403` for a direct non-Cloudflare request and one route before enabling all
 public traffic. Missing certificates are issued again automatically.
 

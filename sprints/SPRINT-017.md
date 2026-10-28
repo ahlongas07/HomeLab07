@@ -121,24 +121,22 @@ Private preparation, by the owner, before the window:
    UID/GID.
 2. Create `<data-root>/caddy/data` and `<data-root>/caddy/config` (`0700`) and
    `<data-root>/caddy/logs` (`0755`), owned by that UID/GID.
-3. Create `HomeLab07.private/caddy/sites/` with one file per external
-   application route, using the `cloudflare_proxied` snippet.
-4. In `observability.env`, replace `HOMELAB07_NPM_LOG_ROOT` with
+3. In `observability.env`, replace `HOMELAB07_NPM_LOG_ROOT` with
    `HOMELAB07_PROXY_LOG_ROOT=<data-root>/caddy/logs`.
 
 Window:
 
-5. Recovery point on the current revision: `./operation/backup.sh` (as root).
-6. Update the platform checkout to the Sprint 017 revision.
-7. `./operation/compose.sh caddy config --quiet` and
+4. Recovery point on the current revision: `./operation/backup.sh` (as root).
+5. Update the platform checkout to the Sprint 017 revision.
+6. `./operation/compose.sh caddy config --quiet` and
    `./operation/compose.sh caddy pull`.
-8. `./operation/compose.sh nginx-proxy-manager stop`
-9. `./operation/compose.sh caddy up -d`; follow
+7. `./operation/compose.sh nginx-proxy-manager stop`
+8. `./operation/compose.sh caddy up -d`; follow
    `./operation/compose.sh caddy logs -f` until the six certificates are
    obtained.
-10. `./operation/compose.sh observability up -d` so Alloy reads the new log
+9. `./operation/compose.sh observability up -d` so Alloy reads the new log
     root.
-11. Validate the acceptance criteria below, `./operation/security-audit.sh`
+10. Validate the acceptance criteria below, `./operation/security-audit.sh`
     and the endpoint probes.
 
 Rollback: `./operation/compose.sh caddy stop`, then
@@ -269,10 +267,10 @@ Jellyfin remote playback and an authenticated external application request.
 
 ### External application route in the repository (2026-10-28)
 
-At the owner's request, the JuanchoAI route moved from the private
-`caddy/sites/` directory to `services/caddy/sites/juanchoai.caddy`, with its
-domain in `caddy.env` like the other routes. The private directory remains for
-routes that must stay out of Git.
+At the owner's request, the JuanchoAI route moved from a private route file to
+`services/caddy/sites/juanchoai.caddy`, with its domain in `caddy.env` like
+the other routes. The private route directory and its mount were removed:
+every route is versioned, and only domains are private.
 
 ### Deviations
 
