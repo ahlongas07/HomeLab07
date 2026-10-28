@@ -1,6 +1,6 @@
 # SPRINT-016 — External Application Security Scan Targets
 
-**Status:** Implementation complete — target acceptance pending
+**Status:** Validated on target — owner dashboard confirmation pending
 
 **Classification:** Platform Enhancement
 
@@ -230,12 +230,22 @@ The sandbox was removed afterwards.
 - Validation found and fixed two defects before acceptance: Compose symbolic
   links were not resolved, and a failed run discarded target success times.
 
+### Target acceptance (2026-10-28)
+
+- The private definition for the first external application was created with
+  owner-only permissions. Preflight passed with the target ready and no
+  uncovered containers.
+- The acceptance run on the production report share was published with
+  checksums valid and manifest contract 1.4.0; both targets succeeded. The
+  external application's scanned `local_image_id` matched its running
+  container.
+- Prometheus exposes `homelab07_security_target_last_status` for both
+  targets. Grafana reloaded the dashboards and, after a restart, provisioned
+  the alert rules without evaluation errors.
+
 ### Residual work
 
-- Deploy the dashboards and alert rules, then confirm both dashboards show the
-  targets separately.
-- Create the private target definition for the first application and run the
-  acceptance scan on the production report share.
+- Owner visual confirmation that both dashboards show the targets separately.
 - Decide whether uncovered containers should fail the run.
 
 Record outcome, sanitized validation summary, deviations and residual work here.
