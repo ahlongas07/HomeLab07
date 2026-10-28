@@ -16,7 +16,7 @@ export HOMELAB07_PRIVATE_ROOT="${PRIVATE_ROOT}"
 readonly -a PLATFORM_SERVICES=(
     mariadb
     valkey
-    nginx-proxy-manager
+    caddy
     jellyfin
     nextcloud
     keycloak
@@ -98,6 +98,7 @@ service_label() {
     case "$1" in
         mariadb) echo "MariaDB" ;;
         valkey) echo "Valkey" ;;
+        caddy) echo "Caddy" ;;
         nginx-proxy-manager) echo "Nginx Proxy Manager" ;;
         jellyfin) echo "Jellyfin" ;;
         nextcloud) echo "Nextcloud" ;;

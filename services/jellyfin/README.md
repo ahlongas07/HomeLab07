@@ -11,7 +11,7 @@ transcoding as the Sprint 007 business service.
 - Provide browser and client playback.
 - Preserve users, metadata, settings and playback history under `/config`.
 - Use `/cache` for replaceable cache and transcode workspace.
-- Consume HTTPS publication from Nginx Proxy Manager.
+- Consume HTTPS publication from the shared Caddy reverse proxy.
 
 Jellyfin does not own source media, TLS, DNS, identity, backup automation or
 the platform lifecycle.
@@ -24,7 +24,7 @@ the platform lifecycle.
 | Application state | Dedicated NAS-backed `/config` |
 | Cache/transcodes | Dedicated replaceable `/cache` |
 | Media | Rockstor bind mounts, read-only |
-| Publication | Nginx Proxy Manager and Cloudflare Dynamic DNS |
+| Publication | Caddy, proxied by Cloudflare |
 | Authentication | Jellyfin local users |
 | Acceleration | Intel VA-API through scoped `renderD128` access |
 
@@ -126,20 +126,13 @@ for write access. Validate with synthetic or legally usable media:
 
 ## Reverse Proxy
 
-Create the Proxy Host using private values:
+Caddy publishes `CADDY_JELLYFIN_DOMAIN` to `homelab07-jellyfin:8096` from
+`services/caddy/sites/homelab07.caddy`, through Cloudflare like every route.
+WebSockets and range requests need no extra setting. The private
+`JELLYFIN_PUBLISHED_URL` must match the public domain.
 
-| Setting | Value |
-|---|---|
-| Scheme | `http` |
-| Forward hostname | `homelab07-jellyfin` |
-| Forward port | `8096` |
-| WebSocket support | enabled |
-| Cache assets | disabled |
-| Force SSL | enabled after certificate validation |
-| Public URL | same value as private `JELLYFIN_PUBLISHED_URL` |
-
-Configure the actual Nginx Proxy Manager address or exact approved proxy CIDR
-as a Known Proxy in Jellyfin. Protect proxy logs because Jellyfin can place API
+To have Jellyfin see visitor addresses, configure the exact approved proxy
+CIDR as a Known Proxy in Jellyfin; none is configured as of Sprint 017. Protect proxy logs because Jellyfin can place API
 keys in request URLs. Do not publish port `8096` or enable host networking.
 
 ## Hardware Acceleration
@@ -202,7 +195,7 @@ from the pre-upgrade recovery point.
 
 4. Validate: the `Validation` section above, a full scan of all libraries
    when the release notes require it, playback through the published route
-   and `./operation/npm-access-audit.sh`.
+   and `./operation/security-audit.sh`.
 
 5. Run `./operation/security-scan.sh scan` and compare the image as described
    in [Comparing an image between scan runs](../../docs/security/VULNERABILITY_MANAGEMENT.md#comparing-an-image-between-scan-runs)

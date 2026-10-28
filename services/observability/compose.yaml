@@ -70,7 +70,7 @@ services:
       - ./alloy/blackbox-modules.yaml:/etc/alloy/blackbox-modules.yaml:ro
       - ${HOMELAB07_OBSERVABILITY_PROBE_TARGETS_FILE:?HOMELAB07_OBSERVABILITY_PROBE_TARGETS_FILE is required}:/etc/alloy/probe-targets.yaml:ro
       - ${HOMELAB07_OBSERVABILITY_METRICS_ROOT:?HOMELAB07_OBSERVABILITY_METRICS_ROOT is required}:/var/lib/homelab07/metrics:ro
-      - ${HOMELAB07_NPM_LOG_ROOT:?HOMELAB07_NPM_LOG_ROOT is required}:/var/log/homelab07/npm:ro
+      - ${HOMELAB07_PROXY_LOG_ROOT:?HOMELAB07_PROXY_LOG_ROOT is required}:/var/log/homelab07/proxy:ro
       - ${HOMELAB07_OBSERVABILITY_ROOT:?HOMELAB07_OBSERVABILITY_ROOT is required}/alloy:/var/lib/alloy
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro

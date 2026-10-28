@@ -16,7 +16,7 @@ fi
 
 service_metrics=()
 services=(
-    mariadb valkey nginx-proxy-manager jellyfin nextcloud keycloak
+    mariadb valkey caddy jellyfin nextcloud keycloak
     paperless-ngx homebridge cloudflare-ddns landing-page
 )
 

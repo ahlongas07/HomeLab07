@@ -13,19 +13,20 @@ returns non-zero when a required control fails. Warnings identify documented
 exceptions or checks that require external evidence. It does not prove router,
 firewall or provider state.
 
-## Reverse Proxy Access Audit
+## Reverse Proxy Configuration
 
-Confirm that every Nginx Proxy Manager host enforces the access list and SSL
-recorded in its database:
+Caddy's routes, origin restriction and TLS behavior are the version-controlled
+Caddyfile; there is no rendered state to audit. Validate the running
+configuration and the Cloudflare ranges:
 
 ```bash
-./operation/npm-access-audit.sh
+docker exec homelab07-caddy caddy validate --config /etc/caddy/Caddyfile
+./operation/cloudflare-ranges-check.sh
 ```
 
-The command is read-only, reports hosts, access lists and certificates by
-numeric ID only and returns non-zero when a restriction or SSL configuration
-is not rendered. Failing hosts are blocked and corrected as described in the
-[Nginx Proxy Manager README](../../services/nginx-proxy-manager/README.md#when-a-host-fails).
+`./operation/security-audit.sh` runs both checks, confirms that Caddy publishes
+only ports 80 and 443 as a non-root user, and reports certificates expiring
+within 14 days.
 
 ## Vulnerability Scanner
 
@@ -56,11 +57,12 @@ version-controlled validation records.
 Perform tests from a network that is not the approved management LAN:
 
 1. Confirm only HTTP and HTTPS reach the public gateway.
-2. Confirm the Nginx Proxy Manager administration port is unreachable.
+2. Confirm no proxy administration port is reachable (Caddy publishes none).
 3. Confirm each proxied hostname returns an edge server header and request ID.
 4. Resolve a proxied hostname directly to the origin and confirm denial.
-5. Confirm DNS-only media remains functional through HTTPS without claiming
-   edge protection.
+5. Confirm media playback works through the Cloudflare-proxied route; if a
+   DNS-only route is reintroduced, confirm it works through HTTPS without
+   claiming edge protection.
 
 Keep real hostnames and addresses in private operational evidence. Repository
 results should record only pass/fail status and timestamp.

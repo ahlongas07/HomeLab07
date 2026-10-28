@@ -6,7 +6,7 @@
 | Private configuration | External private env, secrets and approved certificates | Encrypted Restic snapshot; password recovered independently | 2 | Owner-only permissions and required files present |
 | MariaDB | Shared persistent database root | Logical all-database dump with applications quiesced | 3 | Import into disposable server, databases, grants and representative queries |
 | Keycloak | Dedicated MariaDB database and private configuration | Logical all-database dump plus encrypted private configuration | 4 | Health, realm discovery, emergency administrator and OIDC client metadata |
-| Nginx Proxy Manager | Data tree, certificates and MariaDB database | Stopped filesystem capture plus logical dump | 5 | Admin boundary, proxy hosts, certificates and representative HTTPS route |
+| Caddy | `caddy/data` (certificates, ACME account) and `caddy/config` | Live filesystem capture; configuration is in the repository and private configuration | 5 | Configuration validates, certificates, `403` for non-Cloudflare sources and representative HTTPS route |
 | Nextcloud | `html`, `data` and MariaDB database | Maintenance mode, stopped filesystem capture and logical dump | 6 | `.ocdata`, ownership, users, shares, local login, OIDC and representative checksums |
 | Paperless-ngx | Data, media, ingestion/export trees and MariaDB database | Stopped filesystem capture and logical dump | 7 | Sanity checker, originals, archives, search and download |
 | Medical exam originals | Authoritative NAS folder (`SYNC_SOURCE_ROOT`) | NAS data backup; outside Restic scope | 8 | Restored from the NAS data backup with the same relative paths, before the sync starts; readable by the sync UID |

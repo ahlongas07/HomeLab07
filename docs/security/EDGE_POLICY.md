@@ -11,19 +11,25 @@ rule identifiers and credentials belong outside Git.
 
 | Class | Path | Policy |
 |---|---|---|
-| Proxied web application | Cloudflare → Nginx Proxy Manager → application | Managed WAF, narrow rate limiting, response headers and direct-origin denial |
-| DNS-only media application | Nginx Proxy Manager → application | HTTPS through the shared gateway; no claim of Cloudflare HTTP protection |
-| Management | Approved management network → proxy administration | Denied from WAN and untrusted networks |
+| Proxied web application | Cloudflare → Caddy → application | Managed WAF, narrow rate limiting, response headers and direct-origin denial |
+| Proxied media application | Cloudflare → Caddy → application | Same as proxied web applications; rate limits exclude media paths |
 | LAN integration | Approved LAN → Homebridge host listeners | No public DNS or reverse-proxy publication |
 | Internal data service | Internal Docker network | No host ports and no public route |
 | Outbound automation | Service → provider API | No inbound listener |
-| Read-only API client | Client with its own User-Agent → Cloudflare → Nginx Proxy Manager → application API | Token of a read-only account; no Cloudflare exception; see [Medical Agent Access](MEDICAL_AGENT_ACCESS.md) |
+| Read-only API client | Client with its own User-Agent → Cloudflare → Caddy → application API | Token of a read-only account; no Cloudflare exception; see [Medical Agent Access](MEDICAL_AGENT_ACCESS.md) |
 
-Only approved public gateway forwards are retained. Nginx Proxy Manager is the
-only service that declares public gateway ports. Its administration listener
-is bound by Docker only to an explicitly configured LAN address and must be
-denied outside approved management sources. Exact listener, firewall and
-network parameters remain in private operational configuration and evidence.
+Only approved public gateway forwards are retained. Caddy is the only service
+that declares public gateway ports, and only 80 and 443. It has no
+administration listener: its configuration is the version-controlled
+Caddyfile, and its API listens only on the container loopback. Exact firewall
+and network parameters remain in private operational configuration and
+evidence.
+
+Every public route is currently proxied by Cloudflare, including media
+(verified 2026-10-28; Sprint 017). Returning media to DNS-only, originally
+chosen because Cloudflare could restrict streaming, requires the evaluation
+recorded in Sprint 017 and removing the Cloudflare-only restriction for that
+route in the same change.
 
 ## Cloudflare Baseline
 
@@ -48,14 +54,17 @@ WAF, rate-limit, transform or HSTS controls.
 
 ## Origin Policy
 
-Proxy hosts that use Cloudflare must accept origin requests only from current
-Cloudflare IPv4 and IPv6 ranges. The Nginx Proxy Manager access list uses all
-published Cloudflare ranges followed by a deny-all rule. Provider range changes
-must be reviewed before the list is updated.
+Routes that use Cloudflare must accept origin requests only from current
+Cloudflare IPv4 and IPv6 ranges. Caddy's `cloudflare_proxied` snippet returns
+`403` to any connecting address outside the published ranges in
+`services/caddy/cloudflare-ranges.env`, and trusts only those ranges for
+forwarded headers. `operation/cloudflare-ranges-check.sh` compares the
+versioned list with the provider's; changes are reviewed before the list is
+updated.
 
-DNS-only services must not use the Cloudflare-only access list. They remain
-protected by HTTPS, Nginx Proxy Manager routing, application authentication and
-the router/host boundary.
+A DNS-only service must not use the `cloudflare_proxied` snippet. It remains
+protected by HTTPS, Caddy routing, application authentication and the
+router/host boundary.
 
 ## Zero Trust Decision
 

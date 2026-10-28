@@ -23,7 +23,7 @@ infrastructure, backup automation or unrelated NAS shares.
 | Database | Shared MariaDB 11.4 |
 | Distributed cache and locking | Shared Valkey 8 |
 | Local cache | APCu from the official image |
-| Publication | Nginx Proxy Manager and Cloudflare Dynamic DNS |
+| Publication | Caddy, proxied by Cloudflare |
 | Persistence | Dedicated Rockstor share |
 
 The image uses a stable patch tag pinned by its multi-architecture index
@@ -122,19 +122,9 @@ No application directory may be removed manually.
 
 ## Reverse Proxy
 
-Redirect the existing collaboration Proxy Host only during the announced PoC
-window:
-
-| Setting | Value |
-|---|---|
-| Domain | `<collaboration-public-domain>` |
-| Scheme | `http` |
-| Forward host | `homelab07-nextcloud` |
-| Forward port | `80` |
-| Force SSL | enabled |
-| HTTP/2 | enabled |
-
-The real domain remains private. Confirm generated proxy settings with:
+Caddy publishes `CADDY_NEXTCLOUD_DOMAIN` to `homelab07-nextcloud:80` from
+`services/caddy/sites/homelab07.caddy`, with forced HTTPS and HTTP/2. The real
+domain remains private. Confirm generated proxy settings with:
 
 ```bash
 docker exec --user www-data homelab07-nextcloud php occ config:list system
@@ -260,7 +250,7 @@ recreates them, so it cannot apply a new pin by itself.
 
    ```bash
    ./operation/backup-preflight.sh
-   ./operation/npm-access-audit.sh
+   ./operation/security-audit.sh
    docker exec --user www-data homelab07-nextcloud php occ status --output=json
    docker exec --user www-data homelab07-nextcloud php occ app:list --enabled --output=json \
      | jq -S '.enabled | keys' > <evidence-dir>/nextcloud-apps-before.json
@@ -317,7 +307,7 @@ recreates them, so it cannot apply a new pin by itself.
    occ app:list --enabled --output=json | jq -S '.enabled | keys' \
      | diff <evidence-dir>/nextcloud-apps-before.json -
    occ setupchecks
-   ./operation/npm-access-audit.sh
+   ./operation/security-audit.sh
    ```
 
    The application diff must be empty and `setupchecks` must show no new error.

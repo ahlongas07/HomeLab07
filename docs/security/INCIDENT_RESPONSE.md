@@ -18,15 +18,15 @@
 
 Do not disable the Cloudflare proxy for all applications as the first response.
 
-## Lost Nginx Proxy Manager Administration
+## Reverse Proxy Failure
 
-1. Confirm the operator is on an approved management network.
-2. Confirm the container is running with `./operation/status.sh nginx-proxy-manager`.
-3. Review sanitized logs with
-   `./operation/compose.sh nginx-proxy-manager logs --tail=150`.
-4. Restore the last validated router or host-firewall management rule.
-5. Do not publish the proxy administration listener to WAN as a recovery
-   shortcut.
+1. Confirm the container is running with `./operation/status.sh caddy`.
+2. Review logs with `./operation/compose.sh caddy logs --tail=150`.
+3. Validate the configuration with
+   `docker exec homelab07-caddy caddy validate --config /etc/caddy/Caddyfile`;
+   revert the last Caddyfile change if it fails.
+4. Do not publish the Caddy administration API (`localhost:2019`) as a
+   recovery shortcut.
 
 ## Unexpected Public Listener
 
@@ -40,7 +40,8 @@ Do not disable the Cloudflare proxy for all applications as the first response.
 
 ## Compromised Published Application
 
-1. Disable its proxy host or edge route to isolate public access.
+1. Remove its route from the Caddyfile and reload Caddy, or disable its edge
+   route, to isolate public access.
 2. Keep database and storage services running unless evidence requires broader
    containment.
 3. Preserve sanitized proxy, edge and application timestamps.
@@ -59,9 +60,10 @@ Do not disable the Cloudflare proxy for all applications as the first response.
 ## Certificate Failure
 
 1. Keep HSTS implications in mind; do not extend its duration during recovery.
-2. Verify DNS path, port 80/443 reachability and Nginx Proxy Manager health.
-3. Review renewal logs without copying certificate contents into Git.
-4. Renew or restore the certificate through the existing proxy workflow.
+2. Verify DNS path, port 80/443 reachability and Caddy health.
+3. Review Caddy's certificate logs without copying certificate contents into
+   Git; HTTP-01 must reach the origin on port 80 through Cloudflare.
+4. Restart Caddy to retry issuance, or restore `caddy/data` from backup.
 5. Confirm hostname, chain and expiry before closing the incident.
 
 ## Return To Service

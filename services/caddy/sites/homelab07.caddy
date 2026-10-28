@@ -1,0 +1,21 @@
+# HomeLab07 routes. Every route is proxied by Cloudflare.
+
+{$CADDY_LANDING_PAGE_DOMAIN} {
+	import cloudflare_proxied homelab07-landing-page:80
+}
+
+{$CADDY_NEXTCLOUD_DOMAIN} {
+	import cloudflare_proxied homelab07-nextcloud:80
+}
+
+{$CADDY_PAPERLESS_DOMAIN} {
+	import cloudflare_proxied homelab07-paperless-ngx:8000
+}
+
+{$CADDY_JELLYFIN_DOMAIN} {
+	import cloudflare_proxied homelab07-jellyfin:8096
+}
+
+{$CADDY_KEYCLOAK_DOMAIN} {
+	import cloudflare_proxied homelab07-keycloak:8080
+}

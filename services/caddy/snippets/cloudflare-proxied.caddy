@@ -1,0 +1,41 @@
+# A route that is reached only through the Cloudflare proxy.
+# Usage: import cloudflare_proxied <upstream host:port>
+(cloudflare_proxied) {
+	# remote_ip is the connecting address. client_ip would be the visitor
+	# behind Cloudflare and would not protect the origin.
+	@outside_cloudflare not remote_ip {$CLOUDFLARE_RANGES}
+	respond @outside_cloudflare 403
+
+	header Strict-Transport-Security "max-age=63072000; preload"
+
+	request_body {
+		max_size 2000MB
+	}
+
+	log {
+		# World-readable like the former proxy logs: the log shipper reads them
+		# without capabilities. Certificates stay apart, under /data.
+		output file /var/log/caddy/access.log {
+			mode 0644
+			dir_mode 0755
+			roll_size 50MiB
+			roll_keep 10
+		}
+		# Request targets and headers can carry tokens; keep them out of logs.
+		format filter {
+			wrap json
+			fields {
+				request>uri replace [REDACTED_TARGET]
+				request>headers delete
+				resp_headers delete
+			}
+		}
+	}
+
+	# Host, X-Forwarded-For and X-Forwarded-Proto follow Caddy's defaults with
+	# Cloudflare as trusted proxy; the other headers match Nginx Proxy Manager.
+	reverse_proxy {args[0]} {
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-Scheme {scheme}
+	}
+}

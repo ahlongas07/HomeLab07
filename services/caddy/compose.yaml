@@ -1,0 +1,42 @@
+services:
+  caddy:
+    image: caddy:2.11.7@sha256:5e5286cb37d44086d651a5363f05f43a692ce4d649d88fb1bd844579f45fa9e8
+    container_name: homelab07-caddy
+    restart: unless-stopped
+    # Non-root; NET_BIND_SERVICE below is its only capability (ports 80/443).
+    user: "${CADDY_UID:?CADDY_UID is required}:${CADDY_GID:?CADDY_GID is required}"
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - ./cloudflare-ranges.env
+    environment:
+      CADDY_ACME_EMAIL: ${CADDY_ACME_EMAIL:?CADDY_ACME_EMAIL is required}
+      CADDY_LANDING_PAGE_DOMAIN: ${CADDY_LANDING_PAGE_DOMAIN:?CADDY_LANDING_PAGE_DOMAIN is required}
+      CADDY_NEXTCLOUD_DOMAIN: ${CADDY_NEXTCLOUD_DOMAIN:?CADDY_NEXTCLOUD_DOMAIN is required}
+      CADDY_PAPERLESS_DOMAIN: ${CADDY_PAPERLESS_DOMAIN:?CADDY_PAPERLESS_DOMAIN is required}
+      CADDY_JELLYFIN_DOMAIN: ${CADDY_JELLYFIN_DOMAIN:?CADDY_JELLYFIN_DOMAIN is required}
+      CADDY_KEYCLOAK_DOMAIN: ${CADDY_KEYCLOAK_DOMAIN:?CADDY_KEYCLOAK_DOMAIN is required}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./snippets:/etc/caddy/snippets:ro
+      - ./sites:/etc/caddy/sites:ro
+      - ${HOMELAB07_PRIVATE_ROOT:?HOMELAB07_PRIVATE_ROOT is required}/caddy/sites:/etc/caddy/external:ro
+      - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/caddy/data:/data
+      - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/caddy/config:/config
+      - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/caddy/logs:/var/log/caddy
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - homelab07-proxy
+
+networks:
+  homelab07-proxy:
+    name: homelab07-proxy

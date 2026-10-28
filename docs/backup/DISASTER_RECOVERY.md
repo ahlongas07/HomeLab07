@@ -17,7 +17,7 @@ Resolve the versioned manifest first and follow
 5. Verify the manifest contract, referenced snapshot, checksums, repository
    revision and image identities.
 6. Restore MariaDB and validate application databases.
-7. Restore Nginx Proxy Manager state and certificates.
+7. Restore Caddy certificates and state, and its private route files.
 8. Restore Nextcloud state and database while maintenance mode remains active.
 9. Restore Paperless state and database.
 10. Restore the medical exam originals from the NAS data backup, then start
@@ -35,11 +35,17 @@ production cutover.
 
 Do not import an all-database dump into the active production server as a test.
 
-## Nginx Proxy Manager
+## Caddy
 
-Restore its data and certificate trees together with its database. Validate the
-administration boundary, proxy hosts, certificate expiry and one route before
-enabling all public traffic.
+Restore `caddy/data` (certificates and ACME account) and `caddy/config` with
+the Caddy UID/GID as owner; routes come from the repository and the private
+`caddy.env` and `caddy/sites/`. Validate the configuration, certificate expiry,
+the `403` for a direct non-Cloudflare request and one route before enabling all
+public traffic. Missing certificates are issued again automatically.
+
+Snapshots taken before the Sprint 017 decommission also contain the retired
+Nginx Proxy Manager data and database; they are needed only to roll back the
+migration.
 
 ## Nextcloud
 

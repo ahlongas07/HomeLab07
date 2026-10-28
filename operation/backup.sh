@@ -49,9 +49,15 @@ paperless_root="$(read_backup_private_value paperless-ngx PAPERLESS_ROOT)"
 jellyfin_root="$(read_backup_private_value jellyfin JELLYFIN_ROOT)"
 homebridge_root="$(read_backup_private_value homebridge HOMEBRIDGE_DATA_ROOT)"
 npm_root="${npm_data_root}/nginx-proxy-manager"
+caddy_root="$(read_backup_private_value caddy HOMELAB07_DATA_ROOT)/caddy"
 
+# The retired Nginx Proxy Manager state is kept until its decommission
+# (Sprint 017). Caddy keeps serving during the capture: its certificates are
+# plain files and it holds no database.
 for required_root in \
     "${npm_root}" \
+    "${caddy_root}/data" \
+    "${caddy_root}/config" \
     "${nextcloud_root}" \
     "${paperless_root}" \
     "${jellyfin_root}/config" \
@@ -216,6 +222,7 @@ docker exec homelab07-mariadb sh -c \
 docker inspect -f '{{.Name}}|{{.Config.Image}}|{{.Image}}' \
     homelab07-mariadb \
     homelab07-valkey \
+    homelab07-caddy \
     homelab07-nginx-proxy-manager \
     homelab07-nextcloud \
     homelab07-nextcloud-cron \
@@ -242,6 +249,8 @@ restic_command backup --json \
     "${PROJECT_ROOT}" \
     "${PRIVATE_ROOT}" \
     "${npm_root}" \
+    "${caddy_root}/data" \
+    "${caddy_root}/config" \
     "${nextcloud_root}" \
     "${paperless_root}" \
     "${jellyfin_root}/config" \
@@ -355,7 +364,7 @@ jq -n \
       },
       components: [
         "repository", "private-configuration", "mariadb",
-        "nginx-proxy-manager", "nextcloud", "keycloak", "paperless-ngx",
+        "caddy", "nginx-proxy-manager", "nextcloud", "keycloak", "paperless-ngx",
         "paperless-medical-sync", "jellyfin", "homebridge", "landing-page",
         "valkey", "cloudflare-ddns"
       ],

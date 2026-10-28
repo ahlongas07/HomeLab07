@@ -1,5 +1,10 @@
 ## Nginx Proxy Manager
 
+> **Retired (Sprint 017).** Caddy is the platform reverse proxy; see
+> [`services/caddy`](../caddy/README.md). This service is kept stopped, with
+> its data and database intact, only as the migration rollback path until its
+> decommission. Do not start it while Caddy is running.
+
 ## Purpose
 
 Nginx Proxy Manager is the centralized networking gateway of HomeLab07.

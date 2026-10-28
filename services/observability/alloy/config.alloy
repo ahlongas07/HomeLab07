@@ -60,13 +60,13 @@ prometheus.remote_write "local" {
   }
 }
 
-loki.source.file "npm" {
+loki.source.file "proxy" {
   targets = [
     {
-      __path__         = "/var/log/homelab07/npm/*.log",
-      __path_exclude__ = "/var/log/homelab07/npm/*.{gz,zip,bak,old}",
+      __path__         = "/var/log/homelab07/proxy/*.log",
+      __path_exclude__ = "/var/log/homelab07/proxy/*.{gz,zip,bak,old}",
       platform         = "homelab07",
-      service          = "nginx-proxy-manager",
+      service          = "caddy",
     },
   ]
   forward_to   = [loki.process.sanitize.receiver]

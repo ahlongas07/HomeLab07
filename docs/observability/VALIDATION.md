@@ -48,11 +48,12 @@ Required evidence:
 - all four dashboards, including the NAS Command Center, are provisioned after
   clean recreation;
 - Prometheus receives host, probe and four textfile metric sets;
-- Loki contains only approved NPM files and sanitized content.
+- Loki contains only approved reverse proxy files and sanitized content.
 
-For a controlled NPM request containing a host, path, query value and test IPv4
-address, confirm the newly ingested Loki line preserves the HTTP method while
-replacing the request scheme, host and complete URI with `[REDACTED_TARGET]`.
+For a controlled request through Caddy containing a host, path, query value and
+test IPv4 address, confirm the newly ingested Loki line preserves the HTTP
+method while the request URI is `[REDACTED_TARGET]` and no request or response
+header is present.
 Other sensitive values and IPv4 addresses must appear as `[REDACTED]` and
 `[REDACTED_IP]`. The line must contain no original hostname, path, query value,
 literal `${1}`/`${2}` placeholders or partially visible IPv4 octets.

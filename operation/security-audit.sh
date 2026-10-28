@@ -79,27 +79,48 @@ for compose_file in "${compose_files[@]}"; do
     done < <(grep -E '^[[:space:]]+image:[[:space:]]+' "${compose_file}" || true)
 done
 
-if ((${#port_files[@]} == 2)) &&
-    [[ " ${port_files[*]} " == *" nginx-proxy-manager "* ]] &&
+# Nginx Proxy Manager is retired (Sprint 017) and kept, stopped, until its
+# decommission; it may still declare its former mappings.
+unexpected_port_owners=0
+for port_owner in "${port_files[@]}"; do
+    case "${port_owner}" in
+        caddy | observability | nginx-proxy-manager) ;;
+        *) unexpected_port_owners=$((unexpected_port_owners + 1)) ;;
+    esac
+done
+if ((unexpected_port_owners == 0)) &&
+    [[ " ${port_files[*]} " == *" caddy "* ]] &&
     [[ " ${port_files[*]} " == *" observability "* ]]; then
-    pass "Only Nginx Proxy Manager and LAN-only Grafana declare host port mappings"
+    pass "Only Caddy and LAN-only Grafana declare active host port mappings"
 else
-    fail "Unexpected Compose host-port owner count: ${#port_files[@]}"
+    fail "Unexpected Compose host-port owners: ${port_files[*]}"
 fi
 
-npm_compose="${PROJECT_ROOT}/services/nginx-proxy-manager/compose.yaml"
+caddy_compose="${PROJECT_ROOT}/services/caddy/compose.yaml"
 for mapping in '80:80' '443:443'; do
-    if grep -Fq "\"${mapping}\"" "${npm_compose}"; then
-        pass "Nginx Proxy Manager declares approved mapping ${mapping}"
+    if grep -Fq "\"${mapping}\"" "${caddy_compose}"; then
+        pass "Caddy declares approved mapping ${mapping}"
     else
-        fail "Nginx Proxy Manager is missing approved mapping ${mapping}"
+        fail "Caddy is missing approved mapping ${mapping}"
     fi
 done
 
-if grep -Fq '"${NPM_MANAGEMENT_BIND_ADDRESS:?NPM_MANAGEMENT_BIND_ADDRESS is required}:81:81"' "${npm_compose}"; then
-    pass "Nginx Proxy Manager administration requires an explicit host bind address"
+if [[ "$(grep -Ec '^[[:space:]]+- "[^"]*:[0-9]+"' "${caddy_compose}")" == "2" ]]; then
+    pass "Caddy declares no host port beyond 80 and 443"
 else
-    fail "Nginx Proxy Manager administration is not bound through the required private setting"
+    fail "Caddy declares host ports beyond 80 and 443"
+fi
+
+if grep -Eq '^[[:space:]]+admin[[:space:]]+localhost:2019[[:space:]]*$' "${PROJECT_ROOT}/services/caddy/Caddyfile"; then
+    pass "Caddy administration API is limited to the container loopback"
+else
+    fail "Caddy administration API is not limited to the container loopback"
+fi
+
+if "${PROJECT_ROOT}/operation/cloudflare-ranges-check.sh" >/dev/null 2>&1; then
+    pass "Versioned Cloudflare ranges match the published ranges"
+else
+    warn "Versioned Cloudflare ranges differ from the published ranges or could not be fetched; run operation/cloudflare-ranges-check.sh"
 fi
 
 observability_compose="${PROJECT_ROOT}/services/observability/compose.yaml"
@@ -258,35 +279,54 @@ else
         fi
     fi
 
-    npm_container="homelab07-nginx-proxy-manager"
-    if docker inspect "${npm_container}" >/dev/null 2>&1; then
-        runtime_bindings="$(docker inspect -f '{{json .HostConfig.PortBindings}}' "${npm_container}")"
-        npm_management_host_ip="$(jq -r '."81/tcp"[0].HostIp // empty' <<<"${runtime_bindings}")"
-        if [[ "${runtime_bindings}" == *'80/tcp'* && "${runtime_bindings}" == *'443/tcp'* && "${runtime_bindings}" == *'81/tcp'* ]]; then
-            pass "Runtime Nginx Proxy Manager mappings include 80, 443 and 81"
+    if [[ "$(docker inspect -f '{{.State.Running}}' homelab07-nginx-proxy-manager 2>/dev/null || true)" == "true" ]]; then
+        fail "Retired Nginx Proxy Manager is running; Caddy is the platform reverse proxy"
+    else
+        pass "Retired Nginx Proxy Manager is not running"
+    fi
+
+    caddy_container="homelab07-caddy"
+    if [[ "$(docker inspect -f '{{.State.Running}}' "${caddy_container}" 2>/dev/null || true)" == "true" ]]; then
+        runtime_bindings="$(docker inspect -f '{{json .HostConfig.PortBindings}}' "${caddy_container}")"
+        if [[ "$(jq -r 'keys | sort | join(",")' <<<"${runtime_bindings}")" == "443/tcp,80/tcp" ]]; then
+            pass "Runtime Caddy mappings are exactly 80 and 443"
         else
-            fail "Runtime Nginx Proxy Manager mappings differ from policy"
+            fail "Runtime Caddy mappings differ from policy"
         fi
 
-        if [[ -n "${npm_management_host_ip}" &&
-            "${npm_management_host_ip}" != "0.0.0.0" &&
-            "${npm_management_host_ip}" != "::" ]]; then
-            pass "Runtime Nginx Proxy Manager administration is bound to an explicit host address"
+        if [[ "$(docker inspect -f '{{.Config.User}}' "${caddy_container}")" =~ ^[1-9][0-9]*: ]]; then
+            pass "Runtime Caddy runs as a non-root user"
         else
-            fail "Runtime Nginx Proxy Manager administration uses a wildcard host binding"
+            fail "Runtime Caddy runs as root"
         fi
 
-        certificate_dates="$(docker exec "${npm_container}" sh -c \
-            'for certificate in /etc/letsencrypt/live/*/fullchain.pem; do [ -f "$certificate" ] && openssl x509 -enddate -noout -in "$certificate" 2>/dev/null; done' \
-            2>/dev/null || true)"
-        certificate_count="$(printf '%s\n' "${certificate_dates}" | grep -c '^notAfter=' || true)"
-        if ((certificate_count > 0)); then
-            pass "Certificate expiry metadata is readable for ${certificate_count} certificate(s)"
+        if docker exec "${caddy_container}" caddy validate --config /etc/caddy/Caddyfile >/dev/null 2>&1; then
+            pass "Running Caddy configuration validates"
         else
-            warn "Certificate expiry metadata could not be read"
+            fail "Running Caddy configuration does not validate"
+        fi
+
+        # Certificates live on the host data root, readable by the operator.
+        caddy_env="${PRIVATE_ROOT}/env/caddy.env"
+        caddy_data_root="$(awk -F= '$1 == "HOMELAB07_DATA_ROOT" { print substr($0, index($0, "=") + 1); exit }' \
+            "${caddy_env}" 2>/dev/null || true)"
+        certificate_count=0
+        expiring_count=0
+        while IFS= read -r -d '' certificate; do
+            certificate_count=$((certificate_count + 1))
+            openssl x509 -checkend 1209600 -noout -in "${certificate}" >/dev/null 2>&1 ||
+                expiring_count=$((expiring_count + 1))
+        done < <(find "${caddy_data_root:-/nonexistent}/caddy/data/caddy/certificates" \
+            -type f -name '*.crt' -print0 2>/dev/null || true)
+        if ((certificate_count == 0)); then
+            warn "Caddy certificate expiry metadata could not be read"
+        elif ((expiring_count == 0)); then
+            pass "Caddy certificates are valid beyond 14 days: ${certificate_count}"
+        else
+            fail "Caddy certificates expiring within 14 days: ${expiring_count}"
         fi
     else
-        warn "Nginx Proxy Manager container is unavailable; mapping and certificate checks skipped"
+        fail "Caddy reverse proxy container is not running"
     fi
 
     grafana_container="homelab07-grafana"
@@ -319,7 +359,6 @@ fi
 section "External validation boundary"
 
 warn "EXT-WAN: confirm externally that only approved gateway ports are reachable"
-warn "EXT-NPM81: confirm port 81 is denied outside approved management networks"
 warn "EXT-GRAFANA: confirm the Grafana port is reachable only from approved LANs"
 warn "EXT-EDGE: confirm proxied routes use edge controls and direct-origin requests are denied"
 warn "EXT-DNS-ONLY: validate DNS-only services independently; edge controls do not apply"

@@ -104,7 +104,7 @@ Run preflight before pulling or starting anything:
 Grafana is the only service with a host mapping. It binds to the explicit LAN
 address in private configuration and joins a dedicated bridge network so Docker
 can apply that mapping. The internal observability network remains isolated.
-Do not add an NPM proxy host, public DNS, Cloudflare route or router port
+Do not add a reverse proxy route, public DNS, Cloudflare route or router port
 forward.
 
 ## Host metric timers
@@ -165,7 +165,8 @@ Historical metrics and logs are not a restore requirement.
 - Prometheus, Loki and Alloy publish no host ports.
 - No component is privileged or mounts the Docker socket.
 - Alloy receives `/proc`, `/sys`, udev data, textfiles and the explicitly
-  approved NPM log directory read-only; it does not mount the host root.
+  approved reverse proxy log directory read-only; it does not mount the host
+  root.
 - Logs are sanitized before Loki persistence and high-cardinality fields are
   not labels.
 - Default credentials and mutable image references are rejected.

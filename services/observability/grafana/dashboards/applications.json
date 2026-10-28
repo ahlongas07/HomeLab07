@@ -28,7 +28,7 @@
       "gridPos": {"h": 12, "w": 24, "x": 0, "y": 7},
       "id": 3,
       "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
-      "targets": [{"editorMode": "code", "expr": "{platform=\"homelab07\", service=\"nginx-proxy-manager\"}", "queryType": "range", "refId": "A"}],
+      "targets": [{"editorMode": "code", "expr": "{platform=\"homelab07\", service=\"caddy\"}", "queryType": "range", "refId": "A"}],
       "title": "Sanitized shared proxy logs",
       "type": "logs"
     }

@@ -24,7 +24,7 @@ infrastructure.
 | Database | Shared MariaDB 11.4 |
 | Broker | Shared Valkey 8 compatibility PoC |
 | OCR | OCRmyPDF and Tesseract from the official image |
-| Publication | Nginx Proxy Manager and Cloudflare Dynamic DNS |
+| Publication | Caddy, proxied by Cloudflare |
 | Persistence | Dedicated Rockstor tree |
 
 Record the registry digest on the target architecture before publication.
@@ -72,11 +72,11 @@ The baseline preserves the documented archive contract and duplicate policy:
 |---|---|---|
 | `PAPERLESS_ARCHIVE_FILE_GENERATION` | `always` | Every document keeps an original and a searchable archive version. |
 | `PAPERLESS_CONSUMER_DELETE_DUPLICATES` | `true` | Duplicate documents are rejected, as in Paperless-ngx 2. |
-| `PAPERLESS_ALLAUTH_TRUSTED_PROXY_COUNT` | `1` | Login rate limiting reads the address added by Nginx Proxy Manager. |
+| `PAPERLESS_ALLAUTH_TRUSTED_PROXY_COUNT` | `1` | Login rate limiting reads the address added by the reverse proxy. |
 
 The proxy count must never exceed the `X-Forwarded-For` entries present on
 every request; a higher value fails login with a server error. Raise it to `2`
-privately only when every request reaches Nginx Proxy Manager through the
+privately only when every request reaches the reverse proxy through the
 Cloudflare proxy.
 
 The default OCR languages are Spanish and English. Change this only through
@@ -192,22 +192,14 @@ matrix.
 
 ## Reverse Proxy
 
-Create the Proxy Host using private values:
-
-| Setting | Value |
-|---|---|
-| Scheme | `http` |
-| Forward hostname | `homelab07-paperless-ngx` |
-| Forward port | `8000` |
-| Force SSL | enabled |
-| Public URL | same value as private `PAPERLESS_URL` |
-
-Do not publish a Docker host port. Configure upload limits and timeouts only as
-needed for the controlled validation documents.
+Caddy publishes `CADDY_PAPERLESS_DOMAIN` to `homelab07-paperless-ngx:8000`
+from `services/caddy/sites/homelab07.caddy`. The private `PAPERLESS_URL` must
+match the public domain. Do not publish a Docker host port. Request bodies are
+limited to 2000 MB by the shared route snippet.
 
 ### HTTPS scheme behind the proxy
 
-Paperless only sees plain HTTP from Nginx Proxy Manager, so without help it
+Paperless only sees plain HTTP from the reverse proxy, so without help it
 builds absolute links, such as API pagination (`next`, `previous`), with
 `http://`. Set in the private environment file:
 
@@ -222,21 +214,21 @@ and recreate the service:
 ```
 
 Paperless trusts this header blindly, so it is safe only when a client cannot
-make an insecure request look secure. Verified on 2026-10-22 for this route:
+make an insecure request look secure. Verified on 2026-10-22 with the former
+proxy and re-verified for Caddy in the Sprint 017 rehearsal:
 
-- Nginx Proxy Manager does not overwrite `X-Forwarded-Proto`; it forwards an
-  incoming `http` or `https` value and otherwise sends its own scheme.
-- The Paperless proxy host only accepts Cloudflare addresses (Cloudflare-only
-  access list; direct origin requests return `403`), and Cloudflare sets the
-  header to the visitor's real scheme.
-- The proxy host forces SSL, so every request that reaches Paperless has
-  crossed TLS at Nginx Proxy Manager; a forged `https` value cannot claim more
-  than is already true.
+- Caddy trusts only the Cloudflare ranges as proxies, so it keeps
+  Cloudflare's `X-Forwarded-Proto`, which reflects the visitor's real scheme.
+- The route only accepts Cloudflare addresses (`cloudflare_proxied` snippet;
+  direct origin requests return `403`).
+- Caddy redirects plain HTTP to HTTPS, so every request that reaches Paperless
+  has crossed TLS at Caddy; a forged `https` value cannot claim more than is
+  already true.
 - Paperless publishes no host port and is reachable only through the proxy
   network.
 
-Keep all four conditions. If the access list, Force SSL or the absence of a
-host port changes, remove the setting first.
+Keep all four conditions. If the Cloudflare-only restriction, the HTTPS
+redirect or the absence of a host port changes, remove the setting first.
 
 Validation: `GET /api/tags/?page_size=1` through the public route returns
 `next` with `https://<paperless-domain>/...`; local login and Keycloak login

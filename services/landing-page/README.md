@@ -4,7 +4,7 @@
 
 Provide the first published service of HomeLab07.
 
-This service validates the complete deployment workflow and serves as the reference implementation for future services published through Nginx Proxy Manager.
+This service validates the complete deployment workflow and serves as the reference implementation for future services published through the shared reverse proxy.
 
 It also presents the current public platform status and active Nextcloud,
 Paperless-ngx, Jellyfin and Homebridge business services, plus the validated
@@ -108,21 +108,17 @@ It is attached to the proxy network:
 homelab07-proxy
 ```
 
-Nginx Proxy Manager should publish this service using:
+Caddy publishes this service from `services/caddy/sites/homelab07.caddy`
+(`CADDY_LANDING_PAGE_DOMAIN` → `homelab07-landing-page:80`).
 
-```text
-Forward Hostname / IP: homelab07-landing-page
-Forward Port: 80
-Scheme: http
-```
-
-Sprint 003 validation confirmed that the Landing Page is published through HTTPS by Nginx Proxy Manager.
+Sprint 003 validated HTTPS publication through the former proxy; Sprint 017
+moved it to Caddy.
 
 ---
 
 ## Internet Publication
 
-Internet publication is managed by Nginx Proxy Manager as part of **Sprint 003**.
+Internet publication is managed by the shared Caddy reverse proxy (Sprint 017).
 
 This service is intentionally limited to providing the internal HTTP endpoint and static content. It does not implement Internet exposure, HTTPS, DNS, or certificate management.
 

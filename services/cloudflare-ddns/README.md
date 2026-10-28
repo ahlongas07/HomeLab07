@@ -70,7 +70,7 @@ Internet
 Cloudflare DNS
    │
    ▼
-Nginx Proxy Manager
+Caddy
    │
    ▼
 Published Platform Services
@@ -82,7 +82,7 @@ Platform Edge Layer
 Cloudflare Dynamic DNS
 ```
 
-The service updates DNS records only. Public traffic still enters HomeLab07 through Nginx Proxy Manager.
+The service updates DNS records only. Public traffic still enters HomeLab07 through Caddy.
 
 ---
 
@@ -355,7 +355,7 @@ The following rules apply:
 - Platform Enhancement — Cloudflare Dynamic DNS
 - Introduced after Sprint 003 — Zero Touch SSL
 
-This enhancement supports the public publication architecture established by Sprint 003 without coupling DNS automation to Nginx Proxy Manager or application services.
+This enhancement supports the public publication architecture established by Sprint 003 without coupling DNS automation to the reverse proxy or application services.
 
 ---
 

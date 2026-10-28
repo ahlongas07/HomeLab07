@@ -79,8 +79,9 @@ Never write test data into an unverified mount path.
 ## Certificate expiry
 
 1. Confirm the certificate and endpoint through the approved proxy path.
-2. Review NPM renewal status and DNS challenge behavior.
-3. Renew through the existing certificate lifecycle.
+2. Review Caddy's certificate maintenance in `docker logs homelab07-caddy`:
+   HTTP-01 must reach the origin through Cloudflare on port 80.
+3. Caddy renews automatically; correct the cause and reload or restart it.
 4. Revalidate the externally served chain and expiry.
 
 ## Host resource pressure

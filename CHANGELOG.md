@@ -2,6 +2,17 @@
 
 ### Added
 
+- Add the Sprint 017 Caddy reverse proxy (`services/caddy`): official Caddy
+  2.11.7 pinned by digest, version-controlled Caddyfile and routes, a
+  Cloudflare-only origin snippet with forwarded-header parity, HSTS and forced
+  HTTPS on every route (including identity), non-root runtime with only
+  `NET_BIND_SERVICE`, no administration listener and sanitized access logs.
+  Add `operation/cloudflare-ranges-check.sh`. The lifecycle, security audit,
+  backup, restore test, platform metrics and log ingestion move from Nginx
+  Proxy Manager to Caddy; Nginx Proxy Manager is retired but kept stopped as
+  the rollback path until its decommission. Add the reverse proxy living
+  specification and correct the edge policy: every route, including media, is
+  proxied by Cloudflare.
 - Add Sprint 016 external application security scan targets: private
   per-application definitions under `security-scan-targets/`, Compose
   discovery on every run, the same Trivy, Gitleaks and SBOM coverage per

@@ -24,7 +24,7 @@ Sprint 011.
 | Identity server | `quay.io/keycloak/keycloak:26.7.5@sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85` |
 | Database | Shared MariaDB 11.4, dedicated database and role |
 | Protocol | OpenID Connect |
-| Publication | Nginx Proxy Manager and Cloudflare |
+| Publication | Caddy and Cloudflare |
 
 The container joins internal and proxy networks but publishes no host ports.
 No Docker socket or privileged mode is used.
@@ -69,8 +69,9 @@ The Compose definition mounts the version-controlled `homelab07` login theme
 read-only. Theme selection is realm state and is performed only during the
 controlled SPIKE-002 procedure.
 
-Configure Nginx Proxy Manager to forward the private identity hostname to
-`homelab07-keycloak:8080` over HTTP. Keep TLS mode Full (strict) at the edge.
+Caddy publishes the private identity hostname (`CADDY_KEYCLOAK_DOMAIN`) to
+`homelab07-keycloak:8080` over HTTP, with forced HTTPS and HSTS like every
+route (Sprint 017). Keep TLS mode Full (strict) at the edge.
 
 ## Validation
 

@@ -1,0 +1,19 @@
+# HomeLab07 shared reverse proxy.
+#
+# Domains and the ACME contact come from the private environment, and the
+# Cloudflare ranges from cloudflare-ranges.env. HomeLab07 routes live in
+# sites/; external application routes are private files mounted at
+# /etc/caddy/external.
+{
+	email {$CADDY_ACME_EMAIL}
+	# Loopback inside the container only: unreachable from other containers.
+	admin localhost:2019
+	servers {
+		# Keep Cloudflare's forwarded headers, as Nginx Proxy Manager did.
+		trusted_proxies static {$CLOUDFLARE_RANGES}
+	}
+}
+
+import snippets/*.caddy
+import sites/*.caddy
+import external/*.caddy

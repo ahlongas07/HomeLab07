@@ -3,7 +3,7 @@
 ## Decision
 
 The medical agent reads exams from Paperless-ngx through the public route
-(Cloudflare → Nginx Proxy Manager → Paperless-ngx) with a Paperless API token
+(Cloudflare → Caddy → Paperless-ngx) with a Paperless API token
 for the read-only user `agente-medico`. It does not use Keycloak or OTP: API
 tokens bypass the browser login flow by design.
 
