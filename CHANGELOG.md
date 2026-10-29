@@ -2,6 +2,12 @@
 
 ### Added
 
+- Add Sprint 018 origin trust hardening: zone-level Authenticated Origin
+  Pulls verified by Caddy against a private CA (staged from
+  `verify_if_given` to `require_and_verify`), security audit controls for the
+  origin pull certificate, the TLS-ALPN challenge disabled behind Cloudflare,
+  and Nextcloud reading the visitor address from `CF-Connecting-IP` on the
+  current proxy network.
 - Add the Sprint 017 Caddy reverse proxy (`services/caddy`): official Caddy
   2.11.7 pinned by digest, version-controlled Caddyfile and routes, a
   Cloudflare-only origin snippet with forwarded-header parity, HSTS and forced

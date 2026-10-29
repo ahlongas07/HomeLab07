@@ -23,6 +23,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Sprint 016 — External Application Security Scan Targets | Validated on target 2026-10-28 — owner dashboard confirmation pending | Confirm both dashboards show the targets separately; decide whether uncovered containers should fail the run. |
 | Sprint 017 — Reverse Proxy Migration to Caddy | Cut over 2026-10-28; soak until 2026-11-11 | Owner application checks during the soak, then decommission Nginx Proxy Manager. |
 | SPIKE-001 — Collaboration Platform Research | In progress | Complete balanced official-source evidence for all candidates and record the decision. |
+| Sprint 018 — Origin Trust Hardening | Implementation complete; rollout in progress | Recreate Nextcloud, enable zone-level Authenticated Origin Pulls, deploy Caddy in `verify_if_given`, then require certificates. |
 | SPIKE-001 — oCIS Architecture Validation | Architecture review complete; PoC required | Run the separately gated PoC only when its prerequisites and approval are met. |
 | SPIKE-002 — Identity Source of Truth and SSO | In progress; redirect recovery validation pending | Complete the documented redirect and local recovery validation. |
 | SPIKE-003 — Observability Depth and NAS Command Center | Track A implemented through Sprint 014; remaining tracks proposed | Close Track A with Sprint 014 validation; defer other tracks pending separate scope approval. |

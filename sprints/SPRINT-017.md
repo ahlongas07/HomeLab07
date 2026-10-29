@@ -289,10 +289,7 @@ every route is versioned, and only domains are private.
 
 ### Findings outside scope
 
-- Nextcloud's `trusted_proxies` does not contain the proxy network, so it
-  does not see visitor addresses (behavior unchanged by the migration). Brute
-  force protection therefore counts every visitor as the proxy. Correct the
-  private value to the `homelab07-proxy` subnet in a separate change.
+- Nextcloud visitor address handling: corrected in Sprint 018.
 - Jellyfin has no Known Proxy configured, with the same effect for its logs
   and network classification.
 - The origin HSTS header keeps Nginx Proxy Manager's `preload` token for

@@ -66,6 +66,15 @@ forwarded headers. `operation/cloudflare-ranges-check.sh` compares the
 versioned list with the provider's; changes are reviewed before the list is
 updated.
 
+Because those ranges are shared by every Cloudflare customer, the origin also
+requires zone-level Authenticated Origin Pulls: Cloudflare presents a client
+certificate uploaded to this zone, and Caddy verifies it against a private CA.
+Another account routing a hostname to the origin through Cloudflare cannot
+present it, so it cannot bypass this zone's WAF and rate limits (Sprint 018).
+
+Applications that need the visitor address read `CF-Connecting-IP`, which
+Cloudflare always sets, only when the request comes from the proxy network.
+
 A DNS-only service must not use the `cloudflare_proxied` snippet. It remains
 protected by HTTPS, Caddy routing, application authentication and the
 router/host boundary.

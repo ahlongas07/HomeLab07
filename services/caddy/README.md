@@ -108,6 +108,27 @@ trusted proxies and as the origin allowlist. Check them regularly:
 A difference is fixed through a reviewed change, followed by
 `./operation/compose.sh caddy up -d` so the new environment applies.
 
+### Authenticated Origin Pulls
+
+The Cloudflare ranges are shared by every Cloudflare customer, so the range
+check alone cannot tell this zone from another account pointing a hostname at
+the origin. Zone-level Authenticated Origin Pulls closes that gap: Cloudflare
+presents a client certificate uploaded to this zone, and Caddy verifies it
+against a private CA (`client_auth` in the shared snippet).
+
+The CA and client certificate live in
+`HomeLab07.private/certs/cloudflare-aop/` (`ca.key` and `client.key` mode
+`0600`); only `ca.pem` is mounted into Caddy. Upload `client.pem` and
+`client.key` to the zone (Cloudflare API, `origin_tls_client_auth`) and enable
+the zone's Authenticated Origin Pulls setting.
+
+Rollout and rotation use `mode verify_if_given` first: access log entries then
+carry `request.tls.client_common_name`, which must show the zone certificate
+on every request before the mode changes to `require_and_verify`. An expired
+client certificate makes every route fail, so `security-audit.sh` fails 60
+days before expiry. To rotate, issue a new client certificate from the same
+CA, upload it, confirm it is active, then delete the old one in Cloudflare.
+
 ## Deployment
 
 ```bash
@@ -161,8 +182,12 @@ are issued again automatically.
 - Access logs replace request targets with `[REDACTED_TARGET]` and omit
   request and response headers. They are world-readable so the log shipper can
   read them without capabilities; certificates stay under `caddy/data`.
-- No domain, address or credential is committed.
+- Cloudflare-proxied routes verify the zone's Authenticated Origin Pulls
+  client certificate; once required, other Cloudflare accounts cannot reach
+  the origin.
+- No domain, address, credential or certificate is committed.
 
 ## Related Sprint
 
 - [Sprint 017 — Reverse Proxy Migration to Caddy](../../sprints/SPRINT-017.md)
+- [Sprint 018 — Origin Trust Hardening](../../sprints/SPRINT-018.md)

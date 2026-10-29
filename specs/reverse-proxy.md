@@ -12,7 +12,8 @@
   HSTS without subdomains on every route.
 - Accept origin requests on Cloudflare-proxied routes only from the published
   Cloudflare ranges, matched on the connecting address, and trust only those
-  ranges for forwarded headers.
+  ranges for forwarded headers. Require the zone's Authenticated Origin Pulls
+  client certificate, so other Cloudflare accounts cannot reach the origin.
 - Forward `Host`, `X-Forwarded-For` (visitor, then Cloudflare),
   `X-Forwarded-Proto` (Cloudflare's value), `X-Real-IP` and
   `X-Forwarded-Scheme` with the semantics applications were validated against.

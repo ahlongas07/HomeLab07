@@ -6,6 +6,23 @@
 	@outside_cloudflare not remote_ip {$CLOUDFLARE_RANGES}
 	respond @outside_cloudflare 403
 
+	tls {
+		# Zone-level Authenticated Origin Pulls: Cloudflare ranges are shared
+		# by every Cloudflare customer, so only connections presenting this
+		# zone's client certificate are accepted. Rollout: verify_if_given
+		# until access logs show the zone certificate on every request, then
+		# require_and_verify.
+		client_auth {
+			mode verify_if_given
+			trust_pool file /etc/caddy/origin-pull/ca.pem
+		}
+		# TLS-ALPN cannot succeed behind Cloudflare; HTTP-01 is used.
+		issuer acme {
+			email {$CADDY_ACME_EMAIL}
+			disable_tlsalpn_challenge
+		}
+	}
+
 	header Strict-Transport-Security "max-age=63072000; preload"
 
 	request_body {

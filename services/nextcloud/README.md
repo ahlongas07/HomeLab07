@@ -73,7 +73,21 @@ docker network inspect homelab07-proxy \
 
 Store that result only in the private environment file as
 `NEXTCLOUD_TRUSTED_PROXIES`. Trusting the shared proxy network assumes that
-membership of `homelab07-proxy` remains controlled by the platform.
+membership of `homelab07-proxy` remains controlled by the platform. Recreate
+the subnet value if the network is ever recreated.
+
+Every request reaches the proxy through Cloudflare, so `X-Forwarded-For` ends
+with a Cloudflare address, which Nextcloud would take as the client. Read the
+visitor address from `CF-Connecting-IP` instead, which Cloudflare always sets
+(Sprint 018):
+
+```bash
+docker exec --user www-data homelab07-nextcloud \
+  php occ config:system:set forwarded_for_headers 0 --value=HTTP_CF_CONNECTING_IP
+```
+
+The setting is stored in `config.php` on the application volume and is part of
+the backup. Brute-force protection and logs then see each visitor.
 
 Create `${NEXTCLOUD_ROOT}/html` and `${NEXTCLOUD_ROOT}/data` on the dedicated
 Rockstor share. Do not point either path at OwnCloud data or an existing NAS

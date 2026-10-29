@@ -318,6 +318,23 @@ else
                 expiring_count=$((expiring_count + 1))
         done < <(find "${caddy_data_root:-/nonexistent}/caddy/data/caddy/certificates" \
             -type f -name '*.crt' -print0 2>/dev/null || true)
+        # An expired origin pull certificate makes Cloudflare fail every route.
+        origin_pull_certificate="${PRIVATE_ROOT}/certs/cloudflare-aop/client.pem"
+        if [[ ! -f "${origin_pull_certificate}" ]]; then
+            fail "Origin pull client certificate is missing"
+        elif openssl x509 -checkend 5184000 -noout -in "${origin_pull_certificate}" >/dev/null 2>&1; then
+            pass "Origin pull client certificate is valid beyond 60 days"
+        else
+            fail "Origin pull client certificate expires within 60 days; rotate it in Cloudflare and here"
+        fi
+
+        if grep -Eq '^[[:space:]]+mode[[:space:]]+require_and_verify[[:space:]]*$' \
+            "${PROJECT_ROOT}/services/caddy/snippets/cloudflare-proxied.caddy"; then
+            pass "Origin pull client certificates are required"
+        else
+            warn "Origin pull client certificates are verified but not yet required"
+        fi
+
         if ((certificate_count == 0)); then
             warn "Caddy certificate expiry metadata could not be read"
         elif ((expiring_count == 0)); then

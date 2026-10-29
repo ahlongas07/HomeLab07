@@ -22,6 +22,8 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./snippets:/etc/caddy/snippets:ro
       - ./sites:/etc/caddy/sites:ro
+      # Private CA of the zone-level Authenticated Origin Pulls certificate.
+      - ${HOMELAB07_PRIVATE_ROOT:?HOMELAB07_PRIVATE_ROOT is required}/certs/cloudflare-aop/ca.pem:/etc/caddy/origin-pull/ca.pem:ro
       - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/caddy/data:/data
       - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/caddy/config:/config
       - ${HOMELAB07_DATA_ROOT:?HOMELAB07_DATA_ROOT is required}/caddy/logs:/var/log/caddy
