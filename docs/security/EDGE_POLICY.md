@@ -34,6 +34,10 @@ route in the same change.
 ## Cloudflare Baseline
 
 - SSL/TLS mode: Full (strict).
+- DNSSEC: enabled; the registrar is Cloudflare, which publishes the DS record.
+- CAA: only Let's Encrypt (`letsencrypt.org`) may issue certificates for the
+  origin; Cloudflare adds the records its edge certificate authorities need.
+  Wildcards are not restricted, because the edge certificate covers them.
 - Managed WAF: enabled for proxied hostnames.
 - Custom WAF rules: retained only when a demonstrated threat or false-positive
   exception has an owner and rollback procedure.
@@ -81,7 +85,8 @@ The platform owner reviews this policy after:
 - a new public hostname or application protocol;
 - a Cloudflare IP-range change;
 - an authentication-path change;
-- a certificate, proxy or router change;
+- a certificate, proxy or router change, including a change of origin
+  certificate authority (update CAA first);
 - an edge false positive or suspected origin bypass;
 - each security-focused Sprint or major platform release.
 
