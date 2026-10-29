@@ -9,11 +9,11 @@
 	tls {
 		# Zone-level Authenticated Origin Pulls: Cloudflare ranges are shared
 		# by every Cloudflare customer, so only connections presenting this
-		# zone's client certificate are accepted. Rollout: verify_if_given
-		# until access logs show the zone certificate on every request, then
-		# require_and_verify.
+		# zone's client certificate are accepted. For a rollout or rotation,
+		# use verify_if_given until access logs show the zone certificate on
+		# every route, then return to require_and_verify.
 		client_auth {
-			mode verify_if_given
+			mode require_and_verify
 			trust_pool file /etc/caddy/origin-pull/ca.pem
 		}
 		# TLS-ALPN cannot succeed behind Cloudflare; HTTP-01 is used.

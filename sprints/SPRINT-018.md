@@ -73,5 +73,19 @@ while the mode is `verify_if_given`.
 
 ## Closure record
 
+### Rollout evidence (2026-10-29)
+
+- Nextcloud was recreated with the corrected proxy network. The client
+  certificate was uploaded to the zone, reached `active` (expiring
+  2029-10-28), and zone-level Authenticated Origin Pulls was enabled.
+- Caddy was deployed with `verify_if_given` and the `X-Real-IP` fix. Every
+  connection handled by the new container carried the zone certificate, and a
+  request to each of the six routes through Cloudflare showed it. The only
+  entry without it was a WebSocket opened on the previous container and
+  logged when it closed at the restart.
+- A probe login through Cloudflare was recorded by Nextcloud with the site's
+  public address, and brute-force protection counted it against that
+  address. The attempt was reset afterwards.
+
 Record outcome, sanitized validation summary, deviations and residual work here.
 Detailed private evidence remains in its approved private location.
