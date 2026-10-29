@@ -79,6 +79,10 @@
 
 ### Fixed
 
+- Fix the NAS Command Center swap condition, which kept the NAS state at
+  Degraded whenever swap existed: `and` returned the swap size instead of the
+  comparison result.
+
 - Read the Btrfs scrub start time from the current `btrfs scrub status` output
   (`Scrub started:`). The scrub age was always reported as 0, so the NAS
   Command Center never showed a fresh scrub and the 30-day stale scrub
