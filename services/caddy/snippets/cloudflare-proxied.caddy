@@ -50,9 +50,10 @@
 	}
 
 	# Host, X-Forwarded-For and X-Forwarded-Proto follow Caddy's defaults with
-	# Cloudflare as trusted proxy; the other headers match Nginx Proxy Manager.
+	# Cloudflare as trusted proxy. X-Real-IP carries the visitor address:
+	# Apache's remoteip in the Nextcloud image takes the client from it.
 	reverse_proxy {args[0]} {
-		header_up X-Real-IP {remote_host}
+		header_up X-Real-IP {client_ip}
 		header_up X-Forwarded-Scheme {scheme}
 	}
 }

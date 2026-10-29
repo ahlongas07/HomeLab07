@@ -9,6 +9,8 @@
 	servers {
 		# Keep Cloudflare's forwarded headers, as Nginx Proxy Manager did.
 		trusted_proxies static {$CLOUDFLARE_RANGES}
+		# The visitor address comes from the header Cloudflare always sets.
+		client_ip_headers CF-Connecting-IP
 	}
 }
 

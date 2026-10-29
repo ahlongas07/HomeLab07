@@ -83,11 +83,13 @@ The snippet:
   connecting address (`remote_ip`);
 - sets HSTS `max-age=63072000; preload` without subdomains;
 - limits request bodies to 2000 MB;
-- forwards headers as Nginx Proxy Manager did: Cloudflare is a trusted proxy,
-  so `X-Forwarded-For` keeps the visitor and appends Cloudflare,
-  `X-Forwarded-Proto` keeps Cloudflare's value, and `X-Real-IP` and
-  `X-Forwarded-Scheme` are set. Caddy also sends `X-Forwarded-Host`, equal to
-  `Host`, and `Via`.
+- forwards headers: Cloudflare is a trusted proxy, so `X-Forwarded-For` keeps
+  the visitor and appends Cloudflare (as Nginx Proxy Manager did) and
+  `X-Forwarded-Proto` keeps Cloudflare's value. `X-Real-IP` carries the visitor
+  address, read from `CF-Connecting-IP` (`client_ip_headers`), which
+  Cloudflare always sets; Apache's `remoteip` in the Nextcloud image takes the
+  client from it. `X-Forwarded-Scheme` is set, and Caddy also sends
+  `X-Forwarded-Host`, equal to `Host`, and `Via`.
 
 Every route lives in `sites/`, and its domain is a variable in `caddy.env`:
 HomeLab07 services in `homelab07.caddy`, and each external application

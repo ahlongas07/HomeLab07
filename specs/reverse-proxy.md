@@ -15,8 +15,9 @@
   ranges for forwarded headers. Require the zone's Authenticated Origin Pulls
   client certificate, so other Cloudflare accounts cannot reach the origin.
 - Forward `Host`, `X-Forwarded-For` (visitor, then Cloudflare),
-  `X-Forwarded-Proto` (Cloudflare's value), `X-Real-IP` and
-  `X-Forwarded-Scheme` with the semantics applications were validated against.
+  `X-Forwarded-Proto` (Cloudflare's value), `X-Real-IP` (the visitor, from
+  `CF-Connecting-IP`) and `X-Forwarded-Scheme` with the semantics applications
+  were validated against.
 - Reject an invalid configuration on reload without dropping traffic.
 - Write access logs without request targets or headers, readable by the
   observability layer.

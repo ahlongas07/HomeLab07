@@ -76,10 +76,11 @@ Store that result only in the private environment file as
 membership of `homelab07-proxy` remains controlled by the platform. Recreate
 the subnet value if the network is ever recreated.
 
-Every request reaches the proxy through Cloudflare, so `X-Forwarded-For` ends
-with a Cloudflare address, which Nextcloud would take as the client. Read the
-visitor address from `CF-Connecting-IP` instead, which Cloudflare always sets
-(Sprint 018):
+The Nextcloud image's Apache `remoteip` takes the client address from
+`X-Real-IP` for requests from private networks; Caddy sets it to the visitor
+address from `CF-Connecting-IP` (Sprint 018). As a second layer, if Apache
+ever passes the proxy address through, Nextcloud reads `CF-Connecting-IP`
+itself, because `X-Forwarded-For` ends with a Cloudflare address:
 
 ```bash
 docker exec --user www-data homelab07-nextcloud \

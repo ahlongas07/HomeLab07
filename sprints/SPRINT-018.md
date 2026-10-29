@@ -24,8 +24,11 @@ and per-visitor protections work.
 - Security audit controls: the origin pull client certificate must be valid
   beyond 60 days, and a warning while certificates are not yet required.
 - Disable the TLS-ALPN challenge, which cannot succeed behind Cloudflare.
-- Nextcloud visitor address: `trusted_proxies` set to the current proxy
-  network and `forwarded_for_headers` set to `HTTP_CF_CONNECTING_IP`.
+- Visitor address: Caddy reads it from `CF-Connecting-IP`
+  (`client_ip_headers`) and sends it as `X-Real-IP`, which Apache's `remoteip`
+  in the Nextcloud image uses. Nextcloud `trusted_proxies` set to the current
+  proxy network and `forwarded_for_headers` to `HTTP_CF_CONNECTING_IP` as a
+  second layer.
 - Documentation: Caddy and Nextcloud READMEs, edge policy, reverse proxy
   specification.
 
@@ -59,6 +62,14 @@ and per-visitor protections work.
 Rollback: set the mode back to `verify_if_given` (or remove `client_auth`) and
 recreate Caddy; disabling the zone setting alone does not break the origin
 while the mode is `verify_if_given`.
+
+## Findings
+
+- A probe login after the Nextcloud recreation was still recorded with a
+  Cloudflare address. Root cause: the Nextcloud image's Apache `remoteip`
+  replaces the client address with `X-Real-IP` for private-network peers, and
+  the proxy sent the connecting Cloudflare address there, as Nginx Proxy
+  Manager did. `X-Real-IP` now carries the visitor address.
 
 ## Closure record
 
