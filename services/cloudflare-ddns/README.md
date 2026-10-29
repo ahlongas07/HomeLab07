@@ -48,10 +48,10 @@ Cloudflare Dynamic DNS follows the HomeLab07 platform design principles.
 | Runtime | Docker Compose |
 | Operations | HomeLab07 operation layer |
 
-The image uses a fixed release tag:
+The image uses a fixed release tag and its manifest digest:
 
 ```text
-favonia/cloudflare-ddns:1.17.1
+favonia/cloudflare-ddns:1.18.0@sha256:345b41895a8846d74c62d30bd27e61101a754f8ab8da10c68115823883803afb
 ```
 
 Update the tag deliberately after reviewing upstream release notes and
