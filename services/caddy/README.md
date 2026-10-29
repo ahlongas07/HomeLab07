@@ -42,7 +42,8 @@ services/caddy/
 │   └── cloudflare-proxied.caddy
 ├── sites/
 │   ├── homelab07.caddy       # HomeLab07 routes
-│   └── juanchoai.caddy       # approved external application (JuanchoAI API)
+│   ├── juanchoai.caddy       # approved external application (JuanchoAI API)
+│   └── rates-mock.caddy      # approved external application (JuanchoAI rates mock)
 ├── .env.example
 └── README.md
 ```
@@ -93,7 +94,8 @@ The snippet:
 
 Every route lives in `sites/`, and its domain is a variable in `caddy.env`:
 HomeLab07 services in `homelab07.caddy`, and each external application
-approved by the platform owner in its own file (`juanchoai.caddy`). To add a
+approved by the platform owner in its own file (`juanchoai.caddy`,
+`rates-mock.caddy`). To add a
 route, add the site block, add its `CADDY_<NAME>_DOMAIN` variable to
 `compose.yaml`, `.env.example` and the private `caddy.env`, then recreate
 Caddy. Applications never publish their own routes.

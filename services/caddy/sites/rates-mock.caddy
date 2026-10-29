@@ -1,0 +1,6 @@
+# JuanchoAI mock rates service (simulated data, public, read-only).
+# Approved by the platform owner; the service rate-limits by X-Real-IP.
+
+{$CADDY_RATES_MOCK_DOMAIN} {
+	import cloudflare_proxied juanchoai-rates-mock:8080
+}

@@ -2,6 +2,10 @@
 
 ### Added
 
+- Publish the JuanchoAI rates mock (`juanchoai-rates-mock:8080`), a public,
+  read-only service with simulated data, through Caddy as
+  `CADDY_RATES_MOCK_DOMAIN`, with the shared Cloudflare-only and origin pull
+  protections; the service rate-limits by `X-Real-IP`.
 - Add Sprint 018 origin trust hardening: zone-level Authenticated Origin
   Pulls verified by Caddy against a private CA (staged from
   `verify_if_given` to `require_and_verify`), security audit controls for the

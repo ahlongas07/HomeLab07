@@ -18,6 +18,7 @@ services:
       CADDY_JELLYFIN_DOMAIN: ${CADDY_JELLYFIN_DOMAIN:?CADDY_JELLYFIN_DOMAIN is required}
       CADDY_KEYCLOAK_DOMAIN: ${CADDY_KEYCLOAK_DOMAIN:?CADDY_KEYCLOAK_DOMAIN is required}
       CADDY_JUANCHOAI_DOMAIN: ${CADDY_JUANCHOAI_DOMAIN:?CADDY_JUANCHOAI_DOMAIN is required}
+      CADDY_RATES_MOCK_DOMAIN: ${CADDY_RATES_MOCK_DOMAIN:?CADDY_RATES_MOCK_DOMAIN is required}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./snippets:/etc/caddy/snippets:ro
