@@ -1,6 +1,6 @@
 # SPRINT-018 — Origin Trust Hardening
 
-**Status:** Implementation complete — rollout in progress
+**Status:** Completed — 2026-10-29
 
 **Classification:** Platform Enhancement
 
@@ -87,5 +87,22 @@ while the mode is `verify_if_given`.
   public address, and brute-force protection counted it against that
   address. The attempt was reset afterwards.
 
-Record outcome, sanitized validation summary, deviations and residual work here.
+### Enforcement (2026-10-29)
+
+- The mode changed to `require_and_verify` through a validated hot reload,
+  with no errors.
+- Through Cloudflare, all six routes answered as before.
+- A direct origin connection without the zone certificate failed in the TLS
+  handshake. With the certificate but from a non-Cloudflare address it
+  received `403`, so both layers apply independently. Port 80 still
+  redirects.
+- No Cloudflare request was rejected after the change.
+- `security-audit.sh`: 34 pass, 0 failures, including the origin pull
+  certificate validity and enforcement checks.
+
+### Residual work
+
+- Rotate the origin pull client certificate before 2029-10-28; the security
+  audit fails 60 days before expiry.
+
 Detailed private evidence remains in its approved private location.
