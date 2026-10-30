@@ -2,6 +2,9 @@
 
 ### Added
 
+- Add a **Critical conditions** row to the NAS Command Center that shows each
+  condition of `homelab07_nas_critical_condition` on its own, so a `Critical`
+  decision shows its cause.
 - Publish the JuanchoAI rates mock (`juanchoai-rates-mock:8080`), a public,
   read-only service with simulated data, through Caddy as
   `CADDY_RATES_MOCK_DOMAIN`, with the shared Cloudflare-only and origin pull

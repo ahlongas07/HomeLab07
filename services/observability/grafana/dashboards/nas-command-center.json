@@ -46,8 +46,19 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
+      "description": "Each critical condition evaluated by homelab07_nas_critical_condition. Keep these expressions aligned with prometheus/rules/nas-command-center.yml.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "green", "text": "OK"}, "1": {"color": "red", "text": "Critical"}}, "type": "value"}], "noValue": "No evidence", "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}, "overrides": []},
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 5},
+      "id": 11,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "vertical", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
+      "targets": [{"editorMode": "code", "expr": "max(homelab07_storage_mount_ok == bool 0)", "instant": true, "legendFormat": "Storage mount missing", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "max(homelab07_storage_fstype_ok == bool 0)", "instant": true, "legendFormat": "Unexpected filesystem", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "max(homelab07_storage_read_only > bool 0)", "instant": true, "legendFormat": "Storage read-only", "range": false, "refId": "C"}, {"editorMode": "code", "expr": "max(increase(homelab07_storage_device_errors_total[15m]) > bool 0)", "instant": true, "legendFormat": "New device errors (15m)", "range": false, "refId": "D"}, {"editorMode": "code", "expr": "max(homelab07_backup_last_status == bool 0)", "instant": true, "legendFormat": "Last backup failed", "range": false, "refId": "E"}, {"editorMode": "code", "expr": "max((time() - homelab07_backup_last_success_timestamp_seconds) > bool 172800)", "instant": true, "legendFormat": "Backup older than 48h", "range": false, "refId": "F"}, {"editorMode": "code", "expr": "max(probe_success == bool 0)", "instant": true, "legendFormat": "Endpoint probe failing", "range": false, "refId": "G"}, {"editorMode": "code", "expr": "max((probe_ssl_earliest_cert_expiry - time()) < bool 604800)", "instant": true, "legendFormat": "TLS expires within 7 days", "range": false, "refId": "H"}],
+      "title": "Critical conditions",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
       "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 80}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": [{"matcher": {"id": "byRegexp", "options": "/.*Btrfs.*/"}, "properties": [{"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}}]}]},
-      "gridPos": {"h": 7, "w": 8, "x": 0, "y": 5},
+      "gridPos": {"h": 7, "w": 8, "x": 0, "y": 9},
       "id": 5,
       "options": {"displayMode": "gradient", "minVizHeight": 10, "minVizWidth": 0, "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "valueMode": "color"},
       "targets": [{"editorMode": "code", "expr": "homelab07_storage_space_used_percent", "instant": true, "legendFormat": "{{storage}} filesystem", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_storage_btrfs_data_used_percent and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} Btrfs data", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "homelab07_storage_btrfs_metadata_used_percent and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} Btrfs metadata", "range": false, "refId": "C"}],
@@ -57,7 +68,7 @@
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
       "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "red", "text": "Failed"}, "1": {"color": "green", "text": "Succeeded"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
-      "gridPos": {"h": 7, "w": 8, "x": 8, "y": 5},
+      "gridPos": {"h": 7, "w": 8, "x": 8, "y": 9},
       "id": 6,
       "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
       "targets": [{"editorMode": "code", "expr": "homelab07_backup_last_status", "instant": true, "legendFormat": "Latest job", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "(time() - homelab07_backup_last_success_timestamp_seconds) < bool 172800", "instant": true, "legendFormat": "Inside RPO", "range": false, "refId": "B"}],
@@ -67,7 +78,7 @@
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
       "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "red", "text": "Failed"}, "1": {"color": "green", "text": "Succeeded"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
-      "gridPos": {"h": 7, "w": 8, "x": 16, "y": 5},
+      "gridPos": {"h": 7, "w": 8, "x": 16, "y": 9},
       "id": 7,
       "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
       "targets": [{"editorMode": "code", "expr": "homelab07_storage_scrub_status and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} result", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "((homelab07_storage_scrub_age_seconds > bool 0) * (homelab07_storage_scrub_age_seconds < bool 3024000)) and on(storage) (homelab07_storage_btrfs_metrics_available == 1)", "instant": true, "legendFormat": "{{storage}} fresh (<35d)", "range": false, "refId": "B"}],
@@ -77,7 +88,7 @@
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
       "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 80}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": []},
-      "gridPos": {"h": 7, "w": 8, "x": 0, "y": 12},
+      "gridPos": {"h": 7, "w": 8, "x": 0, "y": 16},
       "id": 8,
       "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
       "targets": [{"editorMode": "code", "expr": "100 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100", "legendFormat": "CPU", "range": true, "refId": "A"}, {"editorMode": "code", "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)", "legendFormat": "Memory", "range": true, "refId": "B"}, {"editorMode": "code", "expr": "100 * (1 - node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)", "legendFormat": "Swap", "range": true, "refId": "C"}],
@@ -87,7 +98,7 @@
     {
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
       "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}, "overrides": []},
-      "gridPos": {"h": 7, "w": 8, "x": 8, "y": 12},
+      "gridPos": {"h": 7, "w": 8, "x": 8, "y": 16},
       "id": 9,
       "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name", "wideLayout": true},
       "targets": [{"editorMode": "code", "expr": "count(homelab07_platform_service_running == 0) or vector(0)", "instant": true, "legendFormat": "Declared services down", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "sum(increase(homelab07_storage_device_errors_total[15m])) or vector(0)", "instant": true, "legendFormat": "New Btrfs errors", "range": false, "refId": "B"}],
@@ -98,7 +109,7 @@
       "datasource": {"type": "prometheus", "uid": "homelab07-prometheus"},
       "description": "Run execution and per-target scan status, then, per scan target, vulnerabilities with a published fix that the deployed images do not include yet (counted once per image, CVE and package; kernel header packages excluded) and possible secrets in Git history. Raw detections and applicability reviews remain in the private scan report.",
       "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 1}, {"color": "red", "value": 2}]}}, "overrides": [{"matcher": {"id": "byRegexp", "options": "^Scan execution"}, "properties": [{"id": "mappings", "value": [{"options": {"0": {"color": "red", "text": "Failed"}, "1": {"color": "green", "text": "Succeeded"}}, "type": "value"}]}, {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}]}, {"matcher": {"id": "byRegexp", "options": "^Critical with fix"}, "properties": [{"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}]}, {"matcher": {"id": "byRegexp", "options": "^High with fix"}, "properties": [{"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 1}]}}]}]},
-      "gridPos": {"h": 7, "w": 8, "x": 16, "y": 12},
+      "gridPos": {"h": 7, "w": 8, "x": 16, "y": 16},
       "id": 10,
       "options": {"displayMode": "gradient", "minVizHeight": 10, "minVizWidth": 0, "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "valueMode": "color"},
       "targets": [{"editorMode": "code", "expr": "homelab07_security_last_status", "instant": true, "legendFormat": "Scan execution", "range": false, "refId": "A"}, {"editorMode": "code", "expr": "homelab07_security_target_last_status{target=~\"$target\"}", "instant": true, "legendFormat": "Scan execution · {{target}}", "range": false, "refId": "E"}, {"editorMode": "code", "expr": "sum by (target) (homelab07_security_fixable_critical_findings{target=~\"$target\"})", "instant": true, "legendFormat": "Critical with fix · {{target}}", "range": false, "refId": "B"}, {"editorMode": "code", "expr": "sum by (target) (homelab07_security_fixable_high_findings{target=~\"$target\"})", "instant": true, "legendFormat": "High with fix · {{target}}", "range": false, "refId": "C"}, {"editorMode": "code", "expr": "sum by (target) (homelab07_security_gitleaks_findings{target=~\"$target\"})", "instant": true, "legendFormat": "Possible secrets · {{target}}", "range": false, "refId": "D"}],

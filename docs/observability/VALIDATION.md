@@ -108,7 +108,8 @@ production storage, backup evidence or certificates to manufacture a state.
 2. Cross one preventive threshold and validate `Degraded` (`2`).
 3. Remove one required test family, then age one required timestamp, and
    validate `Unknown` (`0`) in both cases.
-4. Activate a safe critical test condition and validate `Critical` (`3`).
+4. Activate a safe critical test condition and validate `Critical` (`3`), with
+   only the matching tile in the **Critical conditions** row shown as Critical.
 5. Combine missing evidence with a confirmed critical condition and confirm
    that `Critical` wins.
 6. Combine a healthy latest-job status with an out-of-RPO success timestamp

@@ -27,6 +27,8 @@ monitored service.
 ## Operator workflow
 
 1. Open **NAS Command Center** for the global health decision and next area.
+   When the decision is `Critical`, the **Critical conditions** row shows which
+   condition is active; no value there means no evidence, not OK.
 2. Treat `Unknown` as insufficient evidence, never as healthy.
 3. Use **Platform Overview** for host and storage detail.
 4. Use **Applications** to compare endpoint behavior and approved proxy logs.
