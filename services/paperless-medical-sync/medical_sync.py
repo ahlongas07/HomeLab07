@@ -6,6 +6,8 @@ Commands:
   preview              print the date, category and title of every source file;
                        no Paperless access, nothing uploaded
   model-init           create the Paperless data model (requires an administrator token)
+  reader-cleanup       remove read-only users from tags and correspondents outside
+                       their scope (one-off, Sprint 019; requires an administrator token)
   next-delay           print seconds until the next scheduled run
   wait-ready           wait until Paperless answers HTTP (used once at start-up)
   wait-change SECONDS  wait up to SECONDS for a stable change in the source folder
@@ -216,12 +218,12 @@ class Paperless:
                 return
             page += 1
 
-    def find_by_name(self, path, name, field="name"):
+    def find_by_name(self, path, name, field="name", accept=lambda item: True):
         wanted = nfc(name).casefold()
 
         def match(items):
             for item in items:
-                if nfc(str(item.get(field, ""))).casefold() == wanted:
+                if nfc(str(item.get(field, ""))).casefold() == wanted and accept(item):
                     return item
             return None
 
@@ -733,8 +735,15 @@ def ensure(api, path, name, payload):
 
 
 def ensure_shared(api, path, name, payload, sharing):
-    """Create or reconcile an owned object: exam owner + view for sync-medico."""
-    item = api.find_by_name(path, name)
+    """Create or reconcile an owned object: exam owner + view for sync-medico.
+
+    Names are unique per owner, so another owner may hold the same name. Only an
+    object of the exam owner, or else one without owner, is reconciled; objects
+    of other owners are never changed (Sprint 019).
+    """
+    owner_id = sharing["owner"]
+    item = (api.find_by_name(path, name, accept=lambda i: i.get("owner") == owner_id)
+            or api.find_by_name(path, name, accept=lambda i: i.get("owner") is None))
     if item:
         api.request("PATCH", f"{path}{item['id']}/", body=sharing)
         log(f"reconciled {path} {name} owner and permissions")
@@ -755,14 +764,31 @@ def reader_usernames(owner_username):
     return readers
 
 
-def grant_readers(api, reader_ids, medical_tag):
+def managed_tag_names(category_map):
+    return (TAG_MEDICAL, TAG_REVIEW_DATE, TAG_REVIEW_TITLE, *sorted(set(category_map.values())))
+
+
+def reader_scope(api, owner_id, tag_names):
+    """Tags and correspondents read-only users may view (Sprint 019).
+
+    Only the tags managed by model-init and the correspondents of the exam
+    owner. Objects of any other owner, or without owner, are never included.
+    """
+    names = {nfc(name).casefold() for name in tag_names}
+    tags = [t["id"] for t in api.all_results("/api/tags/")
+            if t.get("owner") == owner_id and nfc(str(t.get("name", ""))).casefold() in names]
+    correspondents = [c["id"] for c in api.all_results("/api/correspondents/")
+                      if c.get("owner") == owner_id]
+    return {"tags": tags, "correspondents": correspondents}
+
+
+def grant_readers(api, reader_ids, owner_id, tag_names, medical_tag):
     """Add view for read-only users without removing existing permissions or owners."""
     view = {
         "view": {"users": reader_ids, "groups": []},
         "change": {"users": [], "groups": []},
     }
-    for object_type in ("tags", "correspondents"):
-        ids = [item["id"] for item in api.all_results(f"/api/{object_type}/")]
+    for object_type, ids in reader_scope(api, owner_id, tag_names).items():
         if ids:
             api.post("/api/bulk_edit_objects/", {
                 "objects": ids,
@@ -772,7 +798,8 @@ def grant_readers(api, reader_ids, medical_tag):
                 "merge": True,
             })
         log(f"granted read-only view on {len(ids)} {object_type}")
-    documents = [d["id"] for d in api.all_results("/api/documents/", tags__id__all=medical_tag, fields="id")]
+    documents = [d["id"] for d in api.all_results("/api/documents/", tags__id__all=medical_tag, fields="id,owner")
+                 if d.get("owner") == owner_id]
     if documents:
         api.post("/api/documents/bulk_edit/", {
             "documents": documents,
@@ -782,7 +809,52 @@ def grant_readers(api, reader_ids, medical_tag):
     log(f"granted read-only view on {len(documents)} exams")
 
 
-def command_model_init():
+def revoke_readers_outside_scope(api, reader_ids, owner_id, tag_names):
+    """Remove read-only users from tags and correspondents outside reader_scope.
+
+    Only the read-only users are removed; every other user, group and the owner
+    are kept. Returns the number of objects changed.
+    """
+    readers = set(reader_ids)
+    total = 0
+    for object_type, allowed in reader_scope(api, owner_id, tag_names).items():
+        revoked = 0
+        for item in api.all_results(f"/api/{object_type}/", full_perms="true"):
+            permissions = item.get("permissions") or {}
+            granted = {u for entry in permissions.values() for u in entry.get("users", [])}
+            if item["id"] in allowed or not readers & granted:
+                continue
+            api.request("PATCH", f"/api/{object_type}/{item['id']}/", body={"set_permissions": {
+                action: {
+                    "users": [u for u in permissions.get(action, {}).get("users", []) if u not in readers],
+                    "groups": permissions.get(action, {}).get("groups", []),
+                }
+                for action in ("view", "change")
+            }})
+            revoked += 1
+        log(f"revoked read-only access on {revoked} {object_type} outside the reader scope")
+        total += revoked
+    return total
+
+
+def warn_unowned(api):
+    """Log objects without owner: every user with the model permission sees them."""
+    found = False
+    for path, query in (("/api/documents/", {"fields": "id,owner"}), ("/api/tags/", {}),
+                        ("/api/correspondents/", {}), ("/api/document_types/", {})):
+        ids = [str(item["id"]) for item in api.all_results(path, **query) if item.get("owner") is None]
+        if ids:
+            found = True
+            log(f"WARNING {len(ids)} without owner in {path}: ids {', '.join(ids)}")
+    return found
+
+
+def admin_session():
+    """Validate the configuration, read the administrator token and resolve users.
+
+    Returns (api, owner_id, readers, reader_ids, category_map). Nothing is
+    written: a missing owner or read-only user stops before any change.
+    """
     owner_username = os.environ.get("SYNC_OWNER_USERNAME", "").strip()
     if not owner_username:
         raise SystemExit("SYNC_OWNER_USERNAME is required")
@@ -800,13 +872,28 @@ def command_model_init():
     if not owner:
         raise SystemExit("SYNC_OWNER_USERNAME does not match a Paperless user")
     # Resolve every read-only user before the first write: a missing one stops
-    # model-init without changes. model-init never creates them.
+    # without changes. model-init never creates them.
     reader_ids = []
     for name in readers:
         reader = api.find_by_name("/api/users/", name, field="username")
         if not reader:
             raise SystemExit(f"Read-only user {name!r} does not exist in Paperless; create it first")
         reader_ids.append(reader["id"])
+    return api, owner["id"], readers, reader_ids, category_map
+
+
+def command_reader_cleanup():
+    """One-off Sprint 019 cleanup of view rights granted by earlier model-init runs."""
+    api, owner_id, _, reader_ids, category_map = admin_session()
+    if not reader_ids:
+        raise SystemExit("SYNC_READER_USERNAMES is empty; nothing to clean up")
+    total = revoke_readers_outside_scope(api, reader_ids, owner_id, managed_tag_names(category_map))
+    log(f"Cleanup complete: {total} objects changed. Revoke the temporary administrator token now.")
+    return EXIT_OK
+
+
+def command_model_init():
+    api, owner_id, readers, reader_ids, category_map = admin_session()
 
     sync_user = api.find_by_name("/api/users/", SYNC_USERNAME, field="username")
     if sync_user:
@@ -846,7 +933,7 @@ def command_model_init():
     # get view access.
     viewers = [sync_user_id, *reader_ids]
     sharing = {
-        "owner": owner["id"],
+        "owner": owner_id,
         "set_permissions": {
             "view": {"users": viewers, "groups": []},
             "change": {"users": [], "groups": []},
@@ -856,7 +943,7 @@ def command_model_init():
     type_id = ensure_shared(api, "/api/document_types/", DOCUMENT_TYPE,
                             {"name": DOCUMENT_TYPE, **no_matching}, sharing)
     medical_tag = None
-    for name in (TAG_MEDICAL, TAG_REVIEW_DATE, TAG_REVIEW_TITLE, *sorted(set(category_map.values()))):
+    for name in managed_tag_names(category_map):
         tag_id = ensure_shared(api, "/api/tags/", name,
                                {"name": name, "is_inbox_tag": False, **no_matching}, sharing)
         if name == TAG_MEDICAL:
@@ -877,7 +964,7 @@ def command_model_init():
             for t in triggers
         )
         action_ok = any(
-            a.get("assign_owner") == owner["id"]
+            a.get("assign_owner") == owner_id
             and set(viewers) <= set(a.get("assign_view_users") or [])
             for a in actions
         )
@@ -888,11 +975,15 @@ def command_model_init():
             )
         log(f"verified /api/workflows/ {WORKFLOW_NAME}")
     else:
-        create_workflow(api, owner["id"], viewers, type_id, medical_tag)
+        create_workflow(api, owner_id, viewers, type_id, medical_tag)
 
     if reader_ids:
-        grant_readers(api, reader_ids, medical_tag)
-    log("Data model ready. Revoke the temporary administrator token now.")
+        grant_readers(api, reader_ids, owner_id, managed_tag_names(category_map), medical_tag)
+    if warn_unowned(api):
+        log("Data model ready with warnings: assign an owner to the objects listed above. "
+            "Revoke the temporary administrator token now.")
+    else:
+        log("Data model ready. Revoke the temporary administrator token now.")
     return EXIT_OK
 
 
@@ -1000,6 +1091,7 @@ def main(arguments):
         "sync": command_sync,
         "preview": command_preview,
         "model-init": command_model_init,
+        "reader-cleanup": command_reader_cleanup,
         "next-delay": command_next_delay,
         "wait-ready": command_wait_ready,
         "wait-change": command_wait_change,

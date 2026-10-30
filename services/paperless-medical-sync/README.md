@@ -154,7 +154,10 @@ Follow this order. Steps 1–3 run once.
    `SYNC_CATEGORY_MAP`). The exam owner becomes the owner; `sync-medico` and
    the read-only users get view; nobody else gets either: permissions granted
    by hand to other users or groups on those objects are removed and must be
-   granted again afterwards.
+   granted again afterwards. Paperless names are unique per owner, so another
+   owner may hold a tag with the same name: `model-init` only reconciles the
+   object of the exam owner (or else one without owner) and never changes an
+   object of another owner; if only such an object exists, it creates its own.
 
    <a id="read-only-users"></a>
    Read-only users (`SYNC_READER_USERNAMES`), for example an agent account,
@@ -166,15 +169,37 @@ Follow this order. Steps 1–3 run once.
      groups (a group with add or change rights would override the contract)
      and exactly `view_document`, `view_tag`, `view_correspondent`,
      `view_documenttype` and `view_customfield` (no add, change or delete);
-   - adds them to the view permission of every other tag and every
-     correspondent, and of every document tagged `medico`, without removing
-     existing permissions or changing owners (`merge`);
+   - adds them to the view permission of the contract tags, of the
+     correspondents owned by the exam owner and of the exam owner's documents
+     tagged `medico`, without removing existing permissions or changing owners
+     (`merge`). Tags, correspondents and documents of any other owner, or
+     without owner, are never shared (Sprint 019);
    - creates the workflow with `sync-medico` and the read-only users as
      viewers, so new exams are visible to them without manual steps.
 
    An existing workflow that lacks a read-only user counts as drift: delete
    it in Paperless and run `model-init` again. With an empty list the command
    behaves as before.
+
+   At the end, `model-init` lists by id the documents, tags, correspondents
+   and document types without owner and finishes with `Data model ready with
+   warnings`: an unowned object is visible to every user with the model
+   permission. Assign an owner in Paperless; custom fields have no owner and
+   are not listed (see
+   [Paperless Permission Findings](../../docs/security/PAPERLESS_PERMISSIONS.md)).
+
+   <a id="reader-cleanup"></a>
+   Runs before Sprint 019 shared every tag and correspondent with the
+   read-only users. `reader-cleanup` removes them, once, from every tag and
+   correspondent outside the scope above, keeping every other user, group and
+   the owner, and logs how many objects it changed. It uses the same
+   temporary superuser token and is safe to repeat (a second run changes
+   `0`):
+
+   ```bash
+   ./operation/compose.sh paperless-medical-sync run --rm \
+     paperless-medical-sync medical-sync reader-cleanup
+   ```
 
    Removing a user from the list does **not** revoke its access, because the
    merge only adds permissions. Adding, rotating and revoking read-only
@@ -311,7 +336,10 @@ run, a run that finds the lock held, a batch copy that settles once and NFD
 tag lookup. The `model-init` tests use an in-memory Paperless and cover
 read-only users: unchanged behavior without them, view-only rights and merged
 permissions, idempotent reruns, a missing user stopping without writes, the
-owner or `sync-medico` rejected as readers and workflow drift.
+owner or `sync-medico` rejected as readers and workflow drift. Sprint 019 adds
+objects of another owner never shared or reassigned (ISO-01), an unowned
+contract tag adopted, `reader-cleanup` removing only the read-only users and
+changing nothing on a second run, and the unowned-object warning.
 
 ```bash
 ./operation/compose.sh paperless-medical-sync ps
@@ -437,9 +465,15 @@ policy removes them.
 - `sync-medico` is a token-only local user, not staff and not superuser, that
   sees only exams.
 - Read-only users (`SYNC_READER_USERNAMES`), such as the medical agent, have
-  view-only rights reconciled by `model-init` and use API tokens through the
+  view-only rights reconciled by `model-init`, limited to the contract tags and
+  the exam owner's correspondents and exams, and use API tokens through the
   public route; see
   [Medical Agent Access](../../docs/security/MEDICAL_AGENT_ACCESS.md).
+- Other Paperless users, such as `juanchoai`, own their own objects and never
+  see exams; see [JuanchoAI Access](../../docs/security/JUANCHOAI_ACCESS.md).
+- `sync-medico` holds `view_paperlesstask`, which in Paperless 3.3.4 shows
+  the tasks of every user, including file names; see
+  [Paperless Permission Findings](../../docs/security/PAPERLESS_PERMISSIONS.md).
 - Every exam is owned by the owner's personal user through the workflow; an
   unowned exam would be visible to every user with global view permission.
 - Secrets live only in the private environment file (mode `600`). Accepted
@@ -453,3 +487,4 @@ policy removes them.
 ## Related Sprint
 
 - Sprint 015 — Medical Records Ingestion
+- Sprint 019 — Paperless User Isolation

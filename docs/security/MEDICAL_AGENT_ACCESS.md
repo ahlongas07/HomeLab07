@@ -52,9 +52,18 @@ passed (12 of 12 checks). Rationale and limits:
 5. Delete the temporary superuser token immediately.
 6. Generate the reader's token (next section) and store it only in the
    client's private environment.
-7. Validate: the reader sees exams, tags, correspondents and the exam
-   document type; a `PATCH` or `DELETE` with its token returns `403`; a new
-   exam uploaded by the sync is visible to it.
+7. Validate: the reader sees exams, the contract tags, the exam owner's
+   correspondents and the exam document type, and nothing owned by another
+   user; a `PATCH` or `DELETE` with its token returns `403`; a new exam
+   uploaded by the sync is visible to it. The isolation part is automated
+   (token on stdin, only counts printed):
+
+   ```bash
+   ./operation/paperless-access-check.sh medical-reader
+   ```
+
+   Expected: `4/4 checks passed` (ISO-06). A `WARN` line means objects
+   without owner are visible; `model-init` lists them.
 
 ## Rotating the token
 
@@ -88,3 +97,13 @@ To revoke:
 Object-level view permissions it kept on documents, tags and correspondents
 do nothing once the account cannot authenticate; delete the user if they must
 be removed as well.
+
+## Isolation from other users
+
+Since Sprint 019 a read-only user sees only the contract tags, the exam
+owner's correspondents and the exams. Objects of other users, such as
+[JuanchoAI](JUANCHOAI_ACCESS.md), are never shared with it, and
+`reader-cleanup` removed the view rights granted on them by earlier runs (see
+[Paperless Medical Sync](../../services/paperless-medical-sync/README.md#reader-cleanup)).
+Custom field names remain visible to every user; their values are not (see
+[Paperless Permission Findings](PAPERLESS_PERMISSIONS.md)).

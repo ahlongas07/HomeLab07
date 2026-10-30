@@ -2,6 +2,14 @@
 
 ### Added
 
+- Add Sprint 019 Paperless user isolation: `model-init` shares with the
+  medical read-only users only the contract tags and the exam owner's
+  correspondents and exams, never changes objects of another owner (including
+  same-named tags), and warns about unowned documents, tags, correspondents
+  and document types. Add the one-off `reader-cleanup` command,
+  `operation/paperless-access-check.sh` (ISO-02 to ISO-06), the JuanchoAI
+  access record and the Paperless-ngx 3.3.4 permission findings. The sync
+  image tag becomes `sprint-019`.
 - Add a **Critical conditions** row to the NAS Command Center that shows each
   condition of `homelab07_nas_critical_condition` on its own, so a `Critical`
   decision shows its cause.

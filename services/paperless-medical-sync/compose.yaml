@@ -2,7 +2,7 @@ services:
   paperless-medical-sync:
     build:
       context: .
-    image: homelab07/paperless-medical-sync:sprint-015
+    image: homelab07/paperless-medical-sync:sprint-019
     container_name: homelab07-paperless-medical-sync
     restart: unless-stopped
     # Secrets are loaded as runtime variables only; never interpolate them here.
