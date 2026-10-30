@@ -1,6 +1,6 @@
 # SPRINT-019 — Paperless User Isolation
 
-**Status:** Implemented in the repository — target rollout and validation
+**Status:** Deployed on the target 2026-10-30 — ISO-08 and ISO-09 validation
 pending
 
 **Classification:** Platform Enhancement
@@ -146,10 +146,46 @@ it was intended.
   on update replaces the given users without changing the owner, and that
   `full_perms` returns user ids.
 
+### Rollout evidence (2026-10-30)
+
+- Image `sprint-019` built and the sync recreated; first run
+  `skipped=82 failed=0`.
+- Baseline: `juanchoai` 6/6. `medical-reader` 3/4: the agent saw 12 tags, one
+  of them of another owner.
+- `reader-cleanup`: 4 tags and 0 correspondents changed; second run `0
+  objects changed`.
+- `model-init`: 8 tags, 1 correspondent and 82 exams shared; no unowned
+  objects.
+
+### Finding: medical categories outside the category map
+
+After the cleanup the medical agent reported 8 tags instead of 12. The four
+removed tags were medical categories created by hand in Paperless with
+automatic matching, applied to 23 exams but absent from `SYNC_CATEGORY_MAP`;
+one of them was owned by `sync-medico`, which was the "another owner" tag of
+the baseline. No JuanchoAI tag was visible to the agent after the cleanup.
+
+Correction, as R1 intends (every medical category is a managed tag):
+
+- The tag owned by `sync-medico` was reassigned to the exam owner.
+- The four categories were added to the private `SYNC_CATEGORY_MAP` (backup
+  kept beside the private file); an obsolete duplicate `SYNC_CATEGORY_MAP`
+  line was removed. The sync was recreated: `skipped=82 failed=0`.
+- `model-init`: 12 tags, 1 correspondent and 82 exams shared, no tag created,
+  no unowned objects. Database check: the agent sees 12 tags, all owned by the
+  exam owner, 0 JuanchoAI tags, no exam tag hidden from it, no duplicate tag
+  names.
+
 ### Residual work
 
-- Target rollout steps 2 to 7 and their sanitized results.
+- ISO-08: repeat `paperless-access-check.sh juanchoai` (6/6) and
+  `medical-reader` (4/4, 12 tags) with the user tokens.
+- ISO-09: medical agent validation (12/12), including the four restored
+  categories.
 - Update the medical records specification status once ISO-08 and ISO-09
   pass.
+- Proposed, not in scope: source folders that match no category key (a
+  dated ultrasound folder and a glucose folder) rely on Paperless automatic
+  matching only.
 
 Detailed private evidence remains in its approved private location.

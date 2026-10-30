@@ -173,7 +173,10 @@ Follow this order. Steps 1–3 run once.
      correspondents owned by the exam owner and of the exam owner's documents
      tagged `medico`, without removing existing permissions or changing owners
      (`merge`). Tags, correspondents and documents of any other owner, or
-     without owner, are never shared (Sprint 019);
+     without owner, are never shared (Sprint 019). A medical category tag
+     created by hand in Paperless is therefore invisible to them until it is
+     added to `SYNC_CATEGORY_MAP` (a key without a matching folder is
+     harmless) and owned by the exam owner;
    - creates the workflow with `sync-medico` and the read-only users as
      viewers, so new exams are visible to them without manual steps.
 
