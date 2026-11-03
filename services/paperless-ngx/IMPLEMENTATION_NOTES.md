@@ -101,6 +101,51 @@ downtime). Detailed evidence remains in the private evidence location.
 - [ ] Owner functional checks: local and Keycloak login, ingestion of a
       synthetic image and PDF with OCR and thumbnail.
 
+## Security Update 3.3.4 → 3.4.1
+
+Reviewed and approved on 2026-11-03 as a version update only.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `3.3.4` | `3.4.1` (upstream release 2026-10-31) |
+| Index digest | `sha256:9bc6e8248891bcfa6f52fffe8b81e4ea8cae75790c3ec1b9906961a7ba55c969` | `sha256:1a08d8dfc2b51a08de09652dd86ad4d0c611c362382f944533ad38b73125fbc4` |
+| amd64 manifest | `sha256:b3f480cc5a8beb3ad45cb484b7c606f93240ae58fbfaf4f609be1cfa248267e8` | `sha256:fd6d363d8fd783781775663f4acf9195bc000dfb9f569fddd9cbdd8d656e5605` |
+| arm64 manifest | `sha256:d04b5709f31ea22003a39b24ca51bbc3cec7d3410d215bf6cbe3a2863191bf4b` | `sha256:23d2154b13009c02196dffda7fa9d84b331935e9c5f9ca8ae8ac3d019b0f83b5` |
+
+Digests were read from GHCR on 2026-11-03.
+
+3.4.0 bumps brotli, djangorestframework, filelock, msgpack, setuptools,
+django-allauth 65.20, oauthlib 4.0 and frontend dependencies for security
+fixes, and drops ImageMagick from the image (thumbnails now use poppler
+utils). 3.4.1 contains only UI fixes and lazy imports. No database
+migrations: the latest migration of `documents`, `paperless` and
+`paperless_mail` is unchanged. No setting is required or removed.
+
+3.4.0 refactors how object permissions are granted and queried. The Sprint
+019 isolation of the medical read-only users and the
+[permission findings](../../docs/security/PAPERLESS_PERMISSIONS.md) were
+recorded on 3.3.4; validate them on 3.4.1. The new option to skip local 2FA
+for trusted OIDC AMR is not enabled.
+
+Rollback restores the pre-upgrade recovery point; see the README Upgrade
+section.
+
+Target validation:
+
+- [ ] Pre-upgrade recovery point taken by the project owner.
+- [ ] Paperless-ngx runs `3.4.1@sha256:1a08d8df…` healthy without restarts;
+      the log reports v3.4.1 with no errors or deprecated settings.
+- [ ] No pending migrations; `manage.py check` reports no issues.
+- [ ] Celery worker and beat connected to Valkey.
+- [ ] Through the proxy network: the UI redirects to login, the login page
+      and Keycloak login entry return `200`, the API returns `401` without a
+      session.
+- [ ] Thumbnails are generated for a synthetic image and PDF; OCRmyPDF and
+      Tesseract respond.
+- [ ] Medical sync healthy without restarts (API version check passes).
+- [ ] `operation/paperless-access-check.sh` passes ISO-02 to ISO-06.
+- [ ] Owner functional checks: local and Keycloak login.
+
 ## Decision Gates
 
 - Stop if Valkey produces protocol errors or silently loses documents.

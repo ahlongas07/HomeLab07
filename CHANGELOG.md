@@ -129,6 +129,9 @@
 
 ### Changed
 
+- Update Paperless-ngx from 3.3.4 to 3.4.1 pinned by digest for the upstream
+  dependency security fixes (djangorestframework, django-allauth, oauthlib and
+  others) and the removal of ImageMagick; no migrations or setting changes.
 - Update the observability images, pinned privately by digest: Grafana 13.1.0
   to 13.1.9, Loki 3.7.6 to 3.7.9 and Prometheus v3.13.2 to v3.13.5 within
   their series, and Alloy v1.18.1 to v1.21.2 (no patch release exists for
