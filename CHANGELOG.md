@@ -129,6 +129,13 @@
 
 ### Changed
 
+- Update the Nextcloud 33.0.10 pin to the 2026-10-28 rebuild of the same tag
+  for the Debian libbrotli (CVE-2026-111497) and libheif (DSA 6583) security
+  fixes; the Nextcloud and PHP versions are unchanged.
+- Update the medical sync base image from Python 3.13.16 to 3.13.18 on Alpine
+  3.24, pinned by digest, for the eMudhra CA distrust (CVE-2026-115557) and
+  Expat 2.9.0 (CVE-2026-77214, CVE-2026-102633); the image tag stays
+  `sprint-019` because the code is unchanged.
 - Update Paperless-ngx from 3.3.4 to 3.4.1 pinned by digest for the upstream
   dependency security fixes (djangorestframework, django-allauth, oauthlib and
   others) and the removal of ImageMagick; no migrations or setting changes.

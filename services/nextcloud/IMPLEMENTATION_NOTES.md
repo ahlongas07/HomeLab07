@@ -127,6 +127,48 @@ downtime). Detailed evidence remains in the private evidence location.
       Keycloak login, upload, download, share link, client sync and image
       preview.
 
+## Security Rebuild 33.0.10 (2026-10-28 image)
+
+Reviewed and approved on 2026-11-03 as a digest update only. Upstream rebuilt
+the `33.0.10-apache` tag on a newer Debian 13 snapshot; Nextcloud stays at
+33.0.10 and PHP at 8.4.27.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `nextcloud:33.0.10-apache` | `nextcloud:33.0.10-apache` |
+| Index digest | `sha256:a4f8627d317e6de663b700f6a0d022530f038980930a4b81e967e7c19501b839` | `sha256:5ded1127972ea84c29792215f0621c71929ed315cc47be946b489c7a1c1ad305` |
+| amd64 manifest | `sha256:1ae59dd29104449f1756aff63bc6b070dd634f4f6a3e956f2fb8be1a0d98c399` | `sha256:9ef9786fec0274ff88d7467e246034f8ad4e5742e344de6e049e05a3ee2bb74d` |
+| arm64 manifest | `sha256:15531d894b5267cba3d0e001c3329c70b4e31ca5f4f0ae14c0a8c0cb57b1956d` | `sha256:05485fcc17e4fb751460a81127683eeabeaeb198f934ffd96e7a8d3b16bdd26d` |
+| Image built | 2026-10-21 | 2026-10-28 |
+| Debian snapshot | 2026-10-20 | 2026-10-27 |
+
+Digests were read from Docker Hub on 2026-11-03.
+
+The installed package lists of both images (283 packages each) differ only
+in:
+
+- `libbrotli1` 1.1.0-2+b7 → 1.1.0-2+deb13u1: DSA 6582, CVE-2026-111497
+  (denial of service or potential code execution);
+- `libheif1` and its `dav1d` and `libde265` plugins 1.23.4 → 1.23.6: DSA 6583,
+  crafted HEIF/AVIF images causing denial of service, process memory
+  disclosure, use-after-free and double-free; reachable through previews of
+  uploaded images;
+- `tzdata` 2026c → 2026e.
+
+No database upgrade runs because the Nextcloud version is unchanged. Rollback
+pins the previous digest.
+
+Target validation:
+
+- [ ] Application and cron run `nextcloud:33.0.10-apache@sha256:5ded1127…`
+      without restarts.
+- [ ] `occ status` reports 33.0.10, no maintenance mode and no pending
+      database upgrade.
+- [ ] `occ integrity:check-core` clean.
+- [ ] Published route reports 33.0.10; administration and WebDAV return `401`
+      without a session; Keycloak login redirects to the realm.
+- [ ] Image preview works for an uploaded HEIC or AVIF test image.
+
 ## Runtime Evidence
 
 Observed during the controlled deployment on 2026-07-21:
