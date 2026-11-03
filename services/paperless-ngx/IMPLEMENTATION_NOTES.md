@@ -130,21 +130,27 @@ for trusted OIDC AMR is not enabled.
 Rollback restores the pre-upgrade recovery point; see the README Upgrade
 section.
 
-Target validation:
+Target result (2026-11-03, upgrade at 15:17 UTC). Detailed evidence remains
+in the private evidence location.
 
-- [ ] Pre-upgrade recovery point taken by the project owner.
-- [ ] Paperless-ngx runs `3.4.1@sha256:1a08d8df…` healthy without restarts;
+- [x] Pre-upgrade recovery point: platform backup run by the project owner
+      immediately before the upgrade.
+- [x] Paperless-ngx runs `3.4.1@sha256:1a08d8df…` healthy without restarts;
       the log reports v3.4.1 with no errors or deprecated settings.
-- [ ] No pending migrations; `manage.py check` reports no issues.
-- [ ] Celery worker and beat connected to Valkey.
-- [ ] Through the proxy network: the UI redirects to login, the login page
+- [x] djangorestframework 3.18.3, django-allauth 65.20.1, oauthlib 4.0.0 and
+      Pillow 13.0.0 in the runtime; ImageMagick absent, `pdftoppm` present.
+- [x] No pending migrations; `manage.py check` reports no issues.
+- [x] Celery worker and beat connected to Valkey; the worker answers ping
+      and beat dispatches scheduled tasks.
+- [x] Through the proxy network: the UI redirects to login, the login page
       and Keycloak login entry return `200`, the API returns `401` without a
       session.
-- [ ] Thumbnails are generated for a synthetic image and PDF; OCRmyPDF and
-      Tesseract respond.
-- [ ] Medical sync healthy without restarts (API version check passes).
-- [ ] `operation/paperless-access-check.sh` passes ISO-02 to ISO-06.
-- [ ] Owner functional checks: local and Keycloak login.
+- [x] OCRmyPDF 17.12.1 and Tesseract 5.5.0 respond.
+- [x] Thumbnails are generated for a synthetic image and PDF.
+- [x] Medical sync healthy without restarts; its full run after the upgrade
+      passed the API version check and finished with no failures.
+- [x] `operation/paperless-access-check.sh` passes ISO-02 to ISO-06 (confirmed by the project owner).
+- [x] Owner functional checks confirmed by the project owner: local and Keycloak login.
 
 ## Decision Gates
 

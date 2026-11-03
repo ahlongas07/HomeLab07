@@ -158,16 +158,32 @@ in:
 No database upgrade runs because the Nextcloud version is unchanged. Rollback
 pins the previous digest.
 
-Target validation:
+Target result (2026-11-03, deployed at 15:22 UTC). Detailed evidence remains
+in the private evidence location.
 
-- [ ] Application and cron run `nextcloud:33.0.10-apache@sha256:5ded1127…`
-      without restarts.
-- [ ] `occ status` reports 33.0.10, no maintenance mode and no pending
+- [x] Pre-upgrade recovery point: platform backup run by the project owner
+      immediately before the update.
+- [x] Application and cron run `nextcloud:33.0.10-apache@sha256:5ded1127…`
+      without restarts; `libbrotli1` 1.1.0-2+deb13u1, `libheif1` 1.23.6 and
+      `tzdata` 2026e in the runtime.
+- [x] `occ status` reports 33.0.10, no maintenance mode and no pending
       database upgrade.
-- [ ] `occ integrity:check-core` clean.
-- [ ] Published route reports 33.0.10; administration and WebDAV return `401`
-      without a session; Keycloak login redirects to the realm.
-- [ ] Image preview works for an uploaded HEIC or AVIF test image.
+- [x] `occ integrity:check-core` clean.
+- [x] Through the proxy network: `status.php` reports 33.0.10;
+      administration and WebDAV return `401` without a session; Keycloak
+      login redirects to the realm. No proxy `5xx` after the deployment.
+- [x] Cron ran after the deployment.
+- [x] Security scan with the pinned scanner: 49 high findings with an
+      available fix, from 13 CVEs. Twelve ImageMagick CVEs are counted once
+      per installed ImageMagick package (48); Debian published the fix
+      (`deb13u13`) to trixie-security on 2026-10-29, after this image was
+      built. One CVE is in the bundled `symfony/http-foundation` v6.4.42,
+      fixed upstream in branch 33 but not yet in a released version. The
+      project owner accepted the residual risk until upstream publishes a
+      newer image.
+- [x] The `redis.config.php` and `s3.config.php` template warnings are the
+      ones already accepted in the 33.0.10 update.
+- [x] Image preview works for an uploaded HEIC or AVIF test image (confirmed by the project owner).
 
 ## Runtime Evidence
 
