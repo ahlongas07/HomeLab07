@@ -136,9 +136,32 @@ Every implementation must belong to one of the following:
 
 Do not introduce additional platform capabilities outside the approved scope.
 
-If additional improvements are identified, propose them as future Sprint work rather than implementing them immediately.
+If additional improvements are identified, follow the No Follow-up Items rule below.
 
 Maintain focus on completing the current Sprint.
+
+---
+
+# No Follow-up Items
+
+Only what is explicitly defined in the active Sprint, or explicitly requested by the project owner, is in scope.
+
+Undefined work increases time to market. Scope is closed once the Sprint is approved.
+
+The agent MUST NOT:
+
+- Implement, configure or document anything that is not defined in the active Sprint or the owner's request.
+- Add "follow-up", "next steps", "future work", "candidates" or similar sections to Sprint records, specifications, service READMEs or any other repository document.
+- Leave TODOs, placeholders for future work or partially started improvements in the repository.
+- Expand a task with "while we are here" changes, extra hardening, refactors or extra validation that were not requested.
+
+If the agent identifies something worth doing outside the defined scope:
+
+- Mention it briefly in the final report to the owner, in a single line per item.
+- Do not write it into the repository.
+- The owner decides whether it becomes a future Sprint.
+
+If the defined scope is ambiguous or incomplete, ask the owner before implementing rather than filling the gap with assumptions.
 
 ---
 
