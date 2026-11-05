@@ -229,6 +229,22 @@ until upstream publishes a newer image.
 No database upgrade runs because the Nextcloud version is unchanged. Rollback
 pins the previous digest.
 
+Target result (2026-11-05, deployed at 15:57 UTC). Detailed evidence remains
+in the private evidence location.
+
+- [x] Pre-upgrade recovery point: platform backup run by the project owner
+      immediately before the update, completed successfully.
+- [x] Application and cron run `nextcloud:33.0.10-apache@sha256:56433adb…`
+      without restarts; ImageMagick `deb13u14`, `apt` 3.0.4 and `tzdata`
+      2026f in the runtime.
+- [x] `occ status` reports 33.0.10, no maintenance mode and no pending
+      database upgrade.
+- [x] `occ integrity:check-core` clean.
+- [x] Through the proxy network: `status.php` reports 33.0.10;
+      administration and WebDAV return `401` without a session; Keycloak
+      login redirects to the realm. No proxy `5xx` after the deployment.
+- [x] Cron ran after the deployment.
+
 ## Runtime Evidence
 
 Observed during the controlled deployment on 2026-07-21:

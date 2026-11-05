@@ -120,7 +120,7 @@ fi
 
 report_root="${HOMELAB07_SECURITY_REPORT_ROOT:-}"
 cache_root="${HOMELAB07_TRIVY_CACHE_ROOT:-}"
-trivy_image="${HOMELAB07_TRIVY_IMAGE:-docker.io/aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f}"
+trivy_image="${HOMELAB07_TRIVY_IMAGE:-docker.io/aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb}"
 gitleaks_image="${HOMELAB07_GITLEAKS_IMAGE:-ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f}"
 severities="${HOMELAB07_SECURITY_SCAN_SEVERITIES:-HIGH,CRITICAL}"
 scan_timeout="${HOMELAB07_SECURITY_SCAN_TIMEOUT:-20m}"

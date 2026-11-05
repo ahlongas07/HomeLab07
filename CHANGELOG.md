@@ -133,6 +133,13 @@
   disabled and a catch-all `http://` block redirects Cloudflare connections to
   HTTPS with `308` and returns `403` to any other source. ACME HTTP-01
   challenges are unaffected.
+- Update the pinned security scanner from Trivy 0.72.0 to 0.76.2
+  (`sha256:8f6bb947…`), which rebuilds its image on Alpine 3.24.3 (musl and
+  libcurl fixes) and updates `golang.org/x/net` and `go-jose`. The image is
+  not signed upstream; the release tarball's Sigstore bundle was verified
+  against the `aquasecurity/trivy` release workflow for tag `v0.76.2`, and the
+  image binary matches the tarball's. On five platform images with the
+  repository ignore file, 0.72.0 and 0.76.2 reported identical findings.
 - Update the Nextcloud 33.0.10 pin to the 2026-11-05 rebuild of the same tag
   for the Debian ImageMagick (`deb13u14`) and apt security fixes; the
   Nextcloud version and image environment are unchanged.
