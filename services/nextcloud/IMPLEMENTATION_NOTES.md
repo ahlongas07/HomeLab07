@@ -185,6 +185,50 @@ in the private evidence location.
       ones already accepted in the 33.0.10 update.
 - [x] Image preview works for an uploaded HEIC or AVIF test image (confirmed by the project owner).
 
+## Security Rebuild 33.0.10 (2026-11-05 image)
+
+Reviewed and approved on 2026-11-05 as a digest update only. Upstream rebuilt
+the `33.0.10-apache` tag again; Nextcloud stays at 33.0.10 and the image
+environment (including PHP) is unchanged.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `nextcloud:33.0.10-apache` | `nextcloud:33.0.10-apache` |
+| Index digest | `sha256:5ded1127972ea84c29792215f0621c71929ed315cc47be946b489c7a1c1ad305` | `sha256:56433adb270f1d7c1656fa8885dd1028d0ba8f76714c6c340b2f4a5159c9333d` |
+| amd64 manifest | `sha256:9ef9786fec0274ff88d7467e246034f8ad4e5742e344de6e049e05a3ee2bb74d` | `sha256:1076141ec24541df3a9cfe3a862d8b1951977fcdc561bd98c31eeac114321bba` |
+| arm64 manifest | `sha256:05485fcc17e4fb751460a81127683eeabeaeb198f934ffd96e7a8d3b16bdd26d` | `sha256:408402e15f9b5d468c185d647fe015ad91053c2b9a00ec31beb7e3ba363a375b` |
+| Image built | 2026-10-28 | 2026-11-05 |
+
+Digests were read from Docker Hub on 2026-11-05.
+
+The 2026-11-05 security scan reported 38 new high findings against the
+unchanged current image: new advisories, not an image change. The installed
+package lists of both images (283 packages each) differ only in:
+
+- ImageMagick packages `8:7.1.1.43+dfsg1-1+deb13u12` → `deb13u14`: the
+  ImageMagick CVEs accepted in the previous rebuild (`deb13u13`) and the newer
+  ones fixed in `deb13u14`;
+- `apt` and `libapt-pkg7.0` 3.0.3 → 3.0.4;
+- `linux-libc-dev` 6.12.113-1 → 6.12.115-2 (kernel headers, not executed);
+- `tzdata` 2026e → 2026f.
+
+Both images were scanned on 2026-11-05 with the pinned scanner (Trivy 0.72.0)
+and the same vulnerability database:
+
+| | Current | Target |
+|---|---|---|
+| Critical with an available fix | 1 | 0 |
+| High with an available fix | 132 | 1 |
+| Critical / high without a fix | 3 / 154 | 3 / 154 |
+| Findings not present in the current image | — | 0 |
+
+The remaining high finding with a fix is the bundled
+`symfony/http-foundation` v6.4.42, already accepted in the previous rebuild
+until upstream publishes a newer image.
+
+No database upgrade runs because the Nextcloud version is unchanged. Rollback
+pins the previous digest.
+
 ## Runtime Evidence
 
 Observed during the controlled deployment on 2026-07-21:
