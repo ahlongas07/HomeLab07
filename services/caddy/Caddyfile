@@ -6,6 +6,9 @@
 	email {$CADDY_ACME_EMAIL}
 	# Loopback inside the container only: unreachable from other containers.
 	admin localhost:2019
+	# Plain HTTP is served by the http:// block below, which applies the
+	# Cloudflare source check before redirecting.
+	auto_https disable_redirects
 	servers {
 		# Keep Cloudflare's forwarded headers, as Nginx Proxy Manager did.
 		trusted_proxies static {$CLOUDFLARE_RANGES}
@@ -16,3 +19,12 @@
 
 import snippets/*.caddy
 import sites/*.caddy
+
+# Plain HTTP on every host: only Cloudflare sources are redirected to HTTPS,
+# matched on the connecting address; any other source receives 403. ACME
+# HTTP-01 challenges are answered by Caddy before this block.
+http:// {
+	@cloudflare remote_ip {$CLOUDFLARE_RANGES}
+	redir @cloudflare https://{host}{uri} 308
+	respond 403
+}

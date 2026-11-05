@@ -14,6 +14,8 @@
   Cloudflare ranges, matched on the connecting address, and trust only those
   ranges for forwarded headers. Require the zone's Authenticated Origin Pulls
   client certificate, so other Cloudflare accounts cannot reach the origin.
+- Redirect plain HTTP to HTTPS only for Cloudflare sources, matched on the
+  connecting address; any other plain HTTP source receives `403`.
 - Forward `Host`, `X-Forwarded-For` (visitor, then Cloudflare),
   `X-Forwarded-Proto` (Cloudflare's value), `X-Real-IP` (the visitor, from
   `CF-Connecting-IP`) and `X-Forwarded-Scheme` with the semantics applications

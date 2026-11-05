@@ -62,7 +62,9 @@ Routes that use Cloudflare must accept origin requests only from current
 Cloudflare IPv4 and IPv6 ranges. Caddy's `cloudflare_proxied` snippet returns
 `403` to any connecting address outside the published ranges in
 `services/caddy/cloudflare-ranges.env`, and trusts only those ranges for
-forwarded headers. `operation/cloudflare-ranges-check.sh` compares the
+forwarded headers. Plain HTTP follows the same rule: Cloudflare sources are
+redirected to HTTPS and any other source receives `403`.
+`operation/cloudflare-ranges-check.sh` compares the
 versioned list with the provider's; changes are reviewed before the list is
 updated.
 

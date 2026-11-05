@@ -129,6 +129,10 @@
 
 ### Changed
 
+- Restrict plain HTTP on Caddy to Cloudflare sources: automatic redirects are
+  disabled and a catch-all `http://` block redirects Cloudflare connections to
+  HTTPS with `308` and returns `403` to any other source. ACME HTTP-01
+  challenges are unaffected.
 - Update the Nextcloud 33.0.10 pin to the 2026-10-28 rebuild of the same tag
   for the Debian libbrotli (CVE-2026-111497) and libheif (DSA 6583) security
   fixes; the Nextcloud and PHP versions are unchanged.

@@ -13,8 +13,8 @@ Caddy is responsible for:
 - reverse proxy and HTTPS termination;
 - automatic Let's Encrypt certificates (HTTP-01);
 - HTTP to HTTPS redirection and HSTS;
-- origin protection: Cloudflare-proxied routes accept only Cloudflare
-  sources;
+- origin protection: Cloudflare-proxied routes and plain HTTP accept only
+  Cloudflare sources;
 - sanitized access logs for the observability layer.
 
 Caddy is **not** responsible for identity, authentication, application
@@ -92,6 +92,15 @@ The snippet:
   client from it. `X-Forwarded-Scheme` is set, and Caddy also sends
   `X-Forwarded-Host`, equal to `Host`, and `Via`.
 
+### Plain HTTP
+
+Automatic HTTP to HTTPS redirects are disabled (`auto_https
+disable_redirects`). A catch-all `http://` block in the `Caddyfile` instead
+redirects with `308` to HTTPS only when the connecting address is in the
+Cloudflare ranges, and returns `403` to any other source. ACME HTTP-01
+challenges are answered by Caddy before that block, so issuance and renewal
+are unaffected.
+
 Every route lives in `sites/`, and its domain is a variable in `caddy.env`:
 HomeLab07 services in `homelab07.caddy`, and each external application
 approved by the platform owner in its own file (`juanchoai.caddy`,
@@ -158,7 +167,9 @@ An invalid configuration is rejected and the running one stays active.
 - `docker exec homelab07-caddy caddy validate --config /etc/caddy/Caddyfile`
 - Each route answers through Cloudflare with a valid certificate.
 - A direct origin request from a non-Cloudflare address returns `403`.
-- Plain HTTP redirects to HTTPS, and HTTPS responses carry HSTS.
+- Plain HTTP through Cloudflare redirects to HTTPS with `308`; a direct plain
+  HTTP request from a non-Cloudflare address returns `403`. HTTPS responses
+  carry HSTS.
 - The administration API (`localhost:2019`) is unreachable from other
   containers.
 - `./operation/security-audit.sh` and `./operation/cloudflare-ranges-check.sh`
