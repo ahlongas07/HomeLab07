@@ -141,6 +141,11 @@
 
 ### Changed
 
+- Update Keycloak from 26.7.5 to 26.8.2 pinned by digest. The 26.7 line ends
+  at 26.7.5; 26.8.1 and 26.8.2 fix, among others, a 2FA setup bypass, OTP
+  skip-header trust, a stored XSS on the login page and session takeover
+  through `id_token_hint`. The database schema migrates to 26.8.0. Trivy
+  fixable findings drop from 1 critical and 9 high to 0 critical and 1 high.
 - Update the private Alloy pin from v1.21.2 to v1.21.3 (`sha256:8ab87120…`)
   for the go-jose fix; the configuration is unchanged. Trivy fixable findings
   drop from 0 critical and 4 high to 0 critical and 3 high.

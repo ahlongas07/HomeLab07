@@ -21,7 +21,7 @@ Sprint 011.
 
 | Capability | Selection |
 |---|---|
-| Identity server | `quay.io/keycloak/keycloak:26.7.5@sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85` |
+| Identity server | `quay.io/keycloak/keycloak:26.8.2@sha256:723b1d6e254c0fc96d5cffec860c7e0744d6a3277822b865bb538cf891575e41` |
 | Database | Shared MariaDB 11.4, dedicated database and role |
 | Protocol | OpenID Connect |
 | Publication | Caddy and Cloudflare |

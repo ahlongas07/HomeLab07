@@ -119,3 +119,58 @@ login). Detailed evidence remains in the private evidence location.
 - [x] Security scan compared with the last 26.7.0 run on the private share:
       no new finding; the only remaining critical finding is in the base
       image CA bundle without a published fix. Accepted.
+
+## Security Update 26.7.5 → 26.8.2
+
+Approved on 2026-11-09 as a minor upgrade without configuration change. The
+26.7 line ends at 26.7.5 (2026-09-30), so later security fixes are available
+only in 26.8.
+
+| | Previous | Target |
+|---|---|---|
+| Tag | `quay.io/keycloak/keycloak:26.7.5` | `quay.io/keycloak/keycloak:26.8.2` |
+| Index digest | `sha256:37dbaf6f0722c9ec246335f36e1ef8b2e6cb960f7c27e0d8c615121a3d475a85` | `sha256:723b1d6e254c0fc96d5cffec860c7e0744d6a3277822b865bb538cf891575e41` |
+| amd64 manifest | `sha256:6529db34610ce6328824218dce3bbe55c4ba4757bc5c8a09b5a4c746e28b6e9d` | `sha256:c126f032d43b941ed7c5ccca7d6571596d8eab84d748afd7c86989e48ef07b8f` |
+| arm64 manifest | `sha256:e301e41716af5db8261488ae16c4ef77bb5e9bcdcf981685570929e0cb8f3905` | `sha256:22f1cf60e26bed1808e45b838ddeac962075818fe97e0858b542308d2b91e83e` |
+| Upstream release | 2026-09-30 | 2026-11-05; image rebuilt 2026-11-09 (`26.8.2-1`) |
+| Runtime | OpenJDK 21.0.12 | OpenJDK 21.0.13, Quarkus 3.40 |
+
+Digests were read from Quay on 2026-11-09.
+
+Security fixes since 26.7.5 that apply to this deployment include a 2FA setup
+enforcement bypass (CVE-2026-94218), conditional OTP trusting skip headers
+(CVE-2026-96445), a stored XSS on the login page (CVE-2026-107889), session
+takeover through an injected `id_token_hint` (CVE-2026-107124), the
+login-failure upsert on MariaDB (CVE-2026-112201), unauthenticated theme cache
+disk exhaustion (CVE-2026-110932) and the bundled Brotli decoder
+(CVE-2026-111497). Fixes for identity brokering, organizations, Kerberos,
+SAML, CIBA, UMA and token exchange do not apply: no identity provider,
+organization, SAML client or user federation is configured.
+
+Upgrading guide review for 26.8: the breaking changes concern identity
+provider mappers and logout, X509 user authentication, Authorization Services
+URI matching, view-only client secrets and disabled clients in the audience,
+none of which this deployment uses. Notable changes that apply: login
+failures are stored in the database by default, refresh token expiration is
+capped by the user session idle timeout, the offline session table gains a
+column and rebuilt indexes, and the SCIM API and client secret rotation are
+enabled by default.
+
+Candidate checks before the pin reaches the NAS:
+
+- Scan with the pinned scanner: critical findings with an available fix drop
+  from 1 to 0 and high findings with a fix from 9 to 1 (`guava`, fixed
+  upstream after this image). Detailed results stay in the private review.
+- Rehearsal on an isolated internal network with a disposable MariaDB loaded
+  from a single-transaction dump of the production Keycloak database: the
+  26.8.2 container migrated the model to 26.8.0 without errors and became
+  ready; the new offline session column exists; discovery answers for all
+  three realms; the `homelab07` login page renders with its theme stylesheet
+  and login form, as it does on 26.7.5; the SCIM endpoint returns `404`
+  without credentials. JGroups join attempts to the production node recorded
+  in the copied database timed out as intended, because the network is
+  internal. The dump, containers and network were removed afterwards.
+
+The schema migration is not reversible by changing the pin: rollback restores
+the Keycloak database from the pre-upgrade recovery point before starting
+26.7.5 again.
