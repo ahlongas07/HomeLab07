@@ -24,7 +24,7 @@ configuration or secrets.
 
 | Component | Technology |
 |---|---|
-| Reverse proxy | Caddy 2.11.7, official image pinned by digest |
+| Reverse proxy | Caddy 2.11.9, official image pinned by digest |
 | Configuration | Caddyfile, snippets and sites in this directory |
 | Certificates | Let's Encrypt, HTTP-01 |
 | Runtime | Docker Compose, non-root, read-only root filesystem |

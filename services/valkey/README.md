@@ -50,10 +50,10 @@ Valkey is not responsible for:
 | Network | homelab07-internal |
 | Operations | HomeLab07 operation layer |
 
-The image uses a fixed patch and Alpine release tag:
+The image uses a fixed patch and Alpine release tag, pinned by digest:
 
 ```text
-valkey/valkey:8.1.10-alpine3.24
+valkey/valkey:8.1.11-alpine3.24@sha256:2602ace2be6569bc2bbb06f873776516ab9089821525be34f4305c67eb9db02a
 ```
 
 The fixed tag improves deployment repeatability. Update it deliberately after

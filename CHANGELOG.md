@@ -129,6 +129,17 @@
 
 ### Changed
 
+- Update Caddy from 2.11.7 to 2.11.9 pinned by digest for the upstream
+  security fixes (GHSA-25cw-38mq-q7m6, GHSA-jf74-f69g-hcj9, go-jose
+  GHSA-mgcc-cww5-fp2q and the FastCGI and `{host}` path advisories) and the
+  Alpine brotli and curl fixes; the routes use only `reverse_proxy`, so the
+  behavior changes in those fixes do not apply. Trivy fixable findings drop
+  from 1 critical and 9 high to 0 critical and 1 high (`golang.org/x/net`,
+  not yet released upstream).
+- Update Valkey from 8.1.10 to 8.1.11 on Alpine 3.24, now pinned by digest,
+  for the musl and zlib fixes (0 critical and 0 high findings). The running
+  container still used the earlier `8-alpine` tag (8.1.8) and is recreated
+  from the repository pin.
 - Restrict plain HTTP on Caddy to Cloudflare sources: automatic redirects are
   disabled and a catch-all `http://` block redirects Cloudflare connections to
   HTTPS with `308` and returns `403` to any other source. ACME HTTP-01

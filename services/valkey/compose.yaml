@@ -1,6 +1,6 @@
 services:
   valkey:
-    image: valkey/valkey:8.1.10-alpine3.24
+    image: valkey/valkey:8.1.11-alpine3.24@sha256:2602ace2be6569bc2bbb06f873776516ab9089821525be34f4305c67eb9db02a
     container_name: homelab07-valkey
     restart: unless-stopped
     user: "999:999"
