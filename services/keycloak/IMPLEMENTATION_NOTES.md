@@ -174,3 +174,24 @@ Candidate checks before the pin reaches the NAS:
 The schema migration is not reversible by changing the pin: rollback restores
 the Keycloak database from the pre-upgrade recovery point before starting
 26.7.5 again.
+
+Recovery artifact: a single-transaction dump of the Keycloak database taken
+immediately before the upgrade into the private backup boundary (mode
+`0600`), chosen by the project owner instead of a full platform backup. It
+contains users and client secrets and never enters Git.
+
+Target result (2026-11-09, update at 16:10 UTC, about 45 seconds without
+login). Detailed evidence remains in the private evidence location.
+
+- [x] Runtime `quay.io/keycloak/keycloak:26.8.2@sha256:723b1d6e…`, healthy,
+      no restarts, no host port; the model migrated to 26.8.0 and 26.8.2 with
+      no error in the log.
+- [x] Discovery answers for every realm through Cloudflare with the expected
+      issuer; the admin console answers; plain HTTP redirects with `308`.
+- [x] The `homelab07` login page serves the custom theme and the login form.
+- [x] The SCIM endpoint returns `404` without credentials.
+- [x] Nextcloud redirects its OIDC login to Keycloak.
+- [x] Security audit without required-control failures; platform status
+      passes.
+- [ ] Owner checks: login with OTP to Nextcloud and Paperless-ngx, and the
+      application on the second realm.
