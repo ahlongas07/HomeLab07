@@ -171,6 +171,22 @@ Candidate checks before the pin reaches the NAS:
   and render group; `iHD` fails before the expected `i965` fallback, as in
   12.3.
 
+Target result (2026-11-09, upgrade at 15:36 UTC, about fifteen seconds of
+downtime). Detailed evidence remains in the private evidence location.
+
+- [x] Pre-upgrade recovery point: the platform backup of 2026-11-05; no
+      database migration between the releases.
+- [x] Runtime `jellyfin/jellyfin:12.4@sha256:fea863d0…`, healthy, no
+      restarts; the log reports 12.4.0 with no error and detects the Intel
+      GPU with the `i965` driver.
+- [x] Media mounts read-only; no host port.
+- [x] `/health` and public system information return `200` through the
+      published route; the setup wizard and library management endpoints
+      return `401` without credentials.
+- [x] Owner checks confirmed by the project owner on 2026-11-09: libraries
+      and users, direct play and one VA-API transcode through the published
+      route.
+
 ## Hardware Discovery
 
 Target-host discovery completed on 2026-07-23 with the official Jellyfin

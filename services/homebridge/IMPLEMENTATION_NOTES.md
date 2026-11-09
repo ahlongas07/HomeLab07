@@ -132,6 +132,6 @@ downtime):
 - [x] Node.js 24.22.2, Homebridge UI 5.30.0, Homebridge core 2.5.0; the
       primary bridge and the camera child bridge start with their existing
       identities and every camera accessory is published.
-- [ ] Owner checks: controllers discover and control representative
-      accessories, snapshots and live view work, and automations continue
-      without re-pairing.
+- [x] Owner checks confirmed by the project owner on 2026-11-09: controllers
+      discover and control representative accessories, snapshots and live
+      view work, and automations continue without re-pairing.

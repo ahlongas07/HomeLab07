@@ -193,5 +193,6 @@ login). Detailed evidence remains in the private evidence location.
 - [x] Nextcloud redirects its OIDC login to Keycloak.
 - [x] Security audit without required-control failures; platform status
       passes.
-- [ ] Owner checks: login with OTP to Nextcloud and Paperless-ngx, and the
-      application on the second realm.
+- [x] Owner checks confirmed by the project owner on 2026-11-09: login with
+      OTP to Nextcloud and Paperless-ngx, and the application on the second
+      realm.

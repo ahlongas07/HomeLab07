@@ -12,9 +12,9 @@ The README links here instead of maintaining a separate sprint summary.
 | Work item | Status | Next action |
 |---|---|---|
 | Sprint 012 — Vulnerability Management | In progress | Review the private baseline and remediation priorities; run a new private target-host scan covering all Git refs and full history before closure. |
-| Platform Enhancement — Homebridge image update | Deferred — review 2026-10-22 | Update when a stable image ships Node.js 24.22.1 or later; see the Homebridge implementation notes. |
-| Platform Enhancement — Keycloak 26.8.2 security upgrade | Complete — target validation 2026-11-09 | Owner login checks with OTP on every consumer. |
-| Platform Enhancement — Jellyfin 12.2 security upgrade | Complete — target validation 2026-10-22 | Re-evaluate the bundled .NET runtime findings at the next Jellyfin release. |
+| Platform Enhancement — Homebridge image update | Complete — target validation 2026-11-09 | None; Homebridge core moved to 2.5.0 with the image, see the Homebridge implementation notes. |
+| Platform Enhancement — Keycloak 26.8.2 security upgrade | Complete — target validation 2026-11-09 | None. |
+| Platform Enhancement — Jellyfin 12.4 security update | Complete — target validation 2026-11-09 | None. |
 | Platform Enhancement — Nextcloud 33.0.10 security update | Complete — target validation 2026-10-22 | None for the update; account and exposure mitigations from the private review remain unapproved. |
 | Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
 | Sprint 014 — NAS Command Center | Implementation complete; target validation pending | Execute the controlled target-host validation defined in the Sprint document. |
