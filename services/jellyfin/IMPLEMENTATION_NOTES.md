@@ -143,6 +143,34 @@ downtime). Detailed evidence remains in the private evidence location.
 - [ ] Owner checks: libraries and users, direct play and one VA-API
       transcode through the published route.
 
+## Security Update 12.3 → 12.4
+
+Reviewed and approved on 2026-11-09 as a version update only.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `jellyfin/jellyfin:12.3` | `jellyfin/jellyfin:12.4` (same image as `12` and `latest`) |
+| Index digest | `sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5` | `sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771` |
+| amd64 manifest | `sha256:720ad28968e040f1ea049749f4ce546b28c7251244a6eb8aacf9147d8afbc24d` | `sha256:7da5184caa38c553f219f6772476540081f392a68049e2b68c923f6daf877f8e` |
+| arm64 manifest | `sha256:2fe4523231dee34a7144d6fcd0313a60730c25695fa4e9f6ae09f98d4dbe9370` | `sha256:c9f6c6d162f8eedc7344a7c66fb4a2f1fe5c871322794ba477a38ca04add9405` |
+| Upstream release | 2026-10-23 | 2026-10-26 |
+| Runtime | .NET 10.0.13 | .NET 10.0.14 |
+
+Digests were read from Docker Hub on 2026-11-09.
+
+Minor release whose only change is the update to .NET 10.0.14; the three
+commits between the releases touch version and package files only, with no
+database migration. The image is also rebuilt on the Debian brotli fix.
+
+Candidate checks before the pin reaches the NAS:
+
+- Scan with the pinned scanner: critical findings with an available fix drop
+  from 1 to 0 and high findings with a fix from 5 to 4 (Debian apt and zlib,
+  not yet in the image). Detailed results stay in the private review.
+- VA-API: the H.264 `h264_vaapi` test encode exits `0` with the private UID
+  and render group; `iHD` fails before the expected `i965` fallback, as in
+  12.3.
+
 ## Hardware Discovery
 
 Target-host discovery completed on 2026-07-23 with the official Jellyfin

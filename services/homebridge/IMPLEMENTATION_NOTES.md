@@ -90,3 +90,48 @@ pre-pull the image, create the recovery point with Homebridge stopped, then
 recreate it and validate bridges, cameras and automations as described in the
 README. Updating Homebridge core (2.2.1 → 2.3.x) in the persistent root is a
 separate reviewed change.
+
+## Image Update (2026-11-09)
+
+The resume condition is met: the stable `2026-11-02` image ships Node.js
+24.22.2. Approved by the project owner as an image update only.
+
+| | Current | Target |
+|---|---|---|
+| Stable tag | `2026-07-20` | `2026-11-02` |
+| amd64 digest | `sha256:c5f3c164d528b797e8855bf5511b594f56a6bda7d2d198c69a4cfab6ffa08e31` | `sha256:4bf8e33221bb143de2e1c9e9c42762dc4b465c286425bd3e77f8df82bfd35fcd` |
+| Base | Ubuntu 24.04.4 | Ubuntu 24.04.5 |
+| Node.js | 24.18.0 | 24.22.2 |
+| Homebridge UI | 5.27.0 | 5.30.0 |
+| FFmpeg for Homebridge | 8.0 | 8.0 |
+
+The camera plugin 4.1.0 stays in the persistent `/homebridge` root.
+Homebridge core is not frozen by the persistent root: on first start of a new
+image date tag, the image entrypoint rewrites the `homebridge` dependency in
+`/homebridge/package.json` to the version bundled with that image and
+reinstalls it. This update therefore also moved Homebridge core from 2.2.1 to
+2.5.0 (HAP 2.3.0).
+
+Candidate scan with the pinned scanner: fixable findings move from 0 critical
+and 7 high to 0 critical and 9 high. The OpenSSL (`3.0.13-0ubuntu3.16`) and
+brotli fixes are included; the four added high findings are the libraries
+vendored by `pip` in the pipx shared environment, unused at runtime, as
+anticipated in the 2026-10-22 review. Detailed results stay in the private
+review.
+
+Target result (2026-11-09, recreated at 15:29 UTC, about one minute of
+downtime):
+
+- [x] Recovery point: the platform backup of 2026-11-05, chosen by the
+      project owner instead of a new one.
+- [x] Baseline inventory recorded before the stop; the private image pin was
+      changed with a dated copy of the previous file.
+- [x] `operation/homebridge-storage-check.sh` passes with the new image.
+- [x] Runtime `homebridge/homebridge@sha256:4bf8e332…`, healthy, no restarts;
+      host network, not privileged, only `/homebridge` writable.
+- [x] Node.js 24.22.2, Homebridge UI 5.30.0, Homebridge core 2.5.0; the
+      primary bridge and the camera child bridge start with their existing
+      identities and every camera accessory is published.
+- [ ] Owner checks: controllers discover and control representative
+      accessories, snapshots and live view work, and automations continue
+      without re-pairing.

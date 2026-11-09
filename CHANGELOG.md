@@ -129,6 +129,18 @@
 
 ### Changed
 
+- Update the private Alloy pin from v1.21.2 to v1.21.3 (`sha256:8ab87120…`)
+  for the go-jose fix; the configuration is unchanged. Trivy fixable findings
+  drop from 0 critical and 4 high to 0 critical and 3 high.
+- Update the private Homebridge pin from the stable `2026-07-20` image to
+  `2026-11-02` (amd64 `sha256:4bf8e332…`): Node.js 24.18.0 to 24.22.2, which
+  includes the July and October 2026 Node.js security releases, Homebridge UI
+  5.27.0 to 5.30.0, and the Ubuntu OpenSSL and brotli fixes. The image
+  entrypoint also moved Homebridge core in the persistent root from 2.2.1 to
+  2.5.0; the camera plugin is unchanged.
+- Update Jellyfin from 12.3 to 12.4 pinned by digest for .NET 10.0.14 and
+  the Debian brotli fix; no database migration. Trivy fixable findings drop
+  from 1 critical and 5 high to 0 critical and 4 high.
 - Update Caddy from 2.11.7 to 2.11.9 pinned by digest for the upstream
   security fixes (GHSA-25cw-38mq-q7m6, GHSA-jf74-f69g-hcj9, go-jose
   GHSA-mgcc-cww5-fp2q and the FastCGI and `{host}` path advisories) and the
