@@ -126,8 +126,9 @@ else
     fail "LAN administration site does not restrict sources to private ranges"
 fi
 
-if grep -A3 '^{\$CADDY_KEYCLOAK_DOMAIN}' "${PROJECT_ROOT}/services/caddy/sites/homelab07.caddy" |
-    grep -Eq '^[[:space:]]+respond /admin /admin/\* 403[[:space:]]*$'; then
+keycloak_route="$(grep -A6 '^{\$CADDY_KEYCLOAK_DOMAIN}' "${PROJECT_ROOT}/services/caddy/sites/homelab07.caddy")"
+if grep -Eq '^[[:space:]]+@admin path /admin /admin/\*[[:space:]]*$' <<<"${keycloak_route}" &&
+    grep -Eq '^[[:space:]]+respond @admin 403[[:space:]]*$' <<<"${keycloak_route}"; then
     pass "Public identity route denies the administration console and Admin REST API"
 else
     fail "Public identity route exposes the administration console"

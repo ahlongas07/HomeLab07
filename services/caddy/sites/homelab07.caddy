@@ -19,6 +19,8 @@
 {$CADDY_KEYCLOAK_DOMAIN} {
 	# The administration console and Admin REST API are served only on the
 	# LAN administration site (sites/admin-lan.caddy).
-	respond /admin /admin/* 403
+	# A named matcher: an inline path matcher takes a single path.
+	@admin path /admin /admin/*
+	respond @admin 403
 	import cloudflare_proxied homelab07-keycloak:8080
 }
