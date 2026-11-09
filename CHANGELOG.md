@@ -1,5 +1,18 @@
 ## [Unreleased]
 
+### Security
+
+- Restrict the Keycloak administration console and Admin REST API to the LAN:
+  the public identity route answers `403` under `/admin`, and a new Caddy LAN
+  administration site (`sites/admin-lan.caddy`) serves them on port 8443,
+  bound to the private LAN address, to private sources only, with a
+  certificate from Caddy's internal CA (`default_sni` for IP access,
+  `skip_install_trust`). Keycloak uses it as `KC_HOSTNAME_ADMIN`. The security
+  audit checks the mapping, the source restriction and the public denial,
+  excludes the short-lived internal certificates from the expiry check and
+  adds `EXT-ADMIN-LAN`. Rehearsed on an isolated copy of the Keycloak database
+  on 2026-11-09.
+
 ### Removed
 
 - Decommission Nginx Proxy Manager (Sprint 017): remove its service

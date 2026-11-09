@@ -9,6 +9,13 @@
 	# Plain HTTP is served by the http:// block below, which applies the
 	# Cloudflare source check before redirecting.
 	auto_https disable_redirects
+	# The internal CA serves only the LAN administration site; its root is
+	# trusted on administration devices, never installed in the container.
+	skip_install_trust
+	# Browsers send no SNI to an IP address, and behind Docker NAT the local
+	# address is the container's, so the LAN site certificate is the default.
+	# Cloudflare always sends SNI, so public routes are unaffected.
+	default_sni {$CADDY_ADMIN_LAN_ADDRESS}
 	servers {
 		# Keep Cloudflare's forwarded headers.
 		trusted_proxies static {$CLOUDFLARE_RANGES}

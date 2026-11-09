@@ -1,0 +1,16 @@
+# LAN-only administration endpoint. It is never published through
+# Cloudflare: the port is bound to the private LAN address from caddy.env and
+# only private source addresses are served. The certificate comes from
+# Caddy's internal CA; trust its root once on each administration device.
+
+https://{$CADDY_ADMIN_LAN_ADDRESS}:8443 {
+	tls internal
+
+	# remote_ip is the connecting address; private_ranges covers the LAN and
+	# the Docker gateway used for connections from the platform host itself.
+	@outside_lan not remote_ip private_ranges
+	respond @outside_lan 403
+
+	# Keycloak administration console and Admin REST API (KC_HOSTNAME_ADMIN).
+	reverse_proxy homelab07-keycloak:8080
+}

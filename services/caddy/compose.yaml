@@ -8,6 +8,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      # LAN-only administration site; never forwarded by the router.
+      - "${CADDY_ADMIN_LAN_ADDRESS:?CADDY_ADMIN_LAN_ADDRESS is required}:8443:8443"
     env_file:
       - ./cloudflare-ranges.env
     environment:
@@ -19,6 +21,7 @@ services:
       CADDY_KEYCLOAK_DOMAIN: ${CADDY_KEYCLOAK_DOMAIN:?CADDY_KEYCLOAK_DOMAIN is required}
       CADDY_JUANCHOAI_DOMAIN: ${CADDY_JUANCHOAI_DOMAIN:?CADDY_JUANCHOAI_DOMAIN is required}
       CADDY_RATES_MOCK_DOMAIN: ${CADDY_RATES_MOCK_DOMAIN:?CADDY_RATES_MOCK_DOMAIN is required}
+      CADDY_ADMIN_LAN_ADDRESS: ${CADDY_ADMIN_LAN_ADDRESS:?CADDY_ADMIN_LAN_ADDRESS is required}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./snippets:/etc/caddy/snippets:ro

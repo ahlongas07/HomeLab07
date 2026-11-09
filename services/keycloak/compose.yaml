@@ -14,6 +14,9 @@ services:
       KC_DB_USERNAME: ${KEYCLOAK_DB_USERNAME:?KEYCLOAK_DB_USERNAME is required}
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?KEYCLOAK_DB_PASSWORD is required}
       KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:?KEYCLOAK_HOSTNAME is required}
+      # The administration console and Admin REST API use the LAN-only Caddy
+      # site; the public route answers 403 under /admin.
+      KC_HOSTNAME_ADMIN: ${KEYCLOAK_ADMIN_HOSTNAME:?KEYCLOAK_ADMIN_HOSTNAME is required}
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
       KC_HEALTH_ENABLED: "true"

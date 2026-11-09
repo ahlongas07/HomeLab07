@@ -15,7 +15,10 @@ identity-source-of-truth behavior remain under investigation
 
 ## Boundaries
 
-Keycloak has no direct host port, Docker socket or privileged mode. Secrets,
+Keycloak has no direct host port, Docker socket or privileged mode. Its
+administration console and Admin REST API are served only through the LAN
+administration site of the reverse proxy; the public identity route denies
+`/admin`. Secrets,
 real hostnames, realm exports and private recovery artifacts remain outside
 Git. Mandatory SSO, universal MFA, automatic login redirects and general
 bidirectional directory synchronization are not accepted behavior.

@@ -73,6 +73,14 @@ Caddy publishes the private identity hostname (`CADDY_KEYCLOAK_DOMAIN`) to
 `homelab07-keycloak:8080` over HTTP, with forced HTTPS and HSTS like every
 route (Sprint 017). Keep TLS mode Full (strict) at the edge.
 
+The administration console and Admin REST API are reachable only from the LAN,
+at `KEYCLOAK_ADMIN_HOSTNAME` (`https://<CADDY_ADMIN_LAN_ADDRESS>:8443`, the
+Caddy LAN administration site). The public route answers `403` under `/admin`;
+realm endpoints, login pages and the account console stay public. The console
+requires HTTPS: over plain HTTP from another host the browser does not expose
+the Web Crypto API it needs for PKCE. Trust the Caddy internal root on each
+administration device as described in the Caddy README.
+
 ## Validation
 
 ```bash
@@ -81,9 +89,13 @@ docker port homelab07-keycloak
 docker inspect homelab07-keycloak --format '{{.Config.Image}} {{.Image}}'
 ```
 
-The port command must return no mappings. Validate the admin console, realm
+The port command must return no mappings. Validate the admin console from the
+LAN administration URL, `403` for `/admin/` on the public route, realm
 discovery endpoint, Nextcloud OIDC flow, logout, denied-user behavior, local
 break-glass access and rollback.
+
+Break-glass access without the LAN site: `kcadm.sh` inside the container
+against `http://localhost:8080`.
 
 ## Backup and restore
 
@@ -96,6 +108,8 @@ additional recovery artifact. Restore MariaDB before starting Keycloak.
 
 - Dedicated least-privilege MariaDB user.
 - No direct host ports, privileged mode or Docker socket.
+- Administration console and Admin REST API only through the LAN
+  administration site; denied on the public route.
 - Secrets and public hostname remain private.
 - Local service administrators remain available during the PoC.
 - Realm-wide MFA and mandatory SSO are deferred to a later Sprint.

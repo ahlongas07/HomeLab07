@@ -103,10 +103,34 @@ for mapping in '80:80' '443:443'; do
     fi
 done
 
-if [[ "$(grep -Ec '^[[:space:]]+- "[^"]*:[0-9]+"' "${caddy_compose}")" == "2" ]]; then
-    pass "Caddy declares no host port beyond 80 and 443"
+admin_lan_mapping='${CADDY_ADMIN_LAN_ADDRESS:?CADDY_ADMIN_LAN_ADDRESS is required}:8443:8443'
+if grep -Fq "\"${admin_lan_mapping}\"" "${caddy_compose}"; then
+    pass "Caddy binds the LAN administration site to the private LAN address"
 else
-    fail "Caddy declares host ports beyond 80 and 443"
+    fail "Caddy is missing the LAN-bound administration mapping"
+fi
+
+if [[ "$(grep -Ec '^[[:space:]]+- "[^"]*:[0-9]+"' "${caddy_compose}")" == "3" ]]; then
+    pass "Caddy declares no host port beyond 80, 443 and the LAN administration site"
+else
+    fail "Caddy declares host ports beyond 80, 443 and the LAN administration site"
+fi
+
+admin_lan_site="${PROJECT_ROOT}/services/caddy/sites/admin-lan.caddy"
+if grep -Eq '^[[:space:]]+@outside_lan not remote_ip private_ranges[[:space:]]*$' "${admin_lan_site}" 2>/dev/null &&
+    grep -Eq '^[[:space:]]+respond @outside_lan 403[[:space:]]*$' "${admin_lan_site}" &&
+    grep -Eq '^[[:space:]]+tls internal[[:space:]]*$' "${admin_lan_site}" &&
+    ! grep -q 'cloudflare_proxied' "${admin_lan_site}"; then
+    pass "LAN administration site serves only private sources with the internal CA"
+else
+    fail "LAN administration site does not restrict sources to private ranges"
+fi
+
+if grep -A3 '^{\$CADDY_KEYCLOAK_DOMAIN}' "${PROJECT_ROOT}/services/caddy/sites/homelab07.caddy" |
+    grep -Eq '^[[:space:]]+respond /admin /admin/\* 403[[:space:]]*$'; then
+    pass "Public identity route denies the administration console and Admin REST API"
+else
+    fail "Public identity route exposes the administration console"
 fi
 
 if grep -Eq '^[[:space:]]+admin[[:space:]]+localhost:2019[[:space:]]*$' "${PROJECT_ROOT}/services/caddy/Caddyfile"; then
@@ -280,8 +304,10 @@ else
     caddy_container="homelab07-caddy"
     if [[ "$(docker inspect -f '{{.State.Running}}' "${caddy_container}" 2>/dev/null || true)" == "true" ]]; then
         runtime_bindings="$(docker inspect -f '{{json .HostConfig.PortBindings}}' "${caddy_container}")"
-        if [[ "$(jq -r 'keys | sort | join(",")' <<<"${runtime_bindings}")" == "443/tcp,80/tcp" ]]; then
-            pass "Runtime Caddy mappings are exactly 80 and 443"
+        admin_lan_host_ip="$(jq -r '."8443/tcp"[0].HostIp // empty' <<<"${runtime_bindings}")"
+        if [[ "$(jq -r 'keys | sort | join(",")' <<<"${runtime_bindings}")" == "443/tcp,80/tcp,8443/tcp" ]] &&
+            is_private_ipv4 "${admin_lan_host_ip}"; then
+            pass "Runtime Caddy mappings are 80, 443 and 8443 bound to an RFC1918 host address"
         else
             fail "Runtime Caddy mappings differ from policy"
         fi
@@ -304,11 +330,14 @@ else
             "${caddy_env}" 2>/dev/null || true)"
         certificate_count=0
         expiring_count=0
+        # Internal CA certificates (LAN administration site) last hours by design
+        # and are renewed automatically; only ACME certificates are checked.
         while IFS= read -r -d '' certificate; do
             certificate_count=$((certificate_count + 1))
             openssl x509 -checkend 1209600 -noout -in "${certificate}" >/dev/null 2>&1 ||
                 expiring_count=$((expiring_count + 1))
         done < <(find "${caddy_data_root:-/nonexistent}/caddy/data/caddy/certificates" \
+            -path '*/certificates/local' -prune -o \
             -type f -name '*.crt' -print0 2>/dev/null || true)
         # An expired origin pull certificate makes Cloudflare fail every route.
         origin_pull_certificate="${PRIVATE_ROOT}/certs/cloudflare-aop/client.pem"
@@ -369,6 +398,7 @@ section "External validation boundary"
 
 warn "EXT-WAN: confirm externally that only approved gateway ports are reachable"
 warn "EXT-GRAFANA: confirm the Grafana port is reachable only from approved LANs"
+warn "EXT-ADMIN-LAN: confirm the LAN administration port 8443 is reachable only from approved LANs"
 warn "EXT-EDGE: confirm proxied routes use edge controls and direct-origin requests are denied"
 warn "EXT-DNS-ONLY: validate DNS-only services independently; edge controls do not apply"
 

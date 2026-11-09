@@ -15,6 +15,8 @@ Caddy is responsible for:
 - HTTP to HTTPS redirection and HSTS;
 - origin protection: Cloudflare-proxied routes and plain HTTP accept only
   Cloudflare sources;
+- the LAN-only administration site, which serves the Keycloak administration
+  console to private sources with a certificate from Caddy's internal CA;
 - sanitized access logs for the observability layer.
 
 Caddy is **not** responsible for identity, authentication, application
@@ -26,7 +28,7 @@ configuration or secrets.
 |---|---|
 | Reverse proxy | Caddy 2.11.9, official image pinned by digest |
 | Configuration | Caddyfile, snippets and sites in this directory |
-| Certificates | Let's Encrypt, HTTP-01 |
+| Certificates | Let's Encrypt, HTTP-01; Caddy internal CA for the LAN administration site |
 | Runtime | Docker Compose, non-root, read-only root filesystem |
 
 No database, Docker socket or custom build is required.
@@ -42,6 +44,7 @@ services/caddy/
 │   └── cloudflare-proxied.caddy
 ├── sites/
 │   ├── homelab07.caddy       # HomeLab07 routes
+│   ├── admin-lan.caddy       # LAN-only administration site (port 8443)
 │   ├── juanchoai.caddy       # approved external application (JuanchoAI API)
 │   └── rates-mock.caddy      # approved external application (JuanchoAI rates mock)
 ├── .env.example
@@ -49,7 +52,7 @@ services/caddy/
 ```
 
 Private, outside Git: `HomeLab07.private/env/caddy.env` (domains, ACME
-contact, UID/GID, data root).
+contact, UID/GID, data root, LAN administration address).
 
 ## Configuration
 
@@ -142,6 +145,28 @@ client certificate makes every route fail, so `security-audit.sh` fails 60
 days before expiry. To rotate, issue a new client certificate from the same
 CA, upload it, confirm it is active, then delete the old one in Cloudflare.
 
+### LAN administration site
+
+`sites/admin-lan.caddy` serves `https://<CADDY_ADMIN_LAN_ADDRESS>:8443`. The
+port is bound only to that private address and is never forwarded by the
+router; any source outside the private ranges receives `403`. It proxies the
+Keycloak administration console and Admin REST API, which the public identity
+route denies with `403` under `/admin`.
+
+The certificate comes from Caddy's internal CA and is renewed automatically
+(it lasts hours, by design). Browsers send no SNI to an IP address, so
+`default_sni` selects it; Cloudflare always sends SNI, so public routes are
+unaffected. `skip_install_trust` keeps Caddy from installing the root in the
+container. Trust the root once on each administration device:
+
+```bash
+docker exec homelab07-caddy cat /data/caddy/pki/authorities/local/root.crt > homelab07-caddy-root.crt
+openssl x509 -in homelab07-caddy-root.crt -noout -fingerprint -sha256
+```
+
+Compare the fingerprint before trusting the file. The root lives in
+`caddy/data` and is included in the platform backup; a restore keeps it.
+
 ## Deployment
 
 ```bash
@@ -172,6 +197,9 @@ An invalid configuration is rejected and the running one stays active.
   carry HSTS.
 - The administration API (`localhost:2019`) is unreachable from other
   containers.
+- The LAN administration site answers from an approved LAN with a certificate
+  that verifies against the internal root; `/admin/` on the public identity
+  route returns `403`.
 - `./operation/security-audit.sh` and `./operation/cloudflare-ranges-check.sh`
   pass.
 
@@ -192,8 +220,11 @@ are issued again automatically.
 
 - Non-root UID/GID, read-only root filesystem, `no-new-privileges`, all
   capabilities dropped except `NET_BIND_SERVICE` for ports 80 and 443.
-- Only ports 80 and 443 are published. The administration API listens on the
-  container loopback only.
+- Only ports 80 and 443 are published publicly. Port 8443 is bound to the
+  private LAN address and serves only private sources. The Caddy administration
+  API listens on the container loopback only.
+- The internal CA root is private state under `caddy/data`; only its
+  certificate leaves the host, never its key.
 - Access logs replace request targets with `[REDACTED_TARGET]` and omit
   request and response headers. They are world-readable so the log shipper can
   read them without capabilities; certificates stay under `caddy/data`.
