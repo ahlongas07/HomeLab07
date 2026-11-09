@@ -133,6 +133,10 @@
   disabled and a catch-all `http://` block redirects Cloudflare connections to
   HTTPS with `308` and returns `403` to any other source. ACME HTTP-01
   challenges are unaffected.
+- Close Sprint 019: ISO-08 and ISO-09 passed on Paperless-ngx 3.4.1, and the
+  task permission finding was re-checked: since 3.4.1 a user that is not
+  staff sees only its own and unowned system tasks, so `sync-medico` no longer
+  sees JuanchoAI's tasks.
 - Update the pinned security scanner from Trivy 0.72.0 to 0.76.2
   (`sha256:8f6bb947…`), which rebuilds its image on Alpine 3.24.3 (musl and
   libcurl fixes) and updates `golang.org/x/net` and `go-jose`. The image is

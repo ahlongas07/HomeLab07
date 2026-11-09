@@ -24,7 +24,8 @@ The README links here instead of maintaining a separate sprint summary.
 | Sprint 017 — Reverse Proxy Migration to Caddy | Cut over 2026-10-28; soak until 2026-11-11 | Owner application checks during the soak, then decommission Nginx Proxy Manager. |
 | SPIKE-001 — Collaboration Platform Research | In progress | Complete balanced official-source evidence for all candidates and record the decision. |
 | Sprint 018 — Origin Trust Hardening | Completed 2026-10-29 | Rotate the origin pull client certificate before 2029-10-28 (audit fails 60 days earlier). |
-| Sprint 019 — Paperless User Isolation | Deployed on target 2026-10-30; validation pending | Repeat the access checks with the user tokens (ISO-08) and run the medical agent validation (ISO-09). |
+| Sprint 019 — Paperless User Isolation | Completed 2026-11-05 | None. |
+| Sprint 020 — Paperless Quote Sync | Proposed | Owner approval of the Sprint document. |
 | SPIKE-001 — oCIS Architecture Validation | Architecture review complete; PoC required | Run the separately gated PoC only when its prerequisites and approval are met. |
 | SPIKE-002 — Identity Source of Truth and SSO | In progress; redirect recovery validation pending | Complete the documented redirect and local recovery validation. |
 | SPIKE-003 — Observability Depth and NAS Command Center | Track A implemented through Sprint 014; remaining tracks proposed | Close Track A with Sprint 014 validation; defer other tracks pending separate scope approval. |

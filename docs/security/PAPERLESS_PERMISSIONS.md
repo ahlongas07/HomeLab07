@@ -7,9 +7,14 @@ when Paperless-ngx is upgraded.
 
 ## Tasks are not isolated per user
 
-A user that is not a superuser and holds `view_paperlesstask` sees the tasks
-of **every** user in `/api/tasks/`, including the original file names of
-their uploads.
+In Paperless-ngx 3.3.4, a user that is not a superuser and holds
+`view_paperlesstask` saw the tasks of **every** user in `/api/tasks/`,
+including the original file names of their uploads.
+
+Re-checked on 3.4.1 (2026-11-05, Sprint 019 closure): a user that is not
+staff sees only its own tasks and unowned tasks. API uploads are owned by the
+uploader; unowned tasks are system tasks (mail fetch, classifier training,
+workflow checks, trash and sanity checks) without upload file names.
 
 Consequences:
 
@@ -17,11 +22,11 @@ Consequences:
   `/api/tasks/` (ISO-04).
 - No new integration may depend on `/api/tasks/`. Confirm an upload by
   reading the documents the user owns instead.
-- Accepted risk: `sync-medico` holds `view_paperlesstask` because it confirms
-  each upload through the task API (Sprint 015). It therefore sees the tasks of
-  JuanchoAI, including file names. Its token is used only inside
-  `homelab07-internal` by the sync container, has no public route and is
-  stored only in the private environment file.
+- `sync-medico` holds `view_paperlesstask` because it confirms each upload
+  through the task API (Sprint 015). Since 3.4.1 it no longer sees
+  JuanchoAI's tasks. Its token is used only inside `homelab07-internal` by the
+  sync container, has no public route and is stored only in the private
+  environment file.
 - Read-only users (`SYNC_READER_USERNAMES`) do not hold it.
 
 ## Custom fields have no owner

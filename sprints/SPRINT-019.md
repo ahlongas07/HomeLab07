@@ -1,7 +1,6 @@
 # SPRINT-019 — Paperless User Isolation
 
-**Status:** Deployed on the target 2026-10-30 — ISO-08 and ISO-09 validation
-pending
+**Status:** Completed — 2026-11-05
 
 **Classification:** Platform Enhancement
 
@@ -176,14 +175,19 @@ Correction, as R1 intends (every medical category is a managed tag):
   exam owner, 0 JuanchoAI tags, no exam tag hidden from it, no duplicate tag
   names.
 
-### Residual work
+### Closure validation (2026-11-05, Paperless-ngx 3.4.1)
 
-- ISO-08: repeat `paperless-access-check.sh juanchoai` (6/6) and
-  `medical-reader` (4/4, 12 tags) with the user tokens.
-- ISO-09: medical agent validation (12/12), including the four restored
-  categories.
-- Update the medical records specification status once ISO-08 and ISO-09
-  pass.
+- ISO-08: `paperless-access-check.sh juanchoai` and `medical-reader` with
+  the user tokens passed (confirmed by the project owner).
+- ISO-09: medical agent validation passed, including the four restored
+  categories (confirmed by the project owner).
+- Task finding re-checked on 3.4.1: the tasks API shows a user that is not
+  staff only its own tasks and unowned system tasks, so `sync-medico` no
+  longer sees JuanchoAI's tasks (see the
+  [permission findings](../docs/security/PAPERLESS_PERMISSIONS.md#tasks-are-not-isolated-per-user)).
+
+### Notes
+
 - Proposed, not in scope: source folders that match no category key (a
   dated ultrasound folder and a glucose folder) rely on Paperless automatic
   matching only.
