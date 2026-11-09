@@ -43,9 +43,9 @@ from the private `caddy.env`. Validate the configuration, certificate expiry,
 the `403` for a direct non-Cloudflare request and one route before enabling all
 public traffic. Missing certificates are issued again automatically.
 
-Snapshots taken before the Sprint 017 decommission also contain the retired
-Nginx Proxy Manager data and database; they are needed only to roll back the
-migration.
+Nginx Proxy Manager was decommissioned on 2026-11-09. Snapshots taken before
+that date still contain its data and `npm_db`; they are historical and are not
+restored.
 
 ## Nextcloud
 

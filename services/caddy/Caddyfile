@@ -10,7 +10,7 @@
 	# Cloudflare source check before redirecting.
 	auto_https disable_redirects
 	servers {
-		# Keep Cloudflare's forwarded headers, as Nginx Proxy Manager did.
+		# Keep Cloudflare's forwarded headers.
 		trusted_proxies static {$CLOUDFLARE_RANGES}
 		# The visitor address comes from the header Cloudflare always sets.
 		client_ip_headers CF-Connecting-IP

@@ -91,7 +91,7 @@ done
 for directory_variable in \
     HOMELAB07_OBSERVABILITY_ROOT \
     HOMELAB07_OBSERVABILITY_METRICS_ROOT \
-    HOMELAB07_NPM_LOG_ROOT; do
+    HOMELAB07_PROXY_LOG_ROOT; do
     directory_path="${!directory_variable:-}"
     if [[ "${directory_path}" != /* ]]; then
         fail "${directory_variable} must be an absolute path"

@@ -99,7 +99,6 @@ service_label() {
         mariadb) echo "MariaDB" ;;
         valkey) echo "Valkey" ;;
         caddy) echo "Caddy" ;;
-        nginx-proxy-manager) echo "Nginx Proxy Manager" ;;
         jellyfin) echo "Jellyfin" ;;
         nextcloud) echo "Nextcloud" ;;
         keycloak) echo "Keycloak" ;;

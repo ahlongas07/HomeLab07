@@ -79,12 +79,10 @@ for compose_file in "${compose_files[@]}"; do
     done < <(grep -E '^[[:space:]]+image:[[:space:]]+' "${compose_file}" || true)
 done
 
-# Nginx Proxy Manager is retired (Sprint 017) and kept, stopped, until its
-# decommission; it may still declare its former mappings.
 unexpected_port_owners=0
 for port_owner in "${port_files[@]}"; do
     case "${port_owner}" in
-        caddy | observability | nginx-proxy-manager) ;;
+        caddy | observability) ;;
         *) unexpected_port_owners=$((unexpected_port_owners + 1)) ;;
     esac
 done
@@ -277,12 +275,6 @@ else
         else
             fail "Unhealthy containers: ${unhealthy_count}; restarting containers: ${restarting_count}"
         fi
-    fi
-
-    if [[ "$(docker inspect -f '{{.State.Running}}' homelab07-nginx-proxy-manager 2>/dev/null || true)" == "true" ]]; then
-        fail "Retired Nginx Proxy Manager is running; Caddy is the platform reverse proxy"
-    else
-        pass "Retired Nginx Proxy Manager is not running"
     fi
 
     caddy_container="homelab07-caddy"

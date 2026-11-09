@@ -43,19 +43,15 @@ if [[ -n "${repository_status}" ]]; then
     exit 1
 fi
 
-npm_data_root="$(read_backup_private_value nginx-proxy-manager HOMELAB07_DATA_ROOT)"
 nextcloud_root="$(read_backup_private_value nextcloud NEXTCLOUD_ROOT)"
 paperless_root="$(read_backup_private_value paperless-ngx PAPERLESS_ROOT)"
 jellyfin_root="$(read_backup_private_value jellyfin JELLYFIN_ROOT)"
 homebridge_root="$(read_backup_private_value homebridge HOMEBRIDGE_DATA_ROOT)"
-npm_root="${npm_data_root}/nginx-proxy-manager"
 caddy_root="$(read_backup_private_value caddy HOMELAB07_DATA_ROOT)/caddy"
 
-# The retired Nginx Proxy Manager state is kept until its decommission
-# (Sprint 017). Caddy keeps serving during the capture: its certificates are
-# plain files and it holds no database.
+# Caddy keeps serving during the capture: its certificates are plain files
+# and it holds no database.
 for required_root in \
-    "${npm_root}" \
     "${caddy_root}/data" \
     "${caddy_root}/config" \
     "${nextcloud_root}" \
@@ -82,7 +78,6 @@ container_was_running() {
     [[ "$(docker inspect -f '{{.State.Running}}' "$1" 2>/dev/null || true)" == "true" ]]
 }
 
-npm_running=false
 nextcloud_running=false
 nextcloud_cron_running=false
 paperless_running=false
@@ -90,7 +85,6 @@ medical_sync_running=false
 jellyfin_running=false
 homebridge_running=false
 
-container_was_running homelab07-nginx-proxy-manager && npm_running=true
 container_was_running homelab07-nextcloud && nextcloud_running=true
 container_was_running homelab07-nextcloud-cron && nextcloud_cron_running=true
 container_was_running homelab07-paperless-ngx && paperless_running=true
@@ -122,9 +116,6 @@ restore_runtime_state() {
     fi
     if [[ "${homebridge_running}" == true ]]; then
         compose_service homebridge start >/dev/null 2>&1 || restore_failure=1
-    fi
-    if [[ "${npm_running}" == true ]]; then
-        compose_service nginx-proxy-manager start >/dev/null 2>&1 || restore_failure=1
     fi
 
     if [[ "${nextcloud_maintenance}" == true && "${nextcloud_running}" == true ]]; then
@@ -187,7 +178,6 @@ if [[ "${nextcloud_running}" == true ]]; then
     nextcloud_maintenance=true
 fi
 
-[[ "${npm_running}" == true ]] && compose_service nginx-proxy-manager stop >/dev/null
 if [[ "${nextcloud_running}" == true || "${nextcloud_cron_running}" == true ]]; then
     compose_service nextcloud stop >/dev/null
 fi
@@ -223,7 +213,6 @@ docker inspect -f '{{.Name}}|{{.Config.Image}}|{{.Image}}' \
     homelab07-mariadb \
     homelab07-valkey \
     homelab07-caddy \
-    homelab07-nginx-proxy-manager \
     homelab07-nextcloud \
     homelab07-nextcloud-cron \
     homelab07-keycloak \
@@ -248,7 +237,6 @@ restic_command backup --json \
     "${run_dir}" \
     "${PROJECT_ROOT}" \
     "${PRIVATE_ROOT}" \
-    "${npm_root}" \
     "${caddy_root}/data" \
     "${caddy_root}/config" \
     "${nextcloud_root}" \
@@ -364,7 +352,7 @@ jq -n \
       },
       components: [
         "repository", "private-configuration", "mariadb",
-        "caddy", "nginx-proxy-manager", "nextcloud", "keycloak", "paperless-ngx",
+        "caddy", "nextcloud", "keycloak", "paperless-ngx",
         "paperless-medical-sync", "jellyfin", "homebridge", "landing-page",
         "valkey", "cloudflare-ddns"
       ],

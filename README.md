@@ -33,7 +33,7 @@ The project has established:
 - The platform operation layer.
 - The persistent data foundation.
 - MariaDB as the first shared infrastructure service.
-- Nginx Proxy Manager as the centralized public entry point.
+- Caddy as the centralized public entry point.
 - HTTPS publication for the Landing Page.
 - Cloudflare Dynamic DNS as an implemented platform enhancement.
 - Valkey as the shared in-memory data platform.
@@ -51,7 +51,7 @@ configuration are outside this repository change.
 
 Implemented direction:
 
-- Shared MariaDB, Valkey, Nginx Proxy Manager, and Cloudflare Dynamic DNS.
+- Shared MariaDB, Valkey, Caddy, and Cloudflare Dynamic DNS.
 - NAS-backed storage remains the authoritative user data layer.
 - Nextcloud server-side and end-to-end encryption remain disabled to preserve
   direct file recoverability from NAS storage.
@@ -59,7 +59,7 @@ Implemented direction:
 - Nextcloud uses `nextcloud:33.0.6-apache` with shared MariaDB and Valkey,
   dedicated NAS-backed state, and a separate cron container.
 - Paperless-ngx uses the shared MariaDB and Valkey capabilities with dedicated
-  NAS-backed document storage and HTTPS publication through Nginx Proxy Manager.
+  NAS-backed document storage and HTTPS publication through Caddy.
 - Jellyfin uses dedicated NAS-backed state, read-only media libraries and
   scoped Intel VA-API access without MariaDB, Valkey or direct host ports.
 - Homebridge uses a complete NAS-backed application-state boundary and a

@@ -21,8 +21,6 @@ matching after an upstream change, so the finding returns for review.
 
 Current exceptions, reviewed on 2026-10-22:
 
-- Upstream test fixtures and API examples detected as private keys in the
-  Nginx Proxy Manager image.
 - The public Azure storage emulator key in an SDK constant bundled with
   Nextcloud.
 - Two Git history matches of the Valkey image reference by the generic API key

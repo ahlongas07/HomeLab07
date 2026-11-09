@@ -34,10 +34,6 @@ It provides only the database server and initializes only the root account. Each
 Examples:
 
 ```text
-Nginx Proxy Manager
-  Database: npm_db
-  User: npm_user
-
 Nextcloud
   Database: nextcloud
   User: nextcloud

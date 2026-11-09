@@ -187,7 +187,6 @@ while IFS='|' read -r service variable label; do
     fi
 done <<'ROOTS'
 mariadb|HOMELAB07_DATA_ROOT|shared platform data
-nginx-proxy-manager|HOMELAB07_DATA_ROOT|proxy platform data
 caddy|HOMELAB07_DATA_ROOT|reverse proxy state
 nextcloud|NEXTCLOUD_ROOT|collaboration state
 paperless-ngx|PAPERLESS_ROOT|document state
@@ -195,18 +194,10 @@ jellyfin|JELLYFIN_ROOT|media application state
 homebridge|HOMEBRIDGE_DATA_ROOT|HomeKit state
 ROOTS
 
-npm_data_root="$(read_private_value nginx-proxy-manager HOMELAB07_DATA_ROOT || true)"
-if [[ -n "${npm_data_root}" && -d "${npm_data_root}/nginx-proxy-manager" ]]; then
-    pass "Required application state is available for proxy platform data"
-else
-    fail "Required application state is unavailable for proxy platform data"
-fi
-
 echo
 echo "Backup source readability"
 echo
 
-validate_readable_tree "${npm_data_root}/nginx-proxy-manager" "proxy platform data"
 caddy_data_root="$(read_private_value caddy HOMELAB07_DATA_ROOT || true)"
 validate_readable_tree "${caddy_data_root}/caddy/data" "reverse proxy certificates"
 validate_readable_tree "${caddy_data_root}/caddy/config" "reverse proxy configuration state"

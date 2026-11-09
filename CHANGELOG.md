@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### Removed
+
+- Decommission Nginx Proxy Manager (Sprint 017): remove its service
+  directory, `operation/npm-access-audit.sh`, its Trivy exception and every
+  backup, preflight, restore test and security audit reference. On the
+  platform host, its container, images, `npm_db` database, `npm_user` account,
+  data and private environment were removed; snapshots up to 2026-11-05 keep
+  its final state.
+
 ### Added
 
 - Add Sprint 019 Paperless user isolation: `model-init` shares with the
@@ -101,6 +110,9 @@
 
 ### Fixed
 
+- The observability preflight checks `HOMELAB07_PROXY_LOG_ROOT` instead of
+  the former `HOMELAB07_NPM_LOG_ROOT`, which made it fail since the Caddy
+  cutover.
 - Fix the NAS Command Center swap condition, which kept the NAS state at
   Degraded whenever swap existed: `and` returned the swap size instead of the
   comparison result.

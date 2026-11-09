@@ -4,7 +4,7 @@
 
 Caddy is the HomeLab07 shared reverse proxy. It publishes platform services
 over HTTPS with automatic certificates, from a version-controlled Caddyfile.
-It replaces Nginx Proxy Manager (Sprint 017).
+It was introduced in Sprint 017 and is the only platform reverse proxy.
 
 ## Responsibilities
 
@@ -85,7 +85,7 @@ The snippet:
 - sets HSTS `max-age=63072000; preload` without subdomains;
 - limits request bodies to 2000 MB;
 - forwards headers: Cloudflare is a trusted proxy, so `X-Forwarded-For` keeps
-  the visitor and appends Cloudflare (as Nginx Proxy Manager did) and
+  the visitor and appends Cloudflare, and
   `X-Forwarded-Proto` keeps Cloudflare's value. `X-Real-IP` carries the visitor
   address, read from `CF-Connecting-IP` (`client_ip_headers`), which
   Cloudflare always sets; Apache's `remoteip` in the Nextcloud image takes the

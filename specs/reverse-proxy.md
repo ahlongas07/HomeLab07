@@ -1,7 +1,7 @@
 # Reverse Proxy Capability
 
 **Status:** Implemented in Sprint 017 (Caddy); in production since
-2026-10-28, soak period until 2026-11-11
+2026-10-28. Nginx Proxy Manager was decommissioned on 2026-11-09
 
 ## Required behavior
 

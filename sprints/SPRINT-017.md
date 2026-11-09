@@ -1,6 +1,6 @@
 # SPRINT-017 — Reverse Proxy Migration to Caddy
 
-**Status:** Cut over 2026-10-28 — soak until 2026-11-11, then decommission
+**Status:** Cut over 2026-10-28 — Nginx Proxy Manager decommissioned 2026-11-09
 
 **Classification:** Platform Enhancement
 
@@ -209,7 +209,8 @@ change, so rollback needs no restore during the soak period.
   (remote clients, transcoding, long sessions) against the Cloudflare-proxied
   route, then decide and update the edge policy. Changing the route requires
   removing the Cloudflare-only list for it in the same change.
-- Decommission NPM, as described in the migration plan.
+- Decommission NPM, as described in the migration plan. Done 2026-11-09; see
+  the closure record.
 
 ## Closure record
 
@@ -271,6 +272,32 @@ At the owner's request, the JuanchoAI route moved from a private route file to
 `services/caddy/sites/juanchoai.caddy`, with its domain in `caddy.env` like
 the other routes. The private route directory and its mount were removed:
 every route is versioned, and only domains are private.
+
+### Nginx Proxy Manager decommission (2026-11-09)
+
+The project owner ended the soak period two days early: Caddy had served all
+routes since the cutover without a rollback. Rollback to Nginx Proxy Manager is
+no longer available.
+
+- Recovery point: the owner accepted the existing platform snapshots. Nginx
+  Proxy Manager was stopped and unchanged from 2026-10-28, so the snapshots of
+  2026-10-28, 2026-11-03 and 2026-11-05 contain its final data and `npm_db`.
+- Runtime: the stopped container, its images, the `npm_db` database and the
+  `npm_user` account were removed; the former proxy share was emptied and its
+  private environment file deleted. The share itself is removed by the owner
+  on the NAS.
+- Repository: the service directory, `operation/npm-access-audit.sh` and the
+  NPM Trivy exception were removed; backup, preflight, restore test and
+  security audit no longer reference it.
+- The observability preflight checked the former `HOMELAB07_NPM_LOG_ROOT`
+  and failed since the cutover; it now checks `HOMELAB07_PROXY_LOG_ROOT`.
+- Validation on the platform host: security audit without required-control
+  failures, observability preflight passed, backup preflight passed every
+  production root check.
+- The shared `homelab07-proxy` network keeps the Docker Compose project label
+  of the former proxy on the current host; Caddy's definition creates it on a
+  new host. Recreating it would detach every published service, so it was
+  left in place.
 
 ### Deviations
 

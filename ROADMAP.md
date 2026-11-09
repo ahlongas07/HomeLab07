@@ -12,7 +12,6 @@ The README links here instead of maintaining a separate sprint summary.
 | Work item | Status | Next action |
 |---|---|---|
 | Sprint 012 — Vulnerability Management | In progress | Review the private baseline and remediation priorities; run a new private target-host scan covering all Git refs and full history before closure. |
-| Platform Enhancement — Nginx Proxy Manager 2.16.0 security upgrade | Complete — target validation 2026-10-22 | Run `operation/npm-access-audit.sh` after access-list, host or certificate changes until upstream fixes issue #5919. |
 | Platform Enhancement — Homebridge image update | Deferred — review 2026-10-22 | Update when a stable image ships Node.js 24.22.1 or later; see the Homebridge implementation notes. |
 | Platform Enhancement — Keycloak 26.7.5 security update | Complete — target validation 2026-10-22 | Re-evaluate at the next 26.7 patch or a reviewed minor upgrade. |
 | Platform Enhancement — Jellyfin 12.2 security upgrade | Complete — target validation 2026-10-22 | Re-evaluate the bundled .NET runtime findings at the next Jellyfin release. |
@@ -21,7 +20,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Sprint 014 — NAS Command Center | Implementation complete; target validation pending | Execute the controlled target-host validation defined in the Sprint document. |
 | Sprint 015 — Medical Records Ingestion | Validated on target — closure pending residual work | Image scan, first daily run check and manual review of flagged documents. |
 | Sprint 016 — External Application Security Scan Targets | Validated on target 2026-10-28 — owner dashboard confirmation pending | Confirm both dashboards show the targets separately; decide whether uncovered containers should fail the run. |
-| Sprint 017 — Reverse Proxy Migration to Caddy | Cut over 2026-10-28; soak until 2026-11-11 | Owner application checks during the soak, then decommission Nginx Proxy Manager. |
+| Sprint 017 — Reverse Proxy Migration to Caddy | Cut over 2026-10-28; Nginx Proxy Manager decommissioned 2026-11-09 | Media route evaluation, as described in the Sprint document. |
 | SPIKE-001 — Collaboration Platform Research | In progress | Complete balanced official-source evidence for all candidates and record the decision. |
 | Sprint 018 — Origin Trust Hardening | Completed 2026-10-29 | Rotate the origin pull client certificate before 2029-10-28 (audit fails 60 days earlier). |
 | Sprint 019 — Paperless User Isolation | Completed 2026-11-05 | None. |
