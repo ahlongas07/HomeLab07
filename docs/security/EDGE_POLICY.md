@@ -14,14 +14,14 @@ rule identifiers and credentials belong outside Git.
 | Proxied web application | Cloudflare → Caddy → application | Managed WAF, narrow rate limiting, response headers and direct-origin denial |
 | Proxied media application | Cloudflare → Caddy → application | Same as proxied web applications; rate limits exclude media paths |
 | LAN integration | Approved LAN → Homebridge host listeners | No public DNS or reverse-proxy publication |
-| LAN administration | Approved LAN → Caddy LAN site (8443) → administration interface | Bound to the private LAN address, private sources only, internal CA; never forwarded; the public route denies the administration paths |
+| LAN administration | Approved LAN → Caddy LAN site (9443) → administration interface | Bound to the private LAN address, private sources only, internal CA; never forwarded; the public route denies the administration paths |
 | Internal data service | Internal Docker network | No host ports and no public route |
 | Outbound automation | Service → provider API | No inbound listener |
 | Read-only API client | Client with its own User-Agent → Cloudflare → Caddy → application API | Token of a read-only account; no Cloudflare exception; see [Medical Agent Access](MEDICAL_AGENT_ACCESS.md) |
 
 Only approved public gateway forwards are retained. Caddy is the only service
 that declares public gateway ports, and only 80 and 443; its LAN
-administration site on 8443 is bound to the private LAN address and is never
+administration site on 9443 is bound to the private LAN address and is never
 forwarded. Caddy's own configuration is the version-controlled Caddyfile, and
 its API listens only on the container loopback. The Keycloak administration
 console is reachable only through the LAN administration site. Exact firewall

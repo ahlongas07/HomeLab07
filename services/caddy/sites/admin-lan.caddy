@@ -3,7 +3,7 @@
 # only private source addresses are served. The certificate comes from
 # Caddy's internal CA; trust its root once on each administration device.
 
-https://{$CADDY_ADMIN_LAN_ADDRESS}:8443 {
+https://{$CADDY_ADMIN_LAN_ADDRESS}:9443 {
 	tls internal
 
 	# remote_ip is the connecting address; private_ranges covers the LAN and

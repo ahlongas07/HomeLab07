@@ -74,7 +74,7 @@ Caddy publishes the private identity hostname (`CADDY_KEYCLOAK_DOMAIN`) to
 route (Sprint 017). Keep TLS mode Full (strict) at the edge.
 
 The administration console and Admin REST API are reachable only from the LAN,
-at `KEYCLOAK_ADMIN_HOSTNAME` (`https://<CADDY_ADMIN_LAN_ADDRESS>:8443`, the
+at `KEYCLOAK_ADMIN_HOSTNAME` (`https://<CADDY_ADMIN_LAN_ADDRESS>:9443`, the
 Caddy LAN administration site). The public route answers `403` under `/admin`;
 realm endpoints, login pages and the account console stay public. The console
 requires HTTPS: over plain HTTP from another host the browser does not expose

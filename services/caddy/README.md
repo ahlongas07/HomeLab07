@@ -44,7 +44,7 @@ services/caddy/
 │   └── cloudflare-proxied.caddy
 ├── sites/
 │   ├── homelab07.caddy       # HomeLab07 routes
-│   ├── admin-lan.caddy       # LAN-only administration site (port 8443)
+│   ├── admin-lan.caddy       # LAN-only administration site (port 9443)
 │   ├── juanchoai.caddy       # approved external application (JuanchoAI API)
 │   └── rates-mock.caddy      # approved external application (JuanchoAI rates mock)
 ├── .env.example
@@ -147,9 +147,11 @@ CA, upload it, confirm it is active, then delete the old one in Cloudflare.
 
 ### LAN administration site
 
-`sites/admin-lan.caddy` serves `https://<CADDY_ADMIN_LAN_ADDRESS>:8443`. The
+`sites/admin-lan.caddy` serves `https://<CADDY_ADMIN_LAN_ADDRESS>:9443`. The
 port is bound only to that private address and is never forwarded by the
-router; any source outside the private ranges receives `403`. It proxies the
+router; any source outside the private ranges receives `403`. Port 8443 is
+not used because the NAS management interface listens on it on every host
+address. It proxies the
 Keycloak administration console and Admin REST API, which the public identity
 route denies with `403` under `/admin`.
 
@@ -220,7 +222,7 @@ are issued again automatically.
 
 - Non-root UID/GID, read-only root filesystem, `no-new-privileges`, all
   capabilities dropped except `NET_BIND_SERVICE` for ports 80 and 443.
-- Only ports 80 and 443 are published publicly. Port 8443 is bound to the
+- Only ports 80 and 443 are published publicly. Port 9443 is bound to the
   private LAN address and serves only private sources. The Caddy administration
   API listens on the container loopback only.
 - The internal CA root is private state under `caddy/data`; only its

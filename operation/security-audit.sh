@@ -103,7 +103,7 @@ for mapping in '80:80' '443:443'; do
     fi
 done
 
-admin_lan_mapping='${CADDY_ADMIN_LAN_ADDRESS:?CADDY_ADMIN_LAN_ADDRESS is required}:8443:8443'
+admin_lan_mapping='${CADDY_ADMIN_LAN_ADDRESS:?CADDY_ADMIN_LAN_ADDRESS is required}:9443:9443'
 if grep -Fq "\"${admin_lan_mapping}\"" "${caddy_compose}"; then
     pass "Caddy binds the LAN administration site to the private LAN address"
 else
@@ -304,10 +304,10 @@ else
     caddy_container="homelab07-caddy"
     if [[ "$(docker inspect -f '{{.State.Running}}' "${caddy_container}" 2>/dev/null || true)" == "true" ]]; then
         runtime_bindings="$(docker inspect -f '{{json .HostConfig.PortBindings}}' "${caddy_container}")"
-        admin_lan_host_ip="$(jq -r '."8443/tcp"[0].HostIp // empty' <<<"${runtime_bindings}")"
-        if [[ "$(jq -r 'keys | sort | join(",")' <<<"${runtime_bindings}")" == "443/tcp,80/tcp,8443/tcp" ]] &&
+        admin_lan_host_ip="$(jq -r '."9443/tcp"[0].HostIp // empty' <<<"${runtime_bindings}")"
+        if [[ "$(jq -r 'keys | sort | join(",")' <<<"${runtime_bindings}")" == "443/tcp,80/tcp,9443/tcp" ]] &&
             is_private_ipv4 "${admin_lan_host_ip}"; then
-            pass "Runtime Caddy mappings are 80, 443 and 8443 bound to an RFC1918 host address"
+            pass "Runtime Caddy mappings are 80, 443 and 9443 bound to an RFC1918 host address"
         else
             fail "Runtime Caddy mappings differ from policy"
         fi
@@ -398,7 +398,7 @@ section "External validation boundary"
 
 warn "EXT-WAN: confirm externally that only approved gateway ports are reachable"
 warn "EXT-GRAFANA: confirm the Grafana port is reachable only from approved LANs"
-warn "EXT-ADMIN-LAN: confirm the LAN administration port 8443 is reachable only from approved LANs"
+warn "EXT-ADMIN-LAN: confirm the LAN administration port 9443 is reachable only from approved LANs"
 warn "EXT-EDGE: confirm proxied routes use edge controls and direct-origin requests are denied"
 warn "EXT-DNS-ONLY: validate DNS-only services independently; edge controls do not apply"
 

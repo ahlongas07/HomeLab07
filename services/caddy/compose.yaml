@@ -9,7 +9,7 @@ services:
       - "80:80"
       - "443:443"
       # LAN-only administration site; never forwarded by the router.
-      - "${CADDY_ADMIN_LAN_ADDRESS:?CADDY_ADMIN_LAN_ADDRESS is required}:8443:8443"
+      - "${CADDY_ADMIN_LAN_ADDRESS:?CADDY_ADMIN_LAN_ADDRESS is required}:9443:9443"
     env_file:
       - ./cloudflare-ranges.env
     environment:
