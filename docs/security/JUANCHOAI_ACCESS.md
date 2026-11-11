@@ -38,7 +38,7 @@ administrator.
 
 Without `view_paperlesstask`, an upload cannot be confirmed through
 `/api/tasks/`; see
-[Paperless Permission Findings](PAPERLESS_PERMISSIONS.md#tasks-are-not-isolated-per-user).
+[Paperless Permission Findings](PAPERLESS_PERMISSIONS.md#task-visibility-per-user).
 
 ## Objects and owners
 

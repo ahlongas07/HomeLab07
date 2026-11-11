@@ -184,7 +184,7 @@ Correction, as R1 intends (every medical category is a managed tag):
 - Task finding re-checked on 3.4.1: the tasks API shows a user that is not
   staff only its own tasks and unowned system tasks, so `sync-medico` no
   longer sees JuanchoAI's tasks (see the
-  [permission findings](../docs/security/PAPERLESS_PERMISSIONS.md#tasks-are-not-isolated-per-user)).
+  [permission findings](../docs/security/PAPERLESS_PERMISSIONS.md#task-visibility-per-user)).
 
 ### Notes
 

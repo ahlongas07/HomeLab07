@@ -29,6 +29,10 @@ uploads to Paperless and publishes metrics.
 - Metrics and Grafana alerts.
 - Documenting the JuanchoAI API access to Paperless over
   `homelab07-internal`.
+- `operation/paperless-access-check.sh`: the `juanchoai` profile checks that
+  every visible document is owned by `juanchoai` and none carries the `medico`
+  tag, instead of requiring zero visible documents (ISO-02); the `examen`
+  search must still return `0`.
 - Documentation in `docs/security/JUANCHOAI_ACCESS.md`, `specs/backup.md` and
   a new capability specification under `specs/`.
 
@@ -50,7 +54,7 @@ Identical in the HomeLab07 and JuanchoAI specifications.
 | Item | Agreement |
 |---|---|
 | Location | A NAS folder set privately as `QUOTES_SOURCE_ROOT`, with one subfolder per year (`<YYYY>/`). Mounted as `/quotes` in both containers: read-write in the API, read-only in the sync. |
-| File name | `<uuid>__<external_id>__<YYYY-MM-DD>.pdf`: `uuid` is the Work Item ID, `external_id` for example `RFQ-123-R1`, and the date is the issue date. The year subfolder must match the year of that date. |
+| File name | `<uuid>__<external_id>__<YYYY-MM-DD>.pdf`, with exactly two `__` separators. `uuid` is the Work Item ID as a canonical lowercase UUID (`[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`). `external_id` matches `[A-Za-z0-9-]{1,64}`, for example `RFQ-123-R1`: no underscores, spaces or accented characters. The date is the issue date as a valid calendar date, and the year subfolder must match its year. Any other name is `rejected`. |
 | Atomic write | The API writes `.<name>.tmp` and then renames it. The sync ignores every file that starts with `.` or does not end in `.pdf`. |
 | Immutability | A file is never deleted, overwritten or renamed. At most one PDF per `uuid`. |
 | Content | The sync uploads the file unchanged, so the Paperless checksum equals the file's SHA-256. |
@@ -111,8 +115,11 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
 2. Validate the file: PDF, not encrypted, 20 MB or less. Otherwise
    `rejected`.
 3. Search Paperless for `Work Item` = `uuid`:
-   - same SHA-256: `skipped`;
-   - different SHA-256: `conflict`, nothing is uploaded;
+   - exactly one document with the same SHA-256: `skipped`;
+   - exactly one document with a different SHA-256: `conflict`, nothing is
+     uploaded;
+   - more than one document, for example one uploaded by hand: `conflict`,
+     nothing is uploaded;
    - not found: upload.
 4. Upload with `post_document`, with the `juanchoai` token and the contract
    metadata.
@@ -120,10 +127,15 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
    document appears with the correct SHA-256 or `QUOTE_CONFIRM_TIMEOUT`
    expires. On timeout, `failure`; step 3 retries it in the next cycle.
 6. Paperless discards a file whose content duplicates any existing document
-   of any user, including the trash. `juanchoai` cannot see that task, so the
-   sync detects it only as a confirmation timeout: after the configured
-   number of attempts the file is reported as `failure` with an alert and is
-   not retried in a loop.
+   of any user, including the trash; this also happens when someone moves an
+   archived quote to the Paperless trash, because the sync uploads the file
+   again. `juanchoai` cannot see that task, so the sync detects it only as a
+   confirmation timeout: after the configured number of attempts the file is
+   reported as `failure` with an alert and is not retried until it is
+   acknowledged or its content changes. The attempt counter lives in the
+   watcher tmpfs, so after a container restart the file is retried up to the
+   configured number of attempts again; accepted, because every retry is
+   idempotent and bounded.
 
 ### QS-R5 — Metrics and alerts
 
@@ -131,16 +143,18 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
 - Counters: `uploaded`, `skipped`, `rejected`, `conflict`, `failure`. They
   are history and raise no alert.
 - Gauges: last successful run, pending files, age of the oldest pending file,
-  and `unresolved{reason="rejected|conflict"}`.
+  and `unresolved{reason="rejected|conflict|failure"}`.
 - Alerts are based on unresolved files, not on counters. A file stops
-  counting as unresolved when its relative path and SHA-256 appear in the
-  acknowledgement list `HomeLab07.private/env/paperless-quote-sync.ack`
-  (one `<relative path> <sha256>` per line), mounted read-only. If the content
-  changes, the SHA-256 no longer matches and the file counts again. The PDF
-  stays on the NAS as evidence.
+  counting as unresolved, and as pending, when its relative path and SHA-256
+  appear in the acknowledgement list
+  `HomeLab07.private/env/paperless-quote-sync.ack` (one
+  `<relative path> <sha256>` per line), mounted read-only and read again on
+  every cycle, without restarting the container. If the content changes, the
+  SHA-256 no longer matches and the file counts again. The PDF stays on the
+  NAS as evidence.
 - Grafana alerts:
   - a file has not appeared in Paperless after 15 minutes;
-  - any unresolved `rejected` or `conflict`;
+  - any unresolved `rejected`, `conflict` or `failure`;
   - the container is down or its heartbeat expired.
 - Logs never show the token or PDF content.
 - The README documents the review and acknowledgement procedure:
@@ -149,6 +163,10 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
   - `conflict`: decide which PDF is correct. If it is the one in Paperless,
     acknowledge the new file. If it is the new one, correct the document by
     hand in Paperless, then acknowledge.
+  - `failure`: check whether the content already exists in Paperless, in the
+    documents of any user or in the trash. Restore it from the trash or
+    reassign it to `juanchoai` if that is the intended archive, then
+    acknowledge; otherwise investigate the Paperless log before acknowledging.
 
 ### QS-R6 — JuanchoAI API access
 
@@ -172,13 +190,15 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
 | QS-06 | Paperless stopped while a file arrives | Retries; when Paperless returns the file is uploaded once |
 | QS-07 | File SHA-256 compared with `original_checksum` | Equal |
 | QS-08 | Search the uploaded document with the `agente-medico` token | Not visible; the medical workflow did not run |
-| QS-09 | `paperless-access-check.sh juanchoai` after deployment | Still passes; only the `examen` search must stay `0` |
+| QS-09 | `paperless-access-check.sh juanchoai` after deployment, with the adjusted ISO-02 | Passes: every visible document is owned by `juanchoai`, none has the `medico` tag, and the `examen` search stays `0` |
 | QS-10 | A file pending over 15 minutes, simulated with an invalid token | The alert fires |
 | QS-11 | `preview` | Lists files without uploading |
 | QS-12 | End-to-end test with JuanchoAI | The API writes, the sync uploads and the API allows DONE |
 | QS-13 | From the sync, create a file in `/quotes`; from the API, list a path outside `/quotes` | Both fail: read-only file system and path not found |
 | QS-14 | Acknowledge a `rejected` file, then modify that file | The alert resolves; when the SHA-256 changes it fires again |
 | QS-15 | A test PDF in a new year subfolder | Present in the NAS data backup copy (confirmed by the project owner) |
+| QS-16 | Move an archived quote to the Paperless trash, let the sync exhaust its attempts, then acknowledge the file | `failure` with alert, no retry loop; after the acknowledgement both the unresolved and the pending alerts resolve |
+| QS-17 | Names with `__` inside `external_id`, a space, an accented character, an uppercase UUID or an invalid date | All `rejected` |
 
 QS-12 runs together with JuanchoAI when its Sprint 008 is ready. Until then
 HomeLab07 tests with sample PDFs copied by hand.
@@ -209,10 +229,11 @@ HomeLab07 tests with sample PDFs copied by hand.
 
 ## Validation
 
-- `py_compile` and standard-library unit tests for name validation, PDF
-  checks, the decision table of QS-R4 and the acknowledgement list.
+- `py_compile` and standard-library unit tests for the exact name format,
+  PDF checks, the decision table of QS-R4 including more than one document
+  per `Work Item`, the attempt limit and the acknowledgement list.
 - `docker compose config` and shell syntax checks.
-- Target-host acceptance criteria QS-01 to QS-15.
+- Target-host acceptance criteria QS-01 to QS-17.
 
 ## Rollback
 

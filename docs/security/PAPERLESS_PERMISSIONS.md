@@ -5,7 +5,7 @@ isolated from each other. Observed by the project owner on 2026-10-30 while
 preparing [JuanchoAI access](JUANCHOAI_ACCESS.md) (Sprint 019). Re-check them
 when Paperless-ngx is upgraded.
 
-## Tasks are not isolated per user
+## Task visibility per user
 
 In Paperless-ngx 3.3.4, a user that is not a superuser and holds
 `view_paperlesstask` saw the tasks of **every** user in `/api/tasks/`,
