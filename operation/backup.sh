@@ -82,6 +82,7 @@ nextcloud_running=false
 nextcloud_cron_running=false
 paperless_running=false
 medical_sync_running=false
+quote_sync_running=false
 jellyfin_running=false
 homebridge_running=false
 
@@ -89,6 +90,7 @@ container_was_running homelab07-nextcloud && nextcloud_running=true
 container_was_running homelab07-nextcloud-cron && nextcloud_cron_running=true
 container_was_running homelab07-paperless-ngx && paperless_running=true
 container_was_running homelab07-paperless-medical-sync && medical_sync_running=true
+container_was_running homelab07-paperless-quote-sync && quote_sync_running=true
 container_was_running homelab07-jellyfin && jellyfin_running=true
 container_was_running homelab07-homebridge && homebridge_running=true
 
@@ -110,6 +112,9 @@ restore_runtime_state() {
     # After Paperless: the sync waits for it and then runs a full pass.
     if [[ "${medical_sync_running}" == true ]]; then
         compose_service paperless-medical-sync start >/dev/null 2>&1 || restore_failure=1
+    fi
+    if [[ "${quote_sync_running}" == true ]]; then
+        compose_service paperless-quote-sync start >/dev/null 2>&1 || restore_failure=1
     fi
     if [[ "${jellyfin_running}" == true ]]; then
         compose_service jellyfin start >/dev/null 2>&1 || restore_failure=1
@@ -181,8 +186,9 @@ fi
 if [[ "${nextcloud_running}" == true || "${nextcloud_cron_running}" == true ]]; then
     compose_service nextcloud stop >/dev/null
 fi
-# Stop the sync before Paperless so it records no failed attempt or alert.
+# Stop the syncs before Paperless so they record no failed attempt or alert.
 [[ "${medical_sync_running}" == true ]] && compose_service paperless-medical-sync stop >/dev/null
+[[ "${quote_sync_running}" == true ]] && compose_service paperless-quote-sync stop >/dev/null
 [[ "${paperless_running}" == true ]] && compose_service paperless-ngx stop >/dev/null
 [[ "${jellyfin_running}" == true ]] && compose_service jellyfin stop >/dev/null
 [[ "${homebridge_running}" == true ]] && compose_service homebridge stop >/dev/null
@@ -218,6 +224,7 @@ docker inspect -f '{{.Name}}|{{.Config.Image}}|{{.Image}}' \
     homelab07-keycloak \
     homelab07-paperless-ngx \
     homelab07-paperless-medical-sync \
+    homelab07-paperless-quote-sync \
     homelab07-jellyfin \
     homelab07-homebridge \
     homelab07-cloudflare-ddns \
@@ -353,7 +360,7 @@ jq -n \
       components: [
         "repository", "private-configuration", "mariadb",
         "caddy", "nextcloud", "keycloak", "paperless-ngx",
-        "paperless-medical-sync", "jellyfin", "homebridge", "landing-page",
+        "paperless-medical-sync", "paperless-quote-sync", "jellyfin", "homebridge", "landing-page",
         "valkey", "cloudflare-ddns"
       ],
       services: $images,

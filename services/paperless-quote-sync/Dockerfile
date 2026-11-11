@@ -1,0 +1,18 @@
+# HomeLab07 quote archive sync (Sprint 020).
+# Base image and qpdf are pinned; update them deliberately and rescan the image.
+FROM python:3.13-alpine3.24@sha256:7984cf56ceaddebe4fefeb75d64000b9f45d8b77b11a09b24524da6cdc3af0c8
+
+# tzdata follows the pinned Alpine branch so TZ matches PAPERLESS_TIME_ZONE.
+# hadolint ignore=DL3018
+RUN apk add --no-cache qpdf=12.3.2-r0 tzdata
+
+COPY --chmod=0755 quote_sync.py /usr/local/bin/quote-sync
+COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# The runtime UID/GID come from Compose so they can read the quotes folder.
+USER 65534:65534
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

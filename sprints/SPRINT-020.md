@@ -1,6 +1,6 @@
 # SPRINT-020 — Paperless Quote Sync (JuanchoAI Quote Archive)
 
-**Status:** Proposed
+**Status:** Approved 2026-11-11 after team review — implemented, target-host validation pending
 
 **Classification:** Application Service
 
@@ -131,8 +131,9 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
    archived quote to the Paperless trash, because the sync uploads the file
    again. `juanchoai` cannot see that task, so the sync detects it only as a
    confirmation timeout: after the configured number of attempts the file is
-   reported as `failure` with an alert and is not retried until it is
-   acknowledged or its content changes. The attempt counter lives in the
+   reported as `failure` with an alert and is not uploaded again; it stays
+   unresolved until it is acknowledged, and a changed content (new SHA-256)
+   counts as a new file. The attempt counter lives in the
    watcher tmpfs, so after a container restart the file is retried up to the
    configured number of attempts again; accepted, because every retry is
    idempotent and bounded.
@@ -140,10 +141,12 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
 ### QS-R5 — Metrics and alerts
 
 - Prefix `homelab07_paperless_quote_sync_`.
-- Counters: `uploaded`, `skipped`, `rejected`, `conflict`, `failure`. They
-  are history and raise no alert.
-- Gauges: last successful run, pending files, age of the oldest pending file,
-  and `unresolved{reason="rejected|conflict|failure"}`.
+- Files per result in the latest run: `uploaded`, `skipped`, `rejected`,
+  `conflict`, `failure`, `pending`, `deferred` and `acknowledged`. They are
+  history and raise no alert.
+- Gauges: last run and last successful run, watcher heartbeat, pending files,
+  age of the oldest pending file, and
+  `unresolved{reason="rejected|conflict|failure"}`.
 - Alerts are based on unresolved files, not on counters. A file stops
   counting as unresolved, and as pending, when its relative path and SHA-256
   appear in the acknowledgement list
@@ -155,7 +158,7 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
 - Grafana alerts:
   - a file has not appeared in Paperless after 15 minutes;
   - any unresolved `rejected`, `conflict` or `failure`;
-  - the container is down or its heartbeat expired.
+  - the container is down or its heartbeat expired (older than 15 minutes).
 - Logs never show the token or PDF content.
 - The README documents the review and acknowledgement procedure:
   - `rejected`: review and acknowledge; if the quote is needed, JuanchoAI

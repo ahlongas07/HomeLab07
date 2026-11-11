@@ -272,6 +272,7 @@ required_containers=(
     homelab07-keycloak
     homelab07-paperless-ngx
     homelab07-paperless-medical-sync
+    homelab07-paperless-quote-sync
     homelab07-jellyfin
     homelab07-homebridge
     homelab07-cloudflare-ddns

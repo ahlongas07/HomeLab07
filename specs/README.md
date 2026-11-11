@@ -18,6 +18,7 @@ remain outside Git.
 | Observability | [observability.md](observability.md) | [Operator guide](../docs/observability/README.md), [alerts](../docs/observability/ALERTS.md), [Sprint 014 state contract](../sprints/SPRINT-014.md) |
 | Vulnerability management | [vulnerability-management.md](vulnerability-management.md) | [Security operations](../docs/security/VULNERABILITY_MANAGEMENT.md), [Sprint 012](../sprints/SPRINT-012.md) |
 | Medical records ingestion | [medical-records.md](medical-records.md) | [Paperless Medical Sync service](../services/paperless-medical-sync/README.md), [Sprint 015](../sprints/SPRINT-015.md), [Sprint 019](../sprints/SPRINT-019.md) |
+| Quote archive | [quote-archive.md](quote-archive.md) | [Paperless Quote Sync service](../services/paperless-quote-sync/README.md), [JuanchoAI access](../docs/security/JUANCHOAI_ACCESS.md), [Sprint 020](../sprints/SPRINT-020.md) |
 | Reverse proxy | [reverse-proxy.md](reverse-proxy.md) | [Caddy service](../services/caddy/README.md), [edge policy](../docs/security/EDGE_POLICY.md), [Sprint 017](../sprints/SPRINT-017.md) |
 | Identity | [identity.md](identity.md) | [Keycloak service](../services/keycloak/README.md), [Sprint 011](../sprints/SPRINT-011.md), [SPIKE-002](../sprints/SPIKE-002.md) |
 

@@ -8,15 +8,16 @@ medical exams and JuanchoAI's documents. Isolation relies on object ownership:
 each user sees only the objects it owns or that are shared with it.
 
 Prepared by hand and verified by the project owner on 2026-10-30; Sprint 019
-documents it and automates the verification. The JuanchoAI integration that
-uploads quotes (`paperless-quote-sync`) is out of scope and will define its own
-route, client requirements and specification.
+documents it and automates the verification. Since Sprint 020 the platform's
+`paperless-quote-sync` service archives the quotes that the JuanchoAI API
+writes to a NAS folder; see the
+[quote archive specification](../../specs/quote-archive.md).
 
 - The account is not superuser, staff or group member, and cannot delete
   documents, so a leaked token cannot remove documents or see exams.
 - Accepted risk: the token grants access without a second factor; it is
-  stored only as a secret in JuanchoAI's private environment and rotated as
-  described below.
+  stored only as a secret in JuanchoAI's private environment and in the quote
+  sync's private environment, and rotated as described below.
 - `juanchoai` must never be added to `SYNC_READER_USERNAMES`: that list grants
   view access to exams.
 
@@ -68,20 +69,39 @@ a terminal; only counts are printed):
 Expected result:
 
 ```text
-PASS ISO-02 documents visible: 0
+PASS ISO-02 documents visible only its own: <n> visible, 0 not its own
+PASS ISO-02 documents tagged 'medico': 0
 PASS ISO-02 documents matching 'examen': 0
 PASS ISO-03 /api/tags/ only its own: 2 visible, 0 not its own
 PASS ISO-03 /api/document_types/ only its own: 1 visible, 0 not its own
 PASS ISO-04 /api/tasks/ refused: HTTP 403
 PASS ISO-04 /api/correspondents/ refused: HTTP 403
-6/6 checks passed
+7/7 checks passed
 ```
 
-The document count is `0` while JuanchoAI has uploaded nothing; afterwards
-only `documents matching 'examen'` must stay `0`. Confirm the medical side with
+`<n>` grows as quotes are archived; every visible document must be owned by
+`juanchoai`, and the `medico` tag and `examen` searches must stay `0`.
+Confirm the medical side with
 `./operation/paperless-access-check.sh medical-reader` and the medical agent
-token: `4/4 checks passed` (ISO-06). Repeat both after every `model-init` run
-and every Paperless-ngx upgrade.
+token: `4/4 checks passed` (ISO-06). Repeat both after every `model-init` run,
+every Paperless-ngx upgrade and the first quote upload.
+
+## Quote folder and token consumers
+
+Two containers use the `juanchoai` token, because Paperless allows one token
+per user (accepted risk for the proof of concept):
+
+| Consumer | Private environment | Reaches Paperless through |
+|---|---|---|
+| JuanchoAI API (verifies the archived document before DONE) | JuanchoAI's own private environment | `homelab07-internal`, `http://homelab07-paperless-ngx:8000`, no Cloudflare |
+| `paperless-quote-sync` (uploads the PDFs) | `HomeLab07.private/env/paperless-quote-sync.env`, `PAPERLESS_QUOTE_TOKEN` | `homelab07-internal` |
+
+The quote folder (`QUOTES_SOURCE_ROOT`) is owned by the platform operator user
+and group with mode `750`; the API mounts it read-write and the sync read-only,
+both running with the operator UID/GID. The API creates year subfolders with
+`750` and files with `640`. No other service mounts it. The contract for the
+files and their Paperless metadata is in the
+[Paperless Quote Sync README](../../services/paperless-quote-sync/README.md#contract-with-juanchoai).
 
 ## Rotating the token
 
@@ -93,8 +113,11 @@ Regenerate the token, which invalidates the previous one:
 ```
 
 The command prints the new token. Copy it directly into JuanchoAI's private
-environment; do not store the terminal output or paste it into tickets, chat
-or Git. Reload JuanchoAI, then run the verification above with the new token.
+environment and into `PAPERLESS_QUOTE_TOKEN` in
+`HomeLab07.private/env/paperless-quote-sync.env`; do not store the terminal
+output or paste it into tickets, chat or Git. Reload JuanchoAI, recreate the
+sync with `./operation/compose.sh paperless-quote-sync up -d`, then run the
+verification above with the new token.
 
 Rotate after any suspected exposure, when the JuanchoAI host changes and at
 least once a year.
@@ -114,3 +137,4 @@ Paperless if JuanchoAI is retired.
 - [Paperless Permission Findings](PAPERLESS_PERMISSIONS.md)
 - [Medical Agent Access](MEDICAL_AGENT_ACCESS.md)
 - [Sprint 019](../../sprints/SPRINT-019.md)
+- [Sprint 020](../../sprints/SPRINT-020.md)

@@ -57,8 +57,8 @@ The operation:
 1. validates prerequisites and storage boundaries;
 2. records which stateful services are running;
 3. enables Nextcloud maintenance mode;
-4. stops filesystem-backed stateful applications and the medical sync without
-   stopping MariaDB;
+4. stops filesystem-backed stateful applications and the Paperless syncs
+   (medical and quote) without stopping MariaDB;
 5. creates a transactionally consistent logical MariaDB dump, including the
    dedicated Keycloak database, and a Git bundle;
 6. writes an encrypted platform-state snapshot;
@@ -71,8 +71,9 @@ The operation:
 10. removes sensitive staging files.
 
 The original medical exam folder read by the medical sync (`SYNC_SOURCE_ROOT`)
-is outside Restic scope; the NAS data backup protects it. The medical sync is
-stopped only so that it records no failed attempt while Paperless is stopped.
+and the JuanchoAI quote folder read by the quote sync (`QUOTES_SOURCE_ROOT`)
+are outside Restic scope; the NAS data backup protects them. The syncs are
+stopped only so that they record no failed attempt while Paperless is stopped.
 
 An interrupted run attempts to restore the previous runtime state. Always run
 `./operation/status.sh` after an unexpected host or process failure.

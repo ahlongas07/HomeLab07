@@ -91,3 +91,22 @@ Never write test data into an unverified mount path.
 3. Identify the workload through host tools without granting Alloy process or
    Docker access.
 4. Preserve application availability and investigate before restarting.
+
+## Quote archive sync
+
+Covers "Quote archive file pending too long", "Quote archive files need
+review" and "Quote archive sync is down".
+
+1. Pending too long: read `docker logs homelab07-paperless-quote-sync`. A
+   `PENDING` file is retried after `QUOTE_RETRY_SECONDS`; check that Paperless
+   answers and that the `juanchoai` token is valid (`check-model`).
+2. Files need review: the log names the file and the reason (`REJECTED`,
+   `CONFLICT` or `FAILURE`). Follow the review table of the
+   [service README](../../services/paperless-quote-sync/README.md#acknowledging-a-file)
+   and acknowledge the file with its path and SHA-256; the alert resolves on
+   the next run.
+3. Sync down: confirm the container is running and healthy, that the metrics
+   directory remains mounted and writable, and start it with
+   `./operation/compose.sh paperless-quote-sync up -d` if needed. A platform
+   backup stops it for a few minutes; the alert waits fifteen.
+

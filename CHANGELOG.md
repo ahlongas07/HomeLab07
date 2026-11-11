@@ -26,6 +26,15 @@
 
 ### Added
 
+- Add Sprint 020 Paperless quote sync (`services/paperless-quote-sync`): a
+  standard-library container that archives the quote PDFs the JuanchoAI API
+  writes to a NAS folder into Paperless-ngx as `juanchoai`, enforcing the
+  shared file-name contract, identifying each quote by the `Work Item` field
+  and SHA-256, confirming uploads without `/api/tasks/`, and reporting
+  rejected, conflict and failure files as unresolved until acknowledged. Adds
+  its metrics, three Grafana alerts, the quote archive specification, backup
+  quiescing and recovery coverage, and the `juanchoai` access check now
+  verifies ownership of visible documents instead of requiring none.
 - Add Sprint 019 Paperless user isolation: `model-init` shares with the
   medical read-only users only the contract tags and the exam owner's
   correspondents and exams, never changes objects of another owner (including

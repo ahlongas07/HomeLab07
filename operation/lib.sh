@@ -22,6 +22,7 @@ readonly -a PLATFORM_SERVICES=(
     keycloak
     paperless-ngx
     paperless-medical-sync
+    paperless-quote-sync
     homebridge
     cloudflare-ddns
     landing-page
@@ -104,6 +105,7 @@ service_label() {
         keycloak) echo "Keycloak" ;;
         paperless-ngx) echo "Paperless-ngx" ;;
         paperless-medical-sync) echo "Paperless Medical Sync" ;;
+        paperless-quote-sync) echo "Paperless Quote Sync" ;;
         homebridge) echo "Homebridge" ;;
         cloudflare-ddns) echo "Cloudflare Dynamic DNS" ;;
         landing-page) echo "Landing Page" ;;

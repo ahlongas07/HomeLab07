@@ -1,0 +1,40 @@
+services:
+  paperless-quote-sync:
+    build:
+      context: .
+    image: homelab07/paperless-quote-sync:sprint-020
+    container_name: homelab07-paperless-quote-sync
+    restart: unless-stopped
+    # Secrets are loaded as runtime variables only; never interpolate them here.
+    env_file:
+      - ${HOMELAB07_PRIVATE_ROOT:?HOMELAB07_PRIVATE_ROOT is required}/env/paperless-quote-sync.env
+    user: "${QUOTE_SYNC_UID:?QUOTE_SYNC_UID is required}:${QUOTE_SYNC_GID:?QUOTE_SYNC_GID is required}"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: ${QUOTE_SYNC_MEMORY_LIMIT:-128m}
+    cpus: 0.5
+    pids_limit: 64
+    tmpfs:
+      # Lock, heartbeat, folder snapshot and watcher state; nothing is written to /quotes.
+      - /run/sync:size=16m,mode=1777
+    volumes:
+      - ${QUOTES_SOURCE_ROOT:?QUOTES_SOURCE_ROOT is required}:/quotes:ro
+      - ${QUOTE_SYNC_METRICS_ROOT:?QUOTE_SYNC_METRICS_ROOT is required}:/metrics
+      # Acknowledgement list; create the (possibly empty) file before the first start.
+      - ${HOMELAB07_PRIVATE_ROOT:?HOMELAB07_PRIVATE_ROOT is required}/env/paperless-quote-sync.ack:/acknowledged:ro
+    networks:
+      - homelab07-internal
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /run/sync/heartbeat ] && [ $$(( $$(date +%s) - $$(cat /run/sync/heartbeat) )) -lt 900 ]"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 1m
+
+networks:
+  homelab07-internal:
+    name: homelab07-internal
+    external: true

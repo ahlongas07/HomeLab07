@@ -11,11 +11,13 @@
 | Paperless-ngx | Data, media, ingestion/export trees and MariaDB database | Stopped filesystem capture and logical dump | 7 | Sanity checker, originals, archives, search and download |
 | Medical exam originals | Authoritative NAS folder (`SYNC_SOURCE_ROOT`) | NAS data backup; outside Restic scope | 8 | Restored from the NAS data backup with the same relative paths, before the sync starts; readable by the sync UID |
 | Paperless Medical Sync | Repository source and private configuration; no persistent state (`tmpfs` only) | Repository plus encrypted private configuration | 9 | New `sync-medico` token, `up -d --build`, first run reports existing exams as skipped |
-| Jellyfin | Configuration root | Stopped `/config` capture; cache excluded | 10 | Users, libraries, watched state, direct play and one transcode |
-| Homebridge | Complete Homebridge state root | Stopped full-root capture | 11 | Isolated identity, accessories, automations and cameras without re-pairing |
-| Landing Page | Repository source | Repository recovery only | 12 | Rendered milestone and HTTPS publication |
-| Valkey | Transient memory | No runtime backup | 13 | Empty restart and application cache recovery |
-| Dynamic DNS | Private configuration only | Encrypted private configuration snapshot | 14 | Container starts and reconciles DNS without exposing token values |
+| Quote originals | Authoritative NAS folder (`QUOTES_SOURCE_ROOT`) written by the JuanchoAI API | NAS data backup; outside Restic scope | 10 | Restored from the NAS data backup with the same relative paths, before the sync starts; readable by the operator UID |
+| Paperless Quote Sync | Repository source, private configuration and acknowledgement list; no persistent state (`tmpfs` only) | Repository plus encrypted private configuration | 11 | `juanchoai` token in both consumers, `up -d --build`, first run reports existing quotes as skipped |
+| Jellyfin | Configuration root | Stopped `/config` capture; cache excluded | 12 | Users, libraries, watched state, direct play and one transcode |
+| Homebridge | Complete Homebridge state root | Stopped full-root capture | 13 | Isolated identity, accessories, automations and cameras without re-pairing |
+| Landing Page | Repository source | Repository recovery only | 14 | Rendered milestone and HTTPS publication |
+| Valkey | Transient memory | No runtime backup | 15 | Empty restart and application cache recovery |
+| Dynamic DNS | Private configuration only | Encrypted private configuration snapshot | 16 | Container starts and reconciles DNS without exposing token values |
 
 The numerical order is the normal dependency sequence. Incident scope may
 permit restoring a single component, but its dependencies and matching recovery

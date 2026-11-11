@@ -22,9 +22,11 @@ Resolve the versioned manifest first and follow
 9. Restore Paperless state and database.
 10. Restore the medical exam originals from the NAS data backup, then start
     the medical sync.
-11. Restore Jellyfin configuration and reattach read-only source media.
-12. Restore Homebridge only while production remains stopped and isolated.
-13. Start services through the Operation Layer and execute application tests.
+11. Restore the quote originals from the NAS data backup, then start the quote
+    sync.
+12. Restore Jellyfin configuration and reattach read-only source media.
+13. Restore Homebridge only while production remains stopped and isolated.
+14. Start services through the Operation Layer and execute application tests.
 
 ## MariaDB
 
@@ -77,6 +79,24 @@ token (API tokens are not part of the Paperless restore), then:
 ```
 
 The first run must report the existing exams as `skipped` and upload nothing.
+
+## Quote originals and sync
+
+The JuanchoAI quote folder (`QUOTES_SOURCE_ROOT`) is the source of truth for
+archived quotes. It is outside Restic scope and protected by the NAS data
+backup. Restore it from that backup before starting the sync, keeping the same
+relative paths, owned by the platform operator user and group with mode `750`.
+
+The sync container holds no persistent state (only `tmpfs`). Recover it from
+the repository, its private environment file and the acknowledgement list,
+recreate the `juanchoai` token and set it in both consumers (API tokens are
+not part of the Paperless restore), then:
+
+```bash
+./operation/compose.sh paperless-quote-sync up -d --build
+```
+
+The first run must report the existing quotes as `skipped` and upload nothing.
 
 ## Jellyfin
 

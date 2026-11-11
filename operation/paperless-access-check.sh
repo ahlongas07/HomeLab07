@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Read-only isolation checks for a Paperless-ngx API token (Sprint 019).
+# Read-only isolation checks for a Paperless-ngx API token (Sprints 019 and 020).
 #
 # Usage: ./operation/paperless-access-check.sh juanchoai|medical-reader
 #
@@ -71,8 +71,17 @@ def check(check_id, text, ok, detail):
 
 
 if profile == "juanchoai":
-    value = count("/api/documents/")
-    check("ISO-02", "documents visible", value == 0, value)
+    # Since Sprint 020 the quote sync archives documents as juanchoai, so the
+    # visible documents must all be its own and none may carry the medico tag.
+    status, settings = get("/api/ui_settings/")
+    me = ((settings or {}).get("user") or {}).get("id") if status == 200 else None
+    documents = items("/api/documents/")
+    foreign = None if documents is None else sum(1 for d in documents if d.get("owner") != me)
+    check("ISO-02", "documents visible only its own",
+          me is not None and documents is not None and foreign == 0,
+          "refused" if documents is None else f"{len(documents)} visible, {foreign} not its own")
+    value = count("/api/documents/", tags__name__iexact="medico")
+    check("ISO-02", "documents tagged 'medico'", value == 0, value)
     value = count("/api/documents/", query="examen")
     check("ISO-02", "documents matching 'examen'", value == 0, value)
     for path in ("/api/tags/", "/api/document_types/"):
