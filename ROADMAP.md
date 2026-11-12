@@ -25,6 +25,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Sprint 018 — Origin Trust Hardening | Completed 2026-10-29 | Rotate the origin pull client certificate before 2029-10-28 (audit fails 60 days earlier). |
 | Sprint 019 — Paperless User Isolation | Completed 2026-11-05 | None. |
 | Sprint 020 — Paperless Quote Sync | Implemented 2026-11-11 — target validation pending | Private environment and acknowledgement file, `check-model`, then QS-01 to QS-17 with the JuanchoAI team. |
+| Sprint 021 — Host and Container Hardening | Proposed 2026-11-12 | Team review of the Sprint document; no implementation before approval. |
 | SPIKE-001 — oCIS Architecture Validation | Architecture review complete; PoC required | Run the separately gated PoC only when its prerequisites and approval are met. |
 | SPIKE-002 — Identity Source of Truth and SSO | In progress; redirect recovery validation pending | Complete the documented redirect and local recovery validation. |
 | SPIKE-003 — Observability Depth and NAS Command Center | Track A implemented through Sprint 014; remaining tracks proposed | Close Track A with Sprint 014 validation; defer other tracks pending separate scope approval. |
