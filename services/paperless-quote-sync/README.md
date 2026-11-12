@@ -135,8 +135,11 @@ private environment files (see [JuanchoAI Access](../../docs/security/JUANCHOAI_
    ```
 
    `check-model` fails if the type, tags or field are missing or the type or
-   tags belong to another user. `preview` lists every file with its
-   validation result and the metadata a sync would send.
+   tags belong to another user; it reads the user's own id from
+   `/api/ui_settings/`, so `juanchoai` needs `view_uisettings` (see
+   [JuanchoAI Access](../../docs/security/JUANCHOAI_ACCESS.md#account-and-permissions)).
+   `preview` lists every file with its validation result and the metadata a
+   sync would send.
 4. Start the service:
 
    ```bash
@@ -147,8 +150,9 @@ private environment files (see [JuanchoAI Access](../../docs/security/JUANCHOAI_
    The first run reports existing quotes as `skipped` and uploads only new
    valid files.
 5. After the first metrics are published, apply the alert rules with
-   `./operation/compose.sh observability up -d grafana`; the watcher alert
-   treats absent metrics as a down container.
+   `./operation/compose.sh observability restart grafana` (Grafana reads the
+   provisioned rules at start); the watcher alert treats absent metrics as a
+   down container.
 
 ### Processing each file
 

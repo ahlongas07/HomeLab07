@@ -233,6 +233,11 @@ HomeLab07 tests with sample PDFs copied by hand.
 - Confirmed 2026-11-05 in the Paperless-ngx 3.4.1 source: `/api/documents/`
   accepts `checksum__iexact` and `custom_field_query`, and `post_document`
   accepts `custom_fields` and `created`.
+- Found 2026-11-12 on the target host: `/api/ui_settings/`, used by
+  `check-model` and ISO-02 to learn the token user's id, requires
+  `view_uisettings`, which the minimal `juanchoai` permissions did not include.
+  Granted that permission (own settings only; no other endpoint reports the id
+  without `view_user`) and recorded it in `JUANCHOAI_ACCESS.md`.
 - JuanchoAI changes its API container from the image default user (`65532`)
   to the platform operator UID/GID (JuanchoAI Sprint 008). Until then the API
   cannot write to the folder. An ACL for `65532` is not used: files would be

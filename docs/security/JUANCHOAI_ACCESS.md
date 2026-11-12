@@ -29,6 +29,7 @@ writes to a NAS folder; see the
 | Superuser, staff, groups | No, no, none |
 | Document | `view_document`, `add_document`, `change_document` (no delete) |
 | Tag, document type, custom field | `view_tag`, `view_documenttype`, `view_customfield` only |
+| UI settings | `view_uisettings` (granted 2026-11-12): `/api/ui_settings/` is the only endpoint that reports the token user's own id without listing other users; `check-model` and the ISO-02 check need it to verify ownership. It returns only the user's own settings, name and permissions, and the application version. |
 | Anything else | None: no correspondents, tasks, users, workflows or mail |
 
 Global permissions only allow the action; Paperless still applies object
