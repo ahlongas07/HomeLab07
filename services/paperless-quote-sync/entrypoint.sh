@@ -3,9 +3,9 @@
 #
 # Without arguments: run the sync now, then whenever the quotes folder changes
 # and settles, and in any case once a day at QUOTE_SYNC_HOUR. While Paperless
-# is unreachable or an upload is still unconfirmed, the next attempt comes
-# after QUOTE_RETRY_SECONDS instead. A failed run never stops the loop, so the
-# container cannot enter a restart loop.
+# is unreachable (75), a run failed or an upload is still unconfirmed (4), the
+# next attempt comes after QUOTE_RETRY_SECONDS instead. A failed run never
+# stops the loop, so the container cannot enter a restart loop.
 # With arguments: run that command instead (for example check-model).
 
 set -u

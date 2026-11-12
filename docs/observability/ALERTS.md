@@ -95,7 +95,7 @@ Never write test data into an unverified mount path.
 ## Quote archive sync
 
 Covers "Quote archive file pending too long", "Quote archive files need
-review" and "Quote archive sync is down".
+review", "Quote archive sync is down" and "Quote archive sync failing".
 
 1. Pending too long: read `docker logs homelab07-paperless-quote-sync`. A
    `PENDING` file is retried after `QUOTE_RETRY_SECONDS`; check that Paperless
@@ -109,4 +109,11 @@ review" and "Quote archive sync is down".
    directory remains mounted and writable, and start it with
    `./operation/compose.sh paperless-quote-sync up -d` if needed. A platform
    backup stops it for a few minutes; the alert waits fifteen.
+4. Sync failing: every attempt logs its `ERROR`. `HTTP 401` is an invalid or
+   rotated token (run `check-model` and compare the sync and JuanchoAI API
+   private environments); `Missing Paperless object` means the type, tags or
+   field were renamed or re-owned; `HTTP 5xx` is Paperless itself. Attempts
+   repeat every `QUOTE_RETRY_SECONDS` and the alert resolves with the first
+   completed run. Meanwhile the pending and review alerts keep the values of
+   the last completed run, so they neither resolve nor fire by themselves.
 

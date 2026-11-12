@@ -10,8 +10,8 @@
 - Upload through the Paperless-ngx REST API (version 10) from a dedicated
   container that uses only the Python standard library and a pinned `qpdf`.
 - Sync at start-up, after a settled change in the folder, after
-  `QUOTE_RETRY_SECONDS` while an upload is unconfirmed, and daily as a
-  fallback; defer files still being written.
+  `QUOTE_RETRY_SECONDS` while an upload is unconfirmed or a run failed, and
+  daily as a fallback; defer files still being written.
 - Enforce the contract: `<YYYY>/<uuid>__<external_id>__<YYYY-MM-DD>.pdf` with
   a canonical lowercase UUID, `external_id` in `[A-Za-z0-9-]{1,64}`, a valid
   date whose year equals the folder, and an unencrypted PDF of 20 MB or less;
@@ -23,7 +23,9 @@
 - Report a file that Paperless does not confirm after the configured attempts
   as a failure and stop retrying it; keep rejected, conflict and failure files
   unresolved until the operator acknowledges their path and SHA-256.
-- Publish metrics for the pending, unresolved and heartbeat alerts.
+- Publish metrics for the pending, unresolved, failing and heartbeat alerts;
+  a failed run keeps the pending and unresolved values of the last completed
+  run, and the heartbeat is kept during confirmation polling.
 
 ## Boundaries
 

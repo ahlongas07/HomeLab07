@@ -274,6 +274,38 @@ groups:
           runbook: docs/observability/ALERTS.md#quote-archive-sync
         labels: {platform: homelab07, severity: warning}
 
+      - uid: hl07-quote-sync-failing
+        title: Quote archive sync failing
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: homelab07-prometheus
+            relativeTimeRange: {from: 600, to: 0}
+            model:
+              <<: *prometheus_query
+              # One while the latest run failed (invalid token, missing Paperless object,
+              # Paperless error); zero after a completed run. Failed runs retry every
+              # QUOTE_RETRY_SECONDS, so the value stays at one until Paperless answers again.
+              expr: 1 - homelab07_paperless_quote_sync_last_status
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator: {params: [0], type: gt}
+              datasource: {type: __expr__, uid: __expr__}
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: B
+              type: threshold
+        noDataState: OK
+        execErrState: Alerting
+        for: 15m
+        annotations:
+          summary: The quote archive sync has been failing for 15 minutes; new quotes are not archived.
+          runbook: docs/observability/ALERTS.md#quote-archive-sync
+        labels: {platform: homelab07, severity: warning}
+
       - uid: hl07-security-stale
         title: Security evidence is stale
         condition: B

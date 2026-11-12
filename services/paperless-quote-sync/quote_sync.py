@@ -11,6 +11,11 @@ Commands:
   wait-ready           wait until Paperless answers HTTP (used once at start-up)
   wait-change SECONDS  wait up to SECONDS for a stable change in the quotes folder
 
+Exit status of sync: 0 every file handled, 3 another run holds the lock,
+4 retry after QUOTE_RETRY_SECONDS (an upload is unconfirmed or Paperless
+answered an error), 75 Paperless unreachable. A failed run keeps the pending
+and unresolved values of the last completed run in the metrics.
+
 Only the Python standard library is used.
 """
 
@@ -464,6 +469,31 @@ def refresh_heartbeat():
     publish_metrics(state["metrics"])
 
 
+def touch_heartbeat():
+    try:
+        with open(os.path.join(WORK_DIR, "heartbeat"), "w", encoding="utf-8") as handle:
+            handle.write(f"{int(time.time())}\n")
+    except OSError:
+        pass
+
+
+_heartbeat_refreshed = time.monotonic()
+
+
+def heartbeat():
+    """Touch the container heartbeat and refresh the metric every QUOTE_HEARTBEAT_SECONDS.
+
+    Called while waiting for changes and while a confirmation polls Paperless,
+    so a long run with several unconfirmed files never looks like a down
+    container.
+    """
+    global _heartbeat_refreshed
+    touch_heartbeat()
+    if time.monotonic() - _heartbeat_refreshed >= int_env("QUOTE_HEARTBEAT_SECONDS", 300):
+        refresh_heartbeat()
+        _heartbeat_refreshed = time.monotonic()
+
+
 # -----------------------------------------------------------------------------
 # Synchronization
 # -----------------------------------------------------------------------------
@@ -521,6 +551,7 @@ class Sync:
                 return "conflict"
             if time.monotonic() >= deadline:
                 return "timeout"
+            heartbeat()
             time.sleep(CONFIRM_POLL_SECONDS)
 
     def process(self, absolute, relative, digest):
@@ -637,10 +668,14 @@ def command_sync():
         log("Another sync run holds the lock; nothing to do.")
         return EXIT_LOCKED
 
+    with lock:
+        return _sync_locked(started)
+
+
+def _sync_locked(started):
     remember_snapshot()
     token = os.environ.pop("PAPERLESS_QUOTE_TOKEN", "")
     state = load_state()
-    sync = None
     try:
         if not token:
             raise SystemExit("PAPERLESS_QUOTE_TOKEN is required")
@@ -655,22 +690,30 @@ def command_sync():
         return EXIT_RETRY if sync.wants_retry() else EXIT_OK
     except Unreachable as error:
         log(f"ERROR Paperless unreachable: {error}")
-        _publish_failed(state, sync, started)
+        _publish_failed(state, started)
         return EXIT_UNREACHABLE
     except (SystemExit, ApiError, ValueError) as error:
+        # Any Paperless or configuration error, for example an invalid token or
+        # an HTTP 500 while reading metadata: retried after QUOTE_RETRY_SECONDS,
+        # never left until the daily run.
         log(f"ERROR {error}")
-        _publish_failed(state, sync, started)
-        return EXIT_FAILED
+        _publish_failed(state, started)
+        return EXIT_RETRY
 
 
-def _publish_failed(state, sync, started):
-    if sync is not None:
-        metrics = sync.metrics(started, 0)
-    else:
-        metrics = dict(state["metrics"])
-        now = int(time.time())
-        metrics.update(last_run_timestamp_seconds=now, last_status=0,
-                       last_duration_seconds=now - int(started), heartbeat_timestamp_seconds=now)
+def _publish_failed(state, started):
+    """Publish a failed run without losing what the last completed run knew.
+
+    Pending and unresolved files are only known from a completed run, so their
+    values, and the oldest pending timestamp, are kept; publishing zero would
+    silence the pending and review alerts exactly while Paperless is failing.
+    """
+    now = int(time.time())
+    metrics = dict(state["metrics"])
+    oldest = int(metrics.get("oldest_pending_timestamp_seconds", 0))
+    metrics.update(last_run_timestamp_seconds=now, last_status=0,
+                   last_duration_seconds=now - int(started), heartbeat_timestamp_seconds=now,
+                   oldest_pending_age_seconds=now - oldest if oldest else 0)
     state["metrics"] = metrics
     save_state(state)
     publish_metrics(metrics)
@@ -737,37 +780,23 @@ def command_wait_ready():
     return EXIT_OK
 
 
-def touch_heartbeat():
-    try:
-        with open(os.path.join(WORK_DIR, "heartbeat"), "w", encoding="utf-8") as handle:
-            handle.write(f"{int(time.time())}\n")
-    except OSError:
-        pass
-
-
 def command_wait_change(seconds):
     """Return after a stable folder change or when SECONDS elapse, whichever is first.
 
     The folder is polled every QUOTE_WATCH_INTERVAL seconds with a stat-only walk.
     A snapshot that differs from the last run's baseline must stay unchanged for
-    QUOTE_SETTLE_SECONDS. The container heartbeat is touched on every poll and the
-    heartbeat metric is refreshed every QUOTE_HEARTBEAT_SECONDS.
+    QUOTE_SETTLE_SECONDS. The heartbeat is kept on every poll.
     """
     deadline = time.monotonic() + seconds
     interval = int_env("QUOTE_WATCH_INTERVAL", 30)
     settle = int_env("QUOTE_SETTLE_SECONDS", 10)
-    heartbeat_every = int_env("QUOTE_HEARTBEAT_SECONDS", 300)
-    last_heartbeat = time.monotonic()
     if interval <= 0:
         time.sleep(max(0, seconds))
         return EXIT_OK
     pending, since = None, None
     while (remaining := deadline - time.monotonic()) > 0:
         time.sleep(min(interval, remaining))
-        touch_heartbeat()
-        if time.monotonic() - last_heartbeat >= heartbeat_every:
-            refresh_heartbeat()
-            last_heartbeat = time.monotonic()
+        heartbeat()
         current = folder_snapshot()
         if current == read_snapshot():
             pending = None

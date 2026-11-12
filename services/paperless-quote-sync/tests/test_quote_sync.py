@@ -36,6 +36,8 @@ class FakePaperless(qs.Paperless):
         self.documents = []  # (id, work_item, checksum)
         self.uploads = []
         self.confirm_uploads = True
+        self.fail = None           # raised by every request (401, unreachable...)
+        self.fail_metadata = None  # raised only by the metadata endpoint (mid-run error)
         self.next_id = 100
         self.objects = {
             "/api/document_types/": [{"id": 1, "name": qs.DOCUMENT_TYPE, "owner": ME}],
@@ -50,6 +52,10 @@ class FakePaperless(qs.Paperless):
         self.documents.append((self.next_id, work_item, checksum))
 
     def get(self, path, **query):
+        if self.fail:
+            raise self.fail
+        if self.fail_metadata and path.endswith("/metadata/"):
+            raise self.fail_metadata
         if path == "/api/ui_settings/":
             return {"user": {"id": ME}}
         if path in self.objects:
@@ -111,6 +117,7 @@ class SyncTest(unittest.TestCase):
         self.patch("ACK_FILE", os.path.join(self.base, "ack"))
         self.patch("STATE_FILE", os.path.join(qs.WORK_DIR, "state.json"))
         self.patch("SNAPSHOT_FILE", os.path.join(qs.WORK_DIR, "snapshot"))
+        self.patch("LOCK_FILE", os.path.join(qs.WORK_DIR, "sync.lock"))
         self.patch("pdf_encrypted", lambda path: False)
         self.patch("log", lambda message: None)
         for directory in (os.path.join(qs.QUOTES_DIR, "2026"), qs.WORK_DIR, qs.METRICS_DIR):
@@ -285,6 +292,85 @@ class SyncTest(unittest.TestCase):
         with open(os.path.join(qs.METRICS_DIR, qs.METRICS_FILE), encoding="utf-8") as handle:
             text = handle.read()
         self.assertIn("_files{result=\"uploaded\"} 1", text)
+
+    def metrics_text(self):
+        with open(os.path.join(qs.METRICS_DIR, qs.METRICS_FILE), encoding="utf-8") as handle:
+            return handle.read()
+
+    def command_sync(self):
+        """Run the sync command against the fake Paperless, as the entrypoint does."""
+        self.patch("Paperless", lambda url, token: self.api)
+        for name, value in (("PAPERLESS_QUOTE_TOKEN", "token"),
+                            ("PAPERLESS_INTERNAL_URL", "http://paperless.invalid"),
+                            ("QUOTE_SETTLE_SECONDS", "0"), ("QUOTE_CONFIRM_TIMEOUT", "0")):
+            os.environ[name] = value
+            self.addCleanup(os.environ.pop, name, None)
+        return qs.command_sync()
+
+    def test_failed_run_keeps_previous_values_and_asks_for_retry(self):
+        # Last completed run: one unconfirmed upload (pending) and one rejected file.
+        self.write(f"2026/{NAME}")
+        self.write(f"2026/{UUID}__RFQ 1__2026-11-10.pdf")
+        self.api.confirm_uploads = False
+        self.assertEqual(self.command_sync(), qs.EXIT_RETRY)
+        before = qs.load_state()["metrics"]
+        self.assertEqual((before["last_status"], before["pending_files"], before["unresolved"]["rejected"]),
+                         (1, 1, 1))
+        self.assertGreater(before["oldest_pending_timestamp_seconds"], 0)
+
+        failures = (
+            ("invalid token", "fail", qs.ApiError("GET /api/document_types/: HTTP 401", 401), qs.EXIT_RETRY),
+            ("error reading metadata", "fail_metadata", qs.ApiError("GET metadata: HTTP 500", 500), qs.EXIT_RETRY),
+            ("unreachable", "fail", qs.Unreachable("ConnectionRefusedError"), qs.EXIT_UNREACHABLE),
+        )
+        for name, attribute, error, expected_status in failures:
+            with self.subTest(failure=name):
+                self.api.fail = self.api.fail_metadata = None
+                setattr(self.api, attribute, error)
+                # The metadata endpoint is only read when a document matches the Work Item.
+                self.api.documents = [(99, UUID, "0" * 64)] if attribute == "fail_metadata" else []
+                self.assertEqual(self.command_sync(), expected_status)
+                after = qs.load_state()["metrics"]
+                self.assertEqual(after["last_status"], 0)
+                self.assertEqual(after["pending_files"], 1)
+                self.assertEqual(after["unresolved"], before["unresolved"])
+                self.assertEqual(after["oldest_pending_timestamp_seconds"],
+                                 before["oldest_pending_timestamp_seconds"])
+                self.assertEqual(after["last_success_timestamp_seconds"],
+                                 before["last_success_timestamp_seconds"])
+                text = self.metrics_text()
+                self.assertIn("_last_status 0", text)
+                self.assertIn("_pending_files 1", text)
+                self.assertIn('_unresolved{reason="rejected"} 1', text)
+        # The next successful run publishes its own values again.
+        self.api.fail = self.api.fail_metadata = None
+        self.api.confirm_uploads = True
+        self.assertEqual(self.command_sync(), qs.EXIT_OK)
+        self.assertIn("_last_status 1", self.metrics_text())
+        self.assertIn("_pending_files 0", self.metrics_text())
+
+    def test_confirmation_polling_keeps_the_heartbeat(self):
+        self.write(f"2026/{NAME}")
+        self.api.confirm_uploads = False
+        beats = []
+        self.patch("heartbeat", lambda: beats.append(1))
+        self.patch("CONFIRM_POLL_SECONDS", 0)
+        sync = qs.Sync(self.api, self.state, set(), 0.05, 1, 0)
+        sync.run()
+        self.assertEqual(sync.counts["failure"], 1)
+        self.assertGreater(len(beats), 0)
+
+    def test_heartbeat_touches_the_container_file_and_refreshes_the_metric_when_due(self):
+        self.state["metrics"] = {"files": {"uploaded": 1}, "heartbeat_timestamp_seconds": 1}
+        qs.save_state(self.state)
+        os.environ["QUOTE_HEARTBEAT_SECONDS"] = "0"
+        self.addCleanup(os.environ.pop, "QUOTE_HEARTBEAT_SECONDS", None)
+        qs.heartbeat()
+        with open(os.path.join(qs.WORK_DIR, "heartbeat"), encoding="utf-8") as handle:
+            self.assertGreater(int(handle.read()), 1)
+        text = self.metrics_text()
+        self.assertIn("_files{result=\"uploaded\"} 1", text)
+        self.assertNotIn("_heartbeat_timestamp_seconds 1\n", text)
 
 
 if __name__ == "__main__":

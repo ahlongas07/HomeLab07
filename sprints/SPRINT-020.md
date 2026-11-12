@@ -1,6 +1,6 @@
 # SPRINT-020 — Paperless Quote Sync (JuanchoAI Quote Archive)
 
-**Status:** Approved 2026-11-11 after team review — implemented, target-host validation pending
+**Status:** Approved 2026-11-11 after team review — implemented; implementation review adjustments applied 2026-11-12, target-host validation pending
 
 **Classification:** Application Service
 
@@ -137,6 +137,11 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
    watcher tmpfs, so after a container restart the file is retried up to the
    configured number of attempts again; accepted, because every retry is
    idempotent and bounded.
+7. A run that fails before it completes (invalid token, missing Paperless
+   object, HTTP error at any step) is retried after `QUOTE_RETRY_SECONDS`,
+   never left until the daily run, and its metrics keep the pending and
+   unresolved values of the last completed run, so a failure can neither
+   silence nor resolve the pending and review alerts.
 
 ### QS-R5 — Metrics and alerts
 
@@ -158,7 +163,11 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
 - Grafana alerts:
   - a file has not appeared in Paperless after 15 minutes;
   - any unresolved `rejected`, `conflict` or `failure`;
-  - the container is down or its heartbeat expired (older than 15 minutes).
+  - the container is down or its heartbeat expired (older than 15 minutes);
+    the heartbeat is kept while a confirmation polls Paperless, so a long run
+    is not reported as down;
+  - the latest run has been failing for 15 minutes (invalid token, missing
+    Paperless object or Paperless errors).
 - Logs never show the token or PDF content.
 - The README documents the review and acknowledgement procedure:
   - `rejected`: review and acknowledge; if the quote is needed, JuanchoAI
@@ -194,7 +203,7 @@ Paperless-ngx 3.4.1 stores SHA-256 checksums (migration
 | QS-07 | File SHA-256 compared with `original_checksum` | Equal |
 | QS-08 | Search the uploaded document with the `agente-medico` token | Not visible; the medical workflow did not run |
 | QS-09 | `paperless-access-check.sh juanchoai` after deployment, with the adjusted ISO-02 | Passes: every visible document is owned by `juanchoai`, none has the `medico` tag, and the `examen` search stays `0` |
-| QS-10 | A file pending over 15 minutes, simulated with an invalid token | The alert fires |
+| QS-10 | A file in the folder and an invalid token for over 15 minutes | The failing alert fires; the pending and review values of the last completed run stay published; attempts repeat every `QUOTE_RETRY_SECONDS` and the alert resolves after the token is restored |
 | QS-11 | `preview` | Lists files without uploading |
 | QS-12 | End-to-end test with JuanchoAI | The API writes, the sync uploads and the API allows DONE |
 | QS-13 | From the sync, create a file in `/quotes`; from the API, list a path outside `/quotes` | Both fail: read-only file system and path not found |
@@ -234,7 +243,8 @@ HomeLab07 tests with sample PDFs copied by hand.
 
 - `py_compile` and standard-library unit tests for the exact name format,
   PDF checks, the decision table of QS-R4 including more than one document
-  per `Work Item`, the attempt limit and the acknowledgement list.
+  per `Work Item`, the attempt limit, the acknowledgement list, the metrics
+  and retry status of a failed run, and the heartbeat during confirmation.
 - `docker compose config` and shell syntax checks.
 - Target-host acceptance criteria QS-01 to QS-17.
 

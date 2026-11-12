@@ -134,6 +134,15 @@
 
 ### Fixed
 
+- Paperless quote sync: a run that fails before completing (invalid token,
+  missing Paperless object or an HTTP error at any step) no longer publishes
+  zero pending and unresolved files, which silenced the pending and review
+  alerts exactly while Paperless was failing, and no longer waits for the
+  daily run: it keeps the values of the last completed run, exits with the
+  retry status and runs again after `QUOTE_RETRY_SECONDS`. Add the "Quote
+  archive sync failing" alert (latest run failing for 15 minutes) with its
+  runbook, keep the heartbeat during confirmation polling so a long run is not
+  reported as down, and cover the three cases with unit tests.
 - The observability preflight checks `HOMELAB07_PROXY_LOG_ROOT` instead of
   the former `HOMELAB07_NPM_LOG_ROOT`, which made it fail since the Caddy
   cutover.

@@ -109,7 +109,7 @@ Docker would otherwise create a directory in its place.
 | `TZ` | Same value as `PAPERLESS_TIME_ZONE` |
 | `QUOTE_SYNC_HOUR` | Hour of the daily fallback run |
 | `QUOTE_WATCH_INTERVAL`, `QUOTE_SETTLE_SECONDS` | Folder polling interval and stabilization time (`0` disables the watcher) |
-| `QUOTE_RETRY_SECONDS` | Next attempt while Paperless is unreachable or an upload is unconfirmed |
+| `QUOTE_RETRY_SECONDS` | Next attempt while Paperless is unreachable, a run failed or an upload is unconfirmed |
 | `QUOTE_STARTUP_WAIT` | Maximum wait for Paperless after a start |
 | `QUOTE_CONFIRM_TIMEOUT` | Seconds to wait for an upload to appear in the `Work Item` search |
 | `QUOTE_MAX_ATTEMPTS` | Uploads of the same content before it is reported as `failure` |
@@ -176,6 +176,14 @@ The attempt counters live in the `tmpfs`, so after a container restart a file
 is retried up to `QUOTE_MAX_ATTEMPTS` times again; accepted, because every
 attempt is idempotent and bounded.
 
+A run that fails before it completes, for example an invalid token (`HTTP
+401`), a missing Paperless object or an HTTP error while reading metadata,
+exits with status `4` (`75` when Paperless is unreachable) and is retried
+after `QUOTE_RETRY_SECONDS`; it never waits for the daily run. Its metrics keep
+the pending and unresolved values of the last completed run, so the pending
+and review alerts neither resolve nor fire because of the failure; the failing
+alert reports it instead.
+
 ### Acknowledging a file
 
 A file stops counting as unresolved, and as pending, when its relative path
@@ -204,8 +212,8 @@ without doing anything.
 ## Validation
 
 - `python3 -m unittest discover -s services/paperless-quote-sync/tests` (name
-  format, PDF checks, the decision table, attempt limit, acknowledgement list
-  and metrics).
+  format, PDF checks, the decision table, attempt limit, acknowledgement list,
+  metrics, failed runs and the heartbeat during confirmation).
 - `python3 -m py_compile services/paperless-quote-sync/quote_sync.py`,
   `bash -n services/paperless-quote-sync/entrypoint.sh` and
   `./operation/compose.sh paperless-quote-sync config --quiet`.
@@ -224,7 +232,7 @@ The sync writes `paperless-quote-sync.prom` with the prefix
 | Metric | Meaning |
 |---|---|
 | `last_run_timestamp_seconds`, `last_success_timestamp_seconds`, `last_status`, `last_duration_seconds` | The latest completed attempt |
-| `heartbeat_timestamp_seconds` | Refreshed by every run and every `QUOTE_HEARTBEAT_SECONDS` while watching |
+| `heartbeat_timestamp_seconds` | Refreshed by every run and every `QUOTE_HEARTBEAT_SECONDS` while watching or while a confirmation polls Paperless |
 | `files{result}` | Files per result in the latest attempt: `uploaded`, `skipped`, `rejected`, `conflict`, `failure`, `pending`, `deferred`, `acknowledged`; history, no alert |
 | `pending_files`, `oldest_pending_timestamp_seconds`, `oldest_pending_age_seconds` | Valid files not confirmed in Paperless (`pending` and `failure`), acknowledged ones excluded |
 | `unresolved{reason}` | `rejected`, `conflict` and `failure` files awaiting review, acknowledged ones excluded |
@@ -237,12 +245,14 @@ Alerts, provisioned in Grafana:
   `failure`.
 - "Quote archive sync is down": the heartbeat metric is older than 15 minutes
   or absent.
+- "Quote archive sync failing": the latest run has been failing for 15
+  minutes (invalid token, missing Paperless object or Paperless errors).
 
 The runbook is [Quote archive sync](../../docs/observability/ALERTS.md#quote-archive-sync).
 The sync is not part of "Platform batch operation failed": a failed attempt is
-retried after `QUOTE_RETRY_SECONDS`, and its effect on quotes is what the
-pending alert reports. Logs are read with `docker logs`; they show file names
-(Work Item ID, external ID and date), never the token or the PDF content.
+retried after `QUOTE_RETRY_SECONDS` and the failing alert reports it after 15
+minutes. Logs are read with `docker logs`; they show file names (Work Item ID,
+external ID and date), never the token or the PDF content.
 
 ## Backup
 
