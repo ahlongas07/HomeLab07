@@ -1,15 +1,36 @@
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
   --ink: #172026;
   --muted: #5b6770;
   --subtle: #7a858d;
   --line: #d9e0e4;
   --surface: #f7f9fa;
-  --panel: #ffffff;
-  --accent: #1f7a8c;
+  --cell: rgba(255, 255, 255, 0.78);
+  --grid: rgba(23, 32, 38, 0.045);
+  --wash-start: #f7f9fa;
+  --wash-middle: #edf3f4;
+  --wash-end: #f9fbfa;
   --accent-strong: #125f6d;
-  --ok: #2f9e64;
+  --logo-ring: transparent;
   --shadow: 0 24px 70px rgba(22, 32, 38, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e8eef1;
+    --muted: #a7b3ba;
+    --subtle: #87939b;
+    --line: #2a353c;
+    --surface: #0f1519;
+    --cell: rgba(23, 32, 38, 0.82);
+    --grid: rgba(232, 238, 241, 0.04);
+    --wash-start: #0f1519;
+    --wash-middle: #121c21;
+    --wash-end: #0d1316;
+    --accent-strong: #5cc3d6;
+    --logo-ring: #3a4850;
+    --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  }
 }
 
 * {
@@ -28,6 +49,7 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
+  background: var(--surface);
 }
 
 body::before {
@@ -36,9 +58,9 @@ body::before {
   z-index: -1;
   content: "";
   background:
-    linear-gradient(rgba(23, 32, 38, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 32, 38, 0.045) 1px, transparent 1px),
-    linear-gradient(135deg, #f7f9fa 0%, #edf3f4 42%, #f9fbfa 100%);
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(135deg, var(--wash-start) 0%, var(--wash-middle) 42%, var(--wash-end) 100%);
   background-size:
     40px 40px,
     40px 40px,
@@ -79,6 +101,8 @@ body::before {
 
 .brand img {
   display: block;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--logo-ring);
 }
 
 .eyebrow {
@@ -107,7 +131,7 @@ h1 {
   line-height: 1.6;
 }
 
-.status-grid {
+.principles-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
@@ -117,13 +141,13 @@ h1 {
   background: var(--line);
 }
 
-.status-grid div {
+.principles-grid div {
   min-width: 0;
   padding: 18px 20px;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--cell);
 }
 
-.status-grid dt {
+.principles-grid dt {
   margin: 0 0 8px;
   color: var(--subtle);
   font-size: 0.76rem;
@@ -132,11 +156,7 @@ h1 {
   text-transform: uppercase;
 }
 
-.status-grid dd {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 8px;
+.principles-grid dd {
   margin: 0;
   overflow-wrap: anywhere;
   color: var(--ink);
@@ -144,29 +164,14 @@ h1 {
   font-weight: 700;
 }
 
-.status-dot {
-  width: 9px;
-  height: 9px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--ok);
-  box-shadow: 0 0 0 4px rgba(47, 158, 100, 0.16);
-}
-
-.system-panel {
-  border: 1px solid rgba(23, 32, 38, 0.1);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.84);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
 .identity-image {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   margin: 0;
   overflow: hidden;
-  border-bottom: 1px solid var(--line);
+  border: 1px solid var(--line);
+  border-radius: 8px;
   background: #f8f8f8;
+  box-shadow: var(--shadow);
 }
 
 .identity-image img {
@@ -174,55 +179,6 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 18%;
-}
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--line);
-  color: var(--ink);
-  font-size: 0.86rem;
-  font-weight: 760;
-}
-
-.panel-state {
-  color: var(--accent-strong);
-}
-
-.principles {
-  display: grid;
-  gap: 1px;
-  margin: 0;
-  padding: 1px 0 0;
-  list-style: none;
-  background: var(--line);
-}
-
-.principles li {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  gap: 14px;
-  align-items: center;
-  padding: 17px 20px;
-  background: var(--panel);
-}
-
-.principles span {
-  color: var(--accent-strong);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.principles strong {
-  min-width: 0;
-  color: var(--ink);
-  font-size: 0.95rem;
-  font-weight: 740;
-  line-height: 1.35;
 }
 
 @media (max-width: 880px) {
@@ -241,8 +197,12 @@ h1 {
     margin-bottom: 56px;
   }
 
-  .status-grid {
+  .principles-grid {
     grid-template-columns: 1fr;
+  }
+
+  .identity-image {
+    max-width: 420px;
   }
 }
 

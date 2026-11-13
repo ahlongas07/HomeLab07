@@ -6,14 +6,11 @@ Provide the first published service of HomeLab07.
 
 This service validates the complete deployment workflow and serves as the reference implementation for future services published through the shared reverse proxy.
 
-It also presents the current public platform status and active Nextcloud,
-Paperless-ngx, Jellyfin and Homebridge business services, plus the validated
-Platform Operations security milestone and the encrypted Backup & Recovery
-milestone, the validated Keycloak Identity Platform, and the Observability &
-Alerting baseline. The current milestone adds the Sprint 014 NAS Command Center
-and its explicit four-state health model; target validation remains pending.
-Homebridge is listed as a platform milestone only; the service itself remains
-LAN-only.
+The page presents only the HomeLab07 identity and its platform principles, in
+Spanish, with light and dark themes. It deliberately does not list services,
+technologies, versions or milestones: a public inventory of the platform helps
+reconnaissance and has to be edited on every Sprint. The service inventory
+lives in the repository and the Roadmap.
 
 ---
 
@@ -24,7 +21,7 @@ LAN-only.
 - Nginx reference implementation
 - Static content hosting
 - Reverse proxy publication target
-- Public status signal for platform milestones
+- Browser security headers for its own content
 
 ---
 
@@ -47,6 +44,9 @@ landing-page/
     ├── index.html
     ├── style.css
     └── assets/
+        ├── favicon.svg
+        ├── logo.svg
+        └── imagen.webp
 ```
 
 ---
@@ -72,13 +72,18 @@ docker exec homelab07-landing-page nginx -v
 The expected references are `nginx:1.30.6-alpine@sha256:901e593c…` (the full
 digest is in `compose.yaml`) and `nginx/1.30.6`.
 
-Validate that the rendered page reflects the current platform milestone:
+Validate that the page and its assets return the security headers and that
+Nginx does not announce its version:
 
-```text
-NAS Command Center
-Four-state health model
-NAS health command center
+```bash
+docker exec homelab07-landing-page wget -qSO /dev/null http://127.0.0.1/
+docker exec homelab07-landing-page wget -qSO /dev/null http://127.0.0.1/assets/imagen.webp
 ```
+
+Both responses must include `Content-Security-Policy`,
+`X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`, and the
+`Server` header must be `nginx` without a version. Repeat the request through
+the public route to confirm that Caddy and the edge preserve them.
 
 ---
 
@@ -134,6 +139,15 @@ Environment-specific configuration must never be committed to Git and belongs in
 
 The service must not expose public host ports directly.
 
+Nginx sends a strict Content Security Policy (`default-src 'self'`, no
+framing, no forms, no base URI), `nosniff` and `no-referrer` on every
+response, including errors, and hides its version (`server_tokens off`). The
+page loads no scripts or external resources; any change that adds one must
+update the policy. Locations in `nginx.conf` must not declare `add_header`,
+or they stop inheriting these headers. HSTS is set by the shared Caddy route.
+
+The page must not list services, technologies or versions of the platform.
+
 The Landing Page has no persistent runtime state. Sprint 010 protects its
 definition through the repository bundle and source snapshot.
 
@@ -154,3 +168,4 @@ Implemented during:
 - Sprint 011 – Identity Platform status update
 - Sprint 013 – Observability & Alerting status update
 - Sprint 014 – NAS Command Center status update
+- Platform Enhancement – Landing page hardening (2026-11-13)

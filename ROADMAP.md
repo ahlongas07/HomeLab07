@@ -12,6 +12,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Work item | Status | Next action |
 |---|---|---|
 | Sprint 012 — Vulnerability Management | Completed 2026-11-12 | None. |
+| Platform Enhancement — Landing page hardening | Implemented 2026-11-13 — target deployment pending | Deploy and confirm the security headers through the public route. |
 | Platform Enhancement — Homebridge image update | Complete — target validation 2026-11-09 | None; Homebridge core moved to 2.5.0 with the image, see the Homebridge implementation notes. |
 | Platform Enhancement — Keycloak 26.8.2 security upgrade | Complete — target validation 2026-11-09 | None. |
 | Platform Enhancement — Jellyfin 12.4 security update | Complete — target validation 2026-11-09 | None. |

@@ -174,6 +174,11 @@
 
 ### Changed
 
+- Harden the landing page: remove the public service, version and milestone
+  inventory and the static "Online" indicator; translate it to Spanish; add a
+  dark theme; replace the 1.4 MB PNG with an 840 px WebP of 19 KB; send a
+  strict Content Security Policy, `nosniff` and `no-referrer` on every
+  response and hide the Nginx version.
 - Refresh the landing page Nginx `1.30.6-alpine` digest to the upstream
   rebuild of 2026-11-13: the updated `brotli-libs` removes the only critical
   finding (CVE-2026-111497) and 5 of 8 high findings with a published fix.
