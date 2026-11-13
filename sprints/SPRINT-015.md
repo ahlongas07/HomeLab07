@@ -1,6 +1,6 @@
 # SPRINT-015 — Medical Records Ingestion
 
-**Status:** Validated on target — closure pending residual work
+**Status:** Completed — 2026-11-12
 
 **Classification:** Application Service
 
@@ -546,8 +546,10 @@ Related changes:
 
 **Outcome:** Implementation complete and deployed on the target host. Initial
 load of the medical exam archive succeeded on 2026-10-22. Every acceptance
-criterion passed in manual validation on the target host. Closure pending the
-open items under "Residual work".
+criterion passed in manual validation on the target host. The Sprint was
+closed on 2026-11-12 after the owner confirmed the items under "Residual
+work" and the target-host checks noted as pending in the enhancement
+sections.
 
 ### Validation summary (sanitized)
 
@@ -613,14 +615,15 @@ open items under "Residual work".
 - [x] Create the living specification
       [`specs/medical-records.md`](../specs/medical-records.md) and update the
       Roadmap status.
-- [ ] ShellCheck, Hadolint, image build and vulnerability scan of the final
+- [x] ShellCheck, Hadolint, image build and vulnerability scan of the final
       image on the target host. `security-scan.sh` previously looked the
       locally built image up in a registry and aborted; it now scans it as a
       `docker save` archive.
-- [ ] Confirm the first daily run reports `skipped=59 duplicate=0`.
-- [ ] Manual review in Paperless of `revisar-titulo` and `revisar-fecha`
+- [x] Confirm the daily run skips every archived exam without duplicates
+      (originally `skipped=59 duplicate=0`; the archive has grown since).
+- [x] Manual review in Paperless of `revisar-titulo` and `revisar-fecha`
       documents, correspondents and missing categories.
-- [ ] Mark this Sprint and the Roadmap entry complete.
+- [x] Mark this Sprint and the Roadmap entry complete.
 
 ### Follow-up candidates (not in scope)
 

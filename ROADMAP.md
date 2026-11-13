@@ -11,14 +11,14 @@ The README links here instead of maintaining a separate sprint summary.
 
 | Work item | Status | Next action |
 |---|---|---|
-| Sprint 012 — Vulnerability Management | In progress | Review the private baseline and remediation priorities; run a new private target-host scan covering all Git refs and full history before closure. |
+| Sprint 012 — Vulnerability Management | Completed 2026-11-12 | None. |
 | Platform Enhancement — Homebridge image update | Complete — target validation 2026-11-09 | None; Homebridge core moved to 2.5.0 with the image, see the Homebridge implementation notes. |
 | Platform Enhancement — Keycloak 26.8.2 security upgrade | Complete — target validation 2026-11-09 | None. |
 | Platform Enhancement — Jellyfin 12.4 security update | Complete — target validation 2026-11-09 | None. |
 | Platform Enhancement — Nextcloud 33.0.10 security update | Complete — target validation 2026-10-22 | None for the update; account and exposure mitigations from the private review remain unapproved. |
 | Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
-| Sprint 014 — NAS Command Center | Implementation complete; target validation pending | Execute the controlled target-host validation defined in the Sprint document. |
-| Sprint 015 — Medical Records Ingestion | Validated on target — closure pending residual work | Image scan, first daily run check and manual review of flagged documents. |
+| Sprint 014 — NAS Command Center | Completed 2026-11-12 | None. |
+| Sprint 015 — Medical Records Ingestion | Completed 2026-11-12 | None. |
 | Sprint 016 — External Application Security Scan Targets | Validated on target 2026-10-28 — owner dashboard confirmation pending | Confirm both dashboards show the targets separately; decide whether uncovered containers should fail the run. |
 | Sprint 017 — Reverse Proxy Migration to Caddy | Cut over 2026-10-28; Nginx Proxy Manager decommissioned 2026-11-09 | Media route evaluation, as described in the Sprint document. |
 | SPIKE-001 — Collaboration Platform Research | In progress | Complete balanced official-source evidence for all candidates and record the decision. |
@@ -27,7 +27,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Sprint 020 — Paperless Quote Sync | Implemented 2026-11-11 — target validation pending | Private environment and acknowledgement file, `check-model`, then QS-01 to QS-17 with the JuanchoAI team. |
 | SPIKE-001 — oCIS Architecture Validation | Architecture review complete; PoC required | Run the separately gated PoC only when its prerequisites and approval are met. |
 | SPIKE-002 — Identity Source of Truth and SSO | In progress; redirect recovery validation pending | Complete the documented redirect and local recovery validation. |
-| SPIKE-003 — Observability Depth and NAS Command Center | Track A implemented through Sprint 014; remaining tracks proposed | Close Track A with Sprint 014 validation; defer other tracks pending separate scope approval. |
+| SPIKE-003 — Observability Depth and NAS Command Center | Track A completed through Sprint 014; remaining tracks proposed | Defer other tracks pending separate scope approval. |
 
 No other Sprint is designated active. Items described as proposed, deferred or
 pending validation must not be treated as completed work.
@@ -612,7 +612,7 @@ Validation
 
 Status
 
-🚧 In Progress
+✅ Completed — full-history scan and baseline review confirmed on 2026-11-12
 
 Objective
 
@@ -684,7 +684,7 @@ Validation
 
 Status
 
-Implementation complete — target validation pending
+✅ Completed — target validation confirmed on 2026-11-12
 
 Objective
 
@@ -719,7 +719,7 @@ Validation
 
 Status
 
-Validated on target — closure pending residual work
+✅ Completed — residual work confirmed on 2026-11-12
 
 Objective
 

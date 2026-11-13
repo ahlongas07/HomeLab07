@@ -1,6 +1,6 @@
 # SPRINT-014 — NAS Command Center
 
-**Status:** Implementation complete — target validation pending
+**Status:** Completed — 2026-11-12
 
 **Classification:** Platform Enhancement
 
@@ -105,6 +105,14 @@ diagnostic area within 15 seconds.
 
 The Sprint is not complete until the target-host exercise and clean recreation
 are recorded without private values in Git.
+
+## Closure record (2026-11-12)
+
+- The owner confirmed that the target-host validation was completed: the four
+  state values were exercised with disposable test evidence, the precedence
+  matrix was confirmed, the operator reached the correct next diagnostic area
+  within 15 seconds and the observability stack was recreated cleanly.
+- Runtime evidence remains outside Git.
 
 ## Rollback
 

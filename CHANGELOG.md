@@ -174,6 +174,13 @@
 
 ### Changed
 
+- Refresh the landing page Nginx `1.30.6-alpine` digest to the upstream
+  rebuild of 2026-11-13: the updated `brotli-libs` removes the only critical
+  finding (CVE-2026-111497) and 5 of 8 high findings with a published fix.
+- Update the observability images, pinned privately by digest: Grafana 13.1.9
+  to 13.1.10 (7 upstream Grafana CVE fixes) and Loki 3.7.9 to 3.7.10
+  (dependency updates). High findings with a published fix drop from 4 to 3
+  and from 1 to 0.
 - Update Keycloak from 26.7.5 to 26.8.2 pinned by digest. The 26.7 line ends
   at 26.7.5; 26.8.1 and 26.8.2 fix, among others, a 2FA setup bypass, OTP
   skip-header trust, a stored XSS on the login page and session takeover
@@ -206,6 +213,12 @@
   disabled and a catch-all `http://` block redirects Cloudflare connections to
   HTTPS with `308` and returns `403` to any other source. ACME HTTP-01
   challenges are unaffected.
+- Close Sprint 015: the owner confirmed the image checks, the daily run and
+  the manual review of flagged documents.
+- Close Sprint 014: the owner confirmed the NAS Command Center target-host
+  validation and the clean recreation of the observability stack.
+- Close Sprint 012: the owner confirmed the full-history Gitleaks target-host
+  run and the review of the private baseline and remediation priorities.
 - Close Sprint 019: ISO-08 and ISO-09 passed on Paperless-ngx 3.4.1, and the
   task permission finding was re-checked: since 3.4.1 a user that is not
   staff sees only its own and unowned system tasks, so `sync-medico` no longer

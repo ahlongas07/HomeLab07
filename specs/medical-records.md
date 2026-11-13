@@ -1,7 +1,7 @@
 # Medical Records Ingestion Capability
 
-**Status:** Implemented and validated on the target host; Sprint 015 closure
-pending residual work; Sprint 019 user isolation validated on 2026-11-05
+**Status:** Implemented and validated on the target host; Sprint 015 closed
+on 2026-11-12; Sprint 019 user isolation validated on 2026-11-05
 
 ## Required behavior
 

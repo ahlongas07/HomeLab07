@@ -1,7 +1,7 @@
 # Observability Capability
 
 **Status:** Baseline deployed and target validation accepted; NAS Command
-Center target validation pending
+Center accepted with Sprint 014 closed on 2026-11-12
 
 ## Required behavior
 

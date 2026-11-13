@@ -1,6 +1,6 @@
 # SPRINT-012 — Vulnerability Management
 
-**Status:** In progress — first target-host baseline complete; remediation review pending
+**Status:** Completed — 2026-11-12
 
 **Classification:** Platform Capability
 
@@ -8,7 +8,7 @@
 
 **Selected Technology:** Trivy 0.72.0 and Gitleaks 8.30.1
 
-**Last Reviewed:** 2026-08-10
+**Last Reviewed:** 2026-11-12
 
 ---
 
@@ -155,5 +155,14 @@ Private review identified no HomeLab07 production or repository credential in
 the scanner findings. Secret-detection rules remain enabled, and every finding
 classification remains scoped to the reviewed immutable evidence.
 
-Full-history Gitleaks execution was added after the first Trivy baseline and
-requires a new private target-host run before Sprint closure.
+Full-history Gitleaks execution was added after the first Trivy baseline.
+
+## Closure record (2026-11-12)
+
+- The owner confirmed that a private target-host run covering all Git refs
+  and the complete history was completed after the first Trivy baseline.
+- The owner confirmed that the private baseline and remediation priorities
+  were reviewed; the reviewed summary remains on the restricted report share.
+- The Nginx Proxy Manager binding criterion no longer applies: the service
+  was decommissioned on 2026-11-09 (Sprint 017) and its validation was removed
+  with it.

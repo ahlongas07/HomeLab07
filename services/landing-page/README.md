@@ -69,7 +69,7 @@ docker inspect homelab07-landing-page \
 docker exec homelab07-landing-page nginx -v
 ```
 
-The expected references are `nginx:1.30.6-alpine@sha256:47928bf6…` (the full
+The expected references are `nginx:1.30.6-alpine@sha256:901e593c…` (the full
 digest is in `compose.yaml`) and `nginx/1.30.6`.
 
 Validate that the rendered page reflects the current platform milestone:
