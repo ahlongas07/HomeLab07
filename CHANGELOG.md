@@ -220,6 +220,12 @@
   challenges are unaffected.
 - Close Sprint 015: the owner confirmed the image checks, the daily run and
   the manual review of flagged documents.
+- Change the NAS Command Center swap condition from swap occupancy (more than
+  50% used) to sustained swap-in above 256 pages per second over 15 minutes.
+  The kernel keeps idle pages in swap while memory is available, so occupancy
+  held the NAS state at Degraded without memory pressure; the highest
+  15-minute swap-in rate in the previous six days, backups included, was 97
+  pages per second.
 - Close Sprint 020: QS-01 to QS-17 passed on the target host, including the
   end-to-end quote archive test with JuanchoAI (QS-12) and the NAS data
   backup copy of a new year subfolder (QS-15).

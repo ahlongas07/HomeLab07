@@ -66,8 +66,10 @@ probe evidence, failed/unavailable Btrfs collection, plus storage/Rockstor
 collection older than 15 minutes.
 
 Degraded conditions are 80% filesystem, CPU or memory pressure;
-swap more than 50% used when swap exists; a declared service not running; or a
-certificate expiring in 7–30 days. An unsuccessful scrub or one older than 30
+sustained swap-in above 256 pages per second (1 MiB/s) over 15 minutes; a
+declared service not running; or a certificate expiring in 7–30 days. Swap
+occupancy alone is not a condition: the kernel keeps idle pages in swap while
+memory is available (changed on 2026-11-17 from swap more than 50% used). An unsuccessful scrub or one older than 30
 days is also degraded.
 
 With the current evidence, removal of one target from the private probe

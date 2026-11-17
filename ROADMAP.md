@@ -16,6 +16,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Platform Enhancement — Homebridge image update | Complete — target validation 2026-11-09 | None; Homebridge core moved to 2.5.0 with the image, see the Homebridge implementation notes. |
 | Platform Enhancement — Keycloak 26.8.2 security upgrade | Complete — target validation 2026-11-09 | None. |
 | Platform Enhancement — Jellyfin 12.4 security update | Complete — target validation 2026-11-09 | None. |
+| Platform Enhancement — NAS Command Center swap condition | Implemented 2026-11-17 — target deployment pending | Reload Prometheus rules and confirm the NAS state with the current swap occupancy. |
 | Platform Enhancement — Nextcloud 33.0.11 security update | Complete — target validation 2026-11-17 | None for the update; account and exposure mitigations from the private review remain unapproved. |
 | Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
 | Sprint 014 — NAS Command Center | Completed 2026-11-12 | None. |

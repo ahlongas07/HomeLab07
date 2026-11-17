@@ -60,11 +60,10 @@ groups:
             ) or vector(0))
             + (max((100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > bool 80) or vector(0))
             + (max((100 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > bool 80) or vector(0))
-            # The comparison stays on the left: `and` returns left-hand values.
-            + (max(
-              ((100 * node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes) < bool 50)
-              and (node_memory_SwapTotal_bytes > 0)
-            ) or vector(0))
+            # Swap occupancy is not pressure: the kernel keeps idle pages in swap
+            # while memory is available. Sustained swap-in of more than 256
+            # pages per second (1 MiB/s with 4 KiB pages) over 15 minutes is.
+            + (max(rate(node_vmstat_pswpin[15m]) > bool 256) or vector(0))
             + (max(homelab07_platform_service_running == bool 0) or vector(0)),
             1
           )
