@@ -39,6 +39,8 @@ security audit checks that keep all of it verifiable.
   only the services the LAN uses today, and the Docker bridge interfaces in a
   zone that offers no host service. Published container ports, outbound
   traffic from containers and traffic between containers are unchanged.
+  Homebridge child bridge ports are fixed to a documented range so the LAN
+  zone can allow them.
 - Disable `rpcbind`, which listens on every interface without an NFS server,
   and remove the orphan `/etc/docker/daemon.json`, which the NAS management
   layer does not load.
@@ -71,8 +73,7 @@ security audit checks that keep all of it verifiable.
   a separate decision.
 - The shared operator UID between the JuanchoAI API and the sync containers
   (accepted in Sprint 020).
-- Image updates, Paperless Quote Sync deployment, new dashboards and
-  observability changes.
+- Image updates, new dashboards and observability changes.
 - Services that already carry the baseline (`caddy`, `valkey`,
   `cloudflare-ddns`, `observability`, `paperless-medical-sync`,
   `paperless-quote-sync`, `jellyfin`) beyond adding missing resource limits.
@@ -84,6 +85,12 @@ security audit checks that keep all of it verifiable.
 - Password and keyboard-interactive authentication are disabled; `root`
   cannot log in over SSH. Root work continues through `su -` from the
   operator session, as today.
+- The settings live in a HomeLab07 drop-in under `/etc/ssh/sshd_config.d/`,
+  not in an edited `sshd_config`. sshd keeps the first value it reads, so the
+  drop-in sorts before the distribution files (for example
+  `10-homelab07.conf`), and the procedure confirms that `sshd_config`
+  includes the directory before any other setting. `sshd -T` shows the
+  effective values before the reload.
 - Pre-check before the change: every administration device opens a session
   with its key without a password prompt; a second key is stored outside the
   host as recovery; the physical console remains the last resort and is named
@@ -95,12 +102,25 @@ security audit checks that keep all of it verifiable.
 
 - `firewalld` is enabled and persistent across reboots.
 - LAN zone: SSH, Caddy 80 and 443, the LAN administration site, Grafana,
-  the NAS management interface, file sharing and mDNS. Nothing else.
+  the NAS management interface, file sharing, mDNS and Homebridge. Nothing
+  else.
+- Homebridge uses host networking, so its traffic reaches the host through
+  the LAN zone: the UI port, the main bridge port and the child bridge ports.
+  Child bridges pick random ports by default; the Homebridge configuration
+  fixes them to a range, recorded in the Homebridge README, and the LAN zone
+  opens that range only.
 - Docker bridge zone (`docker0` and every `br-*`): no host service is
   reachable from a container; Docker's own forwarding and masquerading keep
   working, so published ports, outbound traffic and inter-container traffic
   behave exactly as before. The zone configuration is reproducible from the
   procedure and survives Docker network creation.
+- The `docker` zone that firewalld ships has target `ACCEPT`, and Docker adds
+  its bridges to it when `firewalld` is active, so enabling the service alone
+  leaves every host service reachable from containers. The procedure replaces
+  that default (a local override of the zone, a dedicated zone or a firewalld
+  policy, chosen in rehearsal) so that traffic from the bridges to the host is
+  rejected, and verifies that the result survives a restart of Docker, which
+  registers its bridges again on start.
 - Rehearsal: runtime (non-permanent) rules first, with an open session; the
   probe of HH-R6 and the platform status script pass before the rules become
   permanent.
@@ -155,9 +175,9 @@ security audit checks that keep all of it verifiable.
 | HH-01 | SSH with the operator key from each administration device | Session opens without a password prompt |
 | HH-02 | SSH with password only (`PreferredAuthentications=password`) as the operator and as `root` | Refused; the server offers `publickey` only |
 | HH-03 | Probe from a disposable container on `homelab07-proxy` and on `homelab07-internal` to the bridge gateway ports 22, 139, 445, 8443 and the NAS management internal port | All connections refused |
-| HH-04 | Public routes through Cloudflare, the LAN administration site and Grafana after the firewall is permanent | All answer as before; `operation/status.sh` passes |
+| HH-04 | Public routes through Cloudflare, the LAN administration site, Grafana, the Homebridge UI and a HomeKit accessory from the LAN after the firewall is permanent | All answer as before; `operation/status.sh` passes |
 | HH-05 | Container outbound traffic (Cloudflare DDNS update, Paperless OCR language download or an equivalent documented request) | Works |
-| HH-06 | Host reboot | Firewall rules, zones and bridge assignment persist; every service returns healthy |
+| HH-06 | Restart of the Docker service, then host reboot | Firewall rules, zones and bridge assignment persist after each; HH-03 still passes; every service returns healthy |
 | HH-07 | `rpcbind` | Inactive and disabled; port 111 closed on every interface |
 | HH-08 | Each hardened service after `up -d` | Healthy; its functional check from the README passes (landing page served through Caddy, MariaDB consumers connect, Keycloak login, Paperless upload and OCR, Nextcloud login and cron run, Homebridge UI and HomeKit accessory response) |
 | HH-09 | `docker inspect` of every platform container | `CapDrop=[ALL]`, `no-new-privileges`, memory and PID limits set; only the documented `CapAdd` |
@@ -193,6 +213,10 @@ security audit checks that keep all of it verifiable.
 - Docker 28 registers its bridges with `firewalld` when the service is
   active; the rehearsal confirms how the management layer's Docker start
   interacts with it and the procedure records the outcome.
+- Observed 2026-11-17: the firewalld `docker` zone shipped on the host has
+  target `ACCEPT`; Homebridge listens on its UI port, its main bridge port and
+  several random high ports used by child bridges; `/etc/ssh/sshd_config.d/`
+  exists and holds a distribution drop-in.
 
 ## Order of work
 
@@ -214,8 +238,8 @@ security audit checks that keep all of it verifiable.
 
 ## Rollback
 
-- SSH: restore the previous `sshd_config` from the dated backup and reload
-  the service from the open session.
+- SSH: remove the HomeLab07 drop-in and reload the service from the open
+  session; `sshd_config` is never edited.
 - Firewall: `firewall-cmd --reload` discards runtime rules; a permanent
   configuration is reverted by disabling the service, which returns the host
   to the current state.
