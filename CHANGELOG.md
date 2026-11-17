@@ -235,6 +235,10 @@
   against the `aquasecurity/trivy` release workflow for tag `v0.76.2`, and the
   image binary matches the tarball's. On five platform images with the
   repository ignore file, 0.72.0 and 0.76.2 reported identical findings.
+- Update Nextcloud from 33.0.10 to 33.0.11 pinned by digest (same branch,
+  PHP and Debian base) for the Debian libopenexr, libpq and zlib fixes and
+  the bundled `symfony/http-foundation` v6.4.49; high findings with an
+  available fix drop from 57 to 6 and critical from 6 to 4.
 - Update the Nextcloud 33.0.10 pin to the 2026-11-05 rebuild of the same tag
   for the Debian ImageMagick (`deb13u14`) and apt security fixes; the
   Nextcloud version and image environment are unchanged.

@@ -13,8 +13,9 @@ and private configuration are outside this repository change.
 
 ## Decisions
 
-- `nextcloud:33.0.10-apache` is pinned by digest for application and cron
-  (33.0.6 until the 2026-10-22 security update).
+- `nextcloud:33.0.11-apache` is pinned by digest for application and cron
+  (33.0.6 until the 2026-10-22 security update, 33.0.10 until the 2026-11-17
+  security update).
 - The dedicated NAS root has explicit `html` and `data` directories.
 - Application and cron share identical persistent mounts.
 - Cron uses the official `/cron.sh` pattern and has no proxy-network access.
@@ -244,6 +245,74 @@ in the private evidence location.
       administration and WebDAV return `401` without a session; Keycloak
       login redirects to the realm. No proxy `5xx` after the deployment.
 - [x] Cron ran after the deployment.
+
+## Security Update 33.0.10 → 33.0.11
+
+Reviewed and approved on 2026-11-17 as a version update only, after the
+platform security scan reported a high number of findings in the Nextcloud
+image. Nextcloud stays on branch 33; PHP and the Debian 13 base are unchanged.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `nextcloud:33.0.10-apache` | `nextcloud:33.0.11-apache` |
+| Index digest | `sha256:56433adb270f1d7c1656fa8885dd1028d0ba8f76714c6c340b2f4a5159c9333d` | `sha256:3bbb8b04c6ea1b6687502802f9097fd9723797668a9dd6d0adcf4525b530f7a1` |
+| amd64 manifest | `sha256:1076141ec24541df3a9cfe3a862d8b1951977fcdc561bd98c31eeac114321bba` | `sha256:00518fd36da472b5e9e8765c227cd838f3d5022b65b9a7acd593b40634d857c7` |
+| arm64 manifest | `sha256:408402e15f9b5d468c185d647fe015ad91053c2b9a00ec31beb7e3ba363a375b` | `sha256:504714d8dac82e8ceabd0cd9ede179a92b0db3a5ae4f85e26ec13e8d36ac7739` |
+| Image built | 2026-11-05 | 2026-11-13 |
+| Upstream release | 2026-10-15 | 2026-11-12, latest stable of branch 33 |
+| PHP | 8.4.27 | 8.4.27 |
+
+Digests were read from Docker Hub on 2026-11-17.
+
+No published Nextcloud Server advisory affects 33.0.10: the October 2026
+advisories are fixed in 33.0.6 or 33.0.7. The update addresses image
+findings. The installed package lists of both images (283 packages each)
+differ only in:
+
+- `libopenexr-3-1-30` 3.1.13-2 → 3.2.12-1~deb13u1;
+- `libpq5` 17.11-0+deb13u1 → 17.12-0+deb13u1;
+- `zlib1g` and `zlib1g-dev` 1:1.3.dfsg+really1.3.1-1+b1 → 1+deb13u1.
+
+The bundled `symfony/http-foundation`, accepted in the previous rebuilds,
+moves from v6.4.42 to v6.4.49.
+
+Both images were scanned on 2026-11-17 with the pinned scanner (Trivy 0.76.2,
+high and critical, without the repository ignore file) and the same
+vulnerability database:
+
+| | Current | Target |
+|---|---|---|
+| Critical with an available fix | 6 | 4 |
+| High with an available fix | 57 | 6 |
+| Critical / high without a fix | 1 / 197 | 1 / 197 |
+
+The remaining findings with a fix are Debian `apache2` 2.4.69 (fixed in
+2.4.71) and `linux-libc-dev` (kernel headers, not executed); upstream has not
+yet published an image with them. The branch stays at 33: the 34 and 35
+images were built on the same base, so a major upgrade has no security
+justification.
+
+The Azure Storage SDK file covered by the repository secret exception is
+unchanged in path; the exception comment was reviewed for this image.
+
+Compatibility: same PHP and Debian 13 base, MariaDB 11.4, Valkey and APCu
+unchanged; `user_oidc` supports Nextcloud 29–34. The official image runs
+`occ upgrade` on start. Nextcloud does not support downgrades: rollback
+restores the pre-upgrade recovery point.
+
+Target result:
+
+- [ ] Pre-upgrade recovery point taken immediately before the update.
+- [ ] Application and cron run `nextcloud:33.0.11-apache@sha256:3bbb8b04…`
+      without restarts; the entrypoint upgraded from 33.0.10.
+- [ ] `occ status` reports 33.0.11, no maintenance mode and no pending
+      database upgrade.
+- [ ] `occ integrity:check-core` clean; enabled application inventory
+      unchanged.
+- [ ] Through the proxy network: `status.php` reports 33.0.11;
+      administration and WebDAV return `401` without a session; Keycloak
+      login redirects to the realm. No proxy `5xx` after the deployment.
+- [ ] Cron ran after the deployment.
 
 ## Runtime Evidence
 

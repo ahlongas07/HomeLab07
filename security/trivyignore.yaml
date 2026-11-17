@@ -6,10 +6,10 @@
 # renewed through a reviewed repository change.
 
 secrets:
-  # nextcloud:33.0.10-apache bundles the Azure Storage SDK. The match is its
+  # nextcloud:33.0.11-apache bundles the Azure Storage SDK. The match is its
   # DEV_STORE_CONNECTION_STRING constant: the public, documented key of the
   # local storage emulator (devstoreaccount1 on 127.0.0.1).
-  # Owner: platform owner. Review: every Nextcloud image update. Reviewed: 2026-10-22.
+  # Owner: platform owner. Review: every Nextcloud image update. Reviewed: 2026-11-17.
   - id: azure-storage-account-key
     paths:
       - "/usr/src/nextcloud/3rdparty/microsoft/azure-storage-common/src/Common/Internal/Resources.php"

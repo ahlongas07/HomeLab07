@@ -19,7 +19,7 @@ infrastructure, backup automation or unrelated NAS shares.
 
 | Capability | Selection |
 |---|---|
-| Application and cron | `nextcloud:33.0.10-apache`, pinned by digest |
+| Application and cron | `nextcloud:33.0.11-apache`, pinned by digest |
 | Database | Shared MariaDB 11.4 |
 | Distributed cache and locking | Shared Valkey 8 |
 | Local cache | APCu from the official image |

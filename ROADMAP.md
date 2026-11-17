@@ -12,11 +12,11 @@ The README links here instead of maintaining a separate sprint summary.
 | Work item | Status | Next action |
 |---|---|---|
 | Sprint 012 — Vulnerability Management | Completed 2026-11-12 | None. |
-| Platform Enhancement — Landing page hardening | Implemented 2026-11-13 — target deployment pending | Deploy and confirm the security headers through the public route. |
+| Platform Enhancement — Landing page hardening | Deployed 2026-11-13 — headers verified at the origin and through Caddy | Purge the edge cache and confirm the security headers through the public route. |
 | Platform Enhancement — Homebridge image update | Complete — target validation 2026-11-09 | None; Homebridge core moved to 2.5.0 with the image, see the Homebridge implementation notes. |
 | Platform Enhancement — Keycloak 26.8.2 security upgrade | Complete — target validation 2026-11-09 | None. |
 | Platform Enhancement — Jellyfin 12.4 security update | Complete — target validation 2026-11-09 | None. |
-| Platform Enhancement — Nextcloud 33.0.10 security update | Complete — target validation 2026-10-22 | None for the update; account and exposure mitigations from the private review remain unapproved. |
+| Platform Enhancement — Nextcloud 33.0.11 security update | Implemented 2026-11-17 — target deployment pending | Take the recovery point, deploy and validate as described in the Nextcloud implementation notes. |
 | Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
 | Sprint 014 — NAS Command Center | Completed 2026-11-12 | None. |
 | Sprint 015 — Medical Records Ingestion | Completed 2026-11-12 | None. |
