@@ -1,6 +1,6 @@
 # SPRINT-020 — Paperless Quote Sync (JuanchoAI Quote Archive)
 
-**Status:** Approved 2026-11-11 after team review — implemented; implementation review adjustments applied 2026-11-12, target-host validation pending
+**Status:** Completed 2026-11-17 — acceptance criteria QS-01 to QS-17 passed on the target host, including the end-to-end test with JuanchoAI
 
 **Classification:** Application Service
 
@@ -260,7 +260,34 @@ touched. Meanwhile JuanchoAI answers `QUOTATION_ARCHIVE_PENDING`.
 
 ## Closure record
 
-Record outcome, sanitized validation summary and deviations here.
-Detailed private evidence remains in its approved private location.
-Update the affected living specification under `/specs` before marking this
-Sprint complete.
+Outcome: completed on 2026-11-17. Detailed private evidence remains in its
+approved private location.
+
+### Repository validation (2026-11-17)
+
+- `py_compile` and 18 standard-library unit tests pass.
+- `docker compose config` and shell syntax checks pass.
+
+### Target-host deployment
+
+- The private `paperless-quote-sync.env` and acknowledgement list exist with
+  mode `0600`; the sync runs image `homelab07/paperless-quote-sync:sprint-020`
+  on `homelab07-internal` only.
+- The platform backup stops and restores the sync around Paperless; the
+  recovery point of 2026-11-17 completed with the sync running before and
+  after the capture.
+
+### Acceptance validation (confirmed by the project owner, 2026-11-17)
+
+- QS-01 to QS-17 passed on the target host.
+- QS-12: the JuanchoAI API wrote a quote PDF to the folder, the sync uploaded
+  it to Paperless and the JuanchoAI tests were positive.
+- QS-15: a test PDF in a new year subfolder reached the NAS data backup copy.
+
+### Deviations
+
+- `juanchoai` was granted `view_uisettings` so that `check-model` and ISO-02
+  can read the token user's id (see Assumptions and `JUANCHOAI_ACCESS.md`).
+- An implementation review on 2026-11-12 changed a failed run to keep the
+  pending and unresolved values of the last completed run and to retry after
+  `QUOTE_RETRY_SECONDS` (QS-R4 step 7, QS-10).

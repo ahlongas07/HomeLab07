@@ -1,6 +1,7 @@
 # Quote Archive Capability
 
-**Status:** Implemented in Sprint 020; target-host validation pending
+**Status:** Implemented and validated on the target host; Sprint 020 closed
+on 2026-11-17
 
 ## Required behavior
 

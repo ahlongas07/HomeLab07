@@ -220,6 +220,9 @@
   challenges are unaffected.
 - Close Sprint 015: the owner confirmed the image checks, the daily run and
   the manual review of flagged documents.
+- Close Sprint 020: QS-01 to QS-17 passed on the target host, including the
+  end-to-end quote archive test with JuanchoAI (QS-12) and the NAS data
+  backup copy of a new year subfolder (QS-15).
 - Close Sprint 014: the owner confirmed the NAS Command Center target-host
   validation and the clean recreation of the observability stack.
 - Close Sprint 012: the owner confirmed the full-history Gitleaks target-host

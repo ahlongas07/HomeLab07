@@ -16,7 +16,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Platform Enhancement — Homebridge image update | Complete — target validation 2026-11-09 | None; Homebridge core moved to 2.5.0 with the image, see the Homebridge implementation notes. |
 | Platform Enhancement — Keycloak 26.8.2 security upgrade | Complete — target validation 2026-11-09 | None. |
 | Platform Enhancement — Jellyfin 12.4 security update | Complete — target validation 2026-11-09 | None. |
-| Platform Enhancement — Nextcloud 33.0.11 security update | Implemented 2026-11-17 — target deployment pending | Take the recovery point, deploy and validate as described in the Nextcloud implementation notes. |
+| Platform Enhancement — Nextcloud 33.0.11 security update | Complete — target validation 2026-11-17 | None for the update; account and exposure mitigations from the private review remain unapproved. |
 | Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
 | Sprint 014 — NAS Command Center | Completed 2026-11-12 | None. |
 | Sprint 015 — Medical Records Ingestion | Completed 2026-11-12 | None. |
@@ -25,7 +25,7 @@ The README links here instead of maintaining a separate sprint summary.
 | SPIKE-001 — Collaboration Platform Research | In progress | Complete balanced official-source evidence for all candidates and record the decision. |
 | Sprint 018 — Origin Trust Hardening | Completed 2026-10-29 | Rotate the origin pull client certificate before 2029-10-28 (audit fails 60 days earlier). |
 | Sprint 019 — Paperless User Isolation | Completed 2026-11-05 | None. |
-| Sprint 020 — Paperless Quote Sync | Implemented 2026-11-11 — target validation pending | Private environment and acknowledgement file, `check-model`, then QS-01 to QS-17 with the JuanchoAI team. |
+| Sprint 020 — Paperless Quote Sync | Completed 2026-11-17 | None. |
 | SPIKE-001 — oCIS Architecture Validation | Architecture review complete; PoC required | Run the separately gated PoC only when its prerequisites and approval are met. |
 | SPIKE-002 — Identity Source of Truth and SSO | In progress; redirect recovery validation pending | Complete the documented redirect and local recovery validation. |
 | SPIKE-003 — Observability Depth and NAS Command Center | Track A completed through Sprint 014; remaining tracks proposed | Defer other tracks pending separate scope approval. |

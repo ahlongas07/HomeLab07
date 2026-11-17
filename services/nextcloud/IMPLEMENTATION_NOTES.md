@@ -300,19 +300,25 @@ unchanged; `user_oidc` supports Nextcloud 29–34. The official image runs
 `occ upgrade` on start. Nextcloud does not support downgrades: rollback
 restores the pre-upgrade recovery point.
 
-Target result:
+Target result (2026-11-17, deployed at 15:56 UTC). Detailed evidence remains
+in the private evidence location.
 
-- [ ] Pre-upgrade recovery point taken immediately before the update.
-- [ ] Application and cron run `nextcloud:33.0.11-apache@sha256:3bbb8b04…`
-      without restarts; the entrypoint upgraded from 33.0.10.
-- [ ] `occ status` reports 33.0.11, no maintenance mode and no pending
+- [x] Pre-upgrade recovery point: platform backup run by the project owner
+      immediately before the update, completed successfully at 15:54 UTC.
+- [x] Application and cron run `nextcloud:33.0.11-apache@sha256:3bbb8b04…`
+      without restarts; the entrypoint upgraded from 33.0.10.1. `libopenexr`
+      3.2.12, `libpq5` 17.12 and `zlib1g` `deb13u1` in the runtime.
+- [x] `occ status` reports 33.0.11, no maintenance mode and no pending
       database upgrade.
-- [ ] `occ integrity:check-core` clean; enabled application inventory
-      unchanged.
-- [ ] Through the proxy network: `status.php` reports 33.0.11;
+- [x] `occ integrity:check-core` clean; enabled application inventory
+      unchanged (`user_oidc` 8.13.0).
+- [x] Through the proxy network: `status.php` reports 33.0.11;
       administration and WebDAV return `401` without a session; Keycloak
       login redirects to the realm. No proxy `5xx` after the deployment.
-- [ ] Cron ran after the deployment.
+- [x] Cron ran after the deployment (16:00 UTC).
+- [x] The entrypoint again reports that `redis.config.php` and
+      `s3.config.php` differ from the image templates; the installed files
+      were left unchanged, as in the 33.0.10 update.
 
 ## Runtime Evidence
 
