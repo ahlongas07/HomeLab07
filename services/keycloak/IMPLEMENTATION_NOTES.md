@@ -196,3 +196,36 @@ login). Detailed evidence remains in the private evidence location.
 - [x] Owner checks confirmed by the project owner on 2026-11-09: login with
       OTP to Nextcloud and Paperless-ngx, and the application on the second
       realm.
+
+## Security Update 26.8.2 image rebuild (Java4Shell)
+
+Approved on 2026-11-19 as a digest-only update: the Keycloak version stays at
+26.8.2, so no model migration runs and no configuration changes.
+
+| | Previous | Target |
+|---|---|---|
+| Tag | `26.8.2` (rebuild `26.8.2-1`, 2026-11-09) | `26.8.2` (rebuild `26.8.2-3`, 2026-11-19) |
+| Index digest | `sha256:723b1d6e254c0fc96d5cffec860c7e0744d6a3277822b865bb538cf891575e41` | `sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3` |
+| amd64 manifest | `sha256:c126f032d43b941ed7c5ccca7d6571596d8eab84d748afd7c86989e48ef07b8f` | `sha256:75b5c435a83b530caba5923922f93d47b2e3f8b4ad9e79200581122996653e55` |
+| arm64 manifest | `sha256:22f1cf60e26bed1808e45b838ddeac962075818fe97e0858b542308d2b91e83e` | `sha256:694f168ad7d7e4f6bfd95b228d14dcd5d0a8300b2aba8a6d95dcfc848c8aa92b` |
+| Runtime | Red Hat OpenJDK 21.0.13+9 (`java-21-openjdk-21.0.13.0.9-1.2.el9`) | Red Hat OpenJDK 21.0.13.1+2 (`java-21-openjdk-21.0.13.1.2-1.2.el9`) |
+
+Digests were read from Quay and the runtime from `java -version` and the JDK
+`release` file inside each image on 2026-11-19.
+
+The rebuild carries the Red Hat OpenJDK update for CVE-2026-114938
+(Java4Shell, remote code execution through the Base64 intrinsic) published in
+RHSA-2026:100567 (RHEL 8 and 9) and RHSA-2026:100568 (RHEL 10). The platform
+host CPU has no AVX-512, which the flaw requires, so the previous image was
+not exploitable here; the update removes the dependency on that hardware
+condition.
+
+Candidate scan with the pinned scanner: findings are identical between both
+images. The scanner database still reports the JDK CVEs without a fix because
+it had not yet ingested the Red Hat advisories on 2026-11-19; the installed
+package is the fixed build. The high finding with an available fix remains
+`guava` (unchanged since 26.8.2), and the remaining high findings without a
+fix are in the base image `sqlite-libs`.
+
+Rollback restores the previous digest; no database recovery is required
+because the Keycloak version is unchanged.

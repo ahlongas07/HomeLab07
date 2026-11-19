@@ -174,6 +174,10 @@
 
 ### Changed
 
+- Update the Keycloak 26.8.2 pin to the 2026-11-19 rebuild of the same tag
+  (`sha256:7e66a96e…`, amd64 `sha256:75b5c435…`), which ships Red Hat OpenJDK
+  21.0.13.1 with the fix for CVE-2026-114938 (Java4Shell). The Keycloak
+  version is unchanged and no model migration runs.
 - Harden the landing page: remove the public service, version and milestone
   inventory and the static "Online" indicator; translate it to Spanish; add a
   dark theme; replace the 1.4 MB PNG with an 840 px WebP of 19 KB; send a
