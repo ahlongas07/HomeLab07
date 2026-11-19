@@ -46,7 +46,7 @@ security audit checks that keep all of it verifiable.
   layer does not load.
 - Container hardening baseline in `compose.yaml` for the services that lack
   it: `landing-page`, `mariadb`, `keycloak`, `paperless-ngx`, `nextcloud`,
-  `nextcloud-cron` and `homebridge`: `cap_drop: ALL` with the minimum
+  `nextcloud-cron`, `jellyfin` and `homebridge`: `cap_drop: ALL` with the minimum
   `cap_add`, `no-new-privileges`, `read_only` with `tmpfs` where the service
   supports it, and memory and PID limits for every platform service that has
   none.
@@ -76,7 +76,11 @@ security audit checks that keep all of it verifiable.
 - Image updates, new dashboards and observability changes.
 - Services that already carry the baseline (`caddy`, `valkey`,
   `cloudflare-ddns`, `observability`, `paperless-medical-sync`,
-  `paperless-quote-sync`, `jellyfin`) beyond adding missing resource limits.
+  `paperless-quote-sync`) beyond adding missing resource limits.
+- Isolation of `homebridge` from host services: it uses host networking, so
+  the firewall cannot separate it from the host. It receives the container
+  baseline only; host-level isolation of a host-network service is the
+  residual risk accepted by this Sprint.
 
 ## Requirements
 
@@ -101,9 +105,16 @@ security audit checks that keep all of it verifiable.
 ### HH-R2 — Host firewall
 
 - `firewalld` is enabled and persistent across reboots.
-- LAN zone: SSH, Caddy 80 and 443, the LAN administration site, Grafana,
-  the NAS management interface, file sharing, mDNS and Homebridge. Nothing
-  else.
+- LAN zone: the host services the LAN uses today, which are SSH, the NAS
+  management interface, file sharing, mDNS and Homebridge. Nothing else. Any
+  other host listener on every interface, such as an internal port of the NAS
+  management layer that its web server reaches over loopback, stops being
+  reachable from the LAN; HH-04 confirms the management interface still
+  works completely.
+- Ports published by Docker (Caddy 80 and 443, the LAN administration site,
+  Grafana) are translated by Docker before the host input rules, so the LAN
+  zone neither opens nor restricts them. Their exposure stays governed by the
+  address each one binds to; the firewall is not a control for them.
 - Homebridge uses host networking, so its traffic reaches the host through
   the LAN zone: the UI port, the main bridge port and the child bridge ports.
   Child bridges pick random ports by default; the Homebridge configuration
@@ -116,11 +127,17 @@ security audit checks that keep all of it verifiable.
   procedure and survives Docker network creation.
 - The `docker` zone that firewalld ships has target `ACCEPT`, and Docker adds
   its bridges to it when `firewalld` is active, so enabling the service alone
-  leaves every host service reachable from containers. The procedure replaces
-  that default (a local override of the zone, a dedicated zone or a firewalld
-  policy, chosen in rehearsal) so that traffic from the bridges to the host is
-  rejected, and verifies that the result survives a restart of Docker, which
+  leaves every host service reachable from containers. The zone target also
+  governs traffic forwarded from the bridges, so changing it would break
+  container outbound traffic and published ports. The zone therefore stays as
+  shipped, and a firewalld policy with ingress zone `docker`, egress zone
+  `HOST` and target `REJECT` blocks only traffic from the bridges to the host.
+  The procedure verifies that the policy survives a restart of Docker, which
   registers its bridges again on start.
+- Docker writes its rules with the legacy `iptables` backend while
+  `firewalld` uses `nftables`; every packet crosses both rule sets. The
+  rehearsal therefore checks published ports and container outbound traffic
+  (HH-04 and HH-05) right after the first runtime rule, not only at the end.
 - Rehearsal: runtime (non-permanent) rules first, with an open session; the
   probe of HH-R6 and the platform status script pass before the rules become
   permanent.
@@ -141,7 +158,9 @@ security audit checks that keep all of it verifiable.
   proves necessary, documented per service with the reason.
 - `read_only: true` with `tmpfs` for the paths the service writes, for every
   service whose image supports it; where it does not, the README records the
-  reason.
+  reason. `keycloak` is an expected exception: it starts with `start` without
+  `--optimized`, so it rebuilds its runtime under `/opt/keycloak/lib` on every
+  start.
 - `landing-page` uses the unprivileged nginx image variant, pinned by digest,
   and serves on its unprivileged port behind Caddy.
 - Limits come from observed usage on the target host plus headroom, recorded
@@ -162,11 +181,15 @@ security audit checks that keep all of it verifiable.
   the capabilities they add, and any other deviation fails.
 - Runtime posture: `firewalld` active; `rpcbind` inactive; SSH offers only
   `publickey`; a disposable container on `homelab07-proxy`, from an image
-  already present on the host, cannot connect to the bridge gateway on the
-  SSH, file-sharing and management ports. The probe writes nothing and leaves
-  no container behind.
+  already present on the host, cannot connect to the bridge gateway or to the
+  host LAN address on the SSH, file-sharing and management ports. The probe
+  writes nothing and leaves no container behind.
 - The audit still passes without `root` and still reports `0` failures on the
-  completed configuration.
+  completed configuration. The checks use only non-root sources:
+  `systemctl is-active` for `firewalld` and `rpcbind`, the methods the SSH
+  server offers to a client that requests none
+  (`PreferredAuthentications=none`), and the Docker probe; `sshd -T` and
+  `firewall-cmd` stay in the root procedure.
 
 ## Acceptance criteria
 
@@ -174,8 +197,8 @@ security audit checks that keep all of it verifiable.
 |---|---|---|
 | HH-01 | SSH with the operator key from each administration device | Session opens without a password prompt |
 | HH-02 | SSH with password only (`PreferredAuthentications=password`) as the operator and as `root` | Refused; the server offers `publickey` only |
-| HH-03 | Probe from a disposable container on `homelab07-proxy` and on `homelab07-internal` to the bridge gateway ports 22, 139, 445, 8443 and the NAS management internal port | All connections refused |
-| HH-04 | Public routes through Cloudflare, the LAN administration site, Grafana, the Homebridge UI and a HomeKit accessory from the LAN after the firewall is permanent | All answer as before; `operation/status.sh` passes |
+| HH-03 | Probe from a disposable container on `homelab07-proxy` and on `homelab07-internal` to the bridge gateway and to the host LAN address, ports 22, 139, 445, 8443 and the NAS management internal port | All connections refused |
+| HH-04 | Public routes through Cloudflare, the LAN administration site, Grafana, the NAS management interface (dashboard and live data), the Homebridge UI and a HomeKit accessory from the LAN after the firewall is permanent | All answer as before; `operation/status.sh` passes |
 | HH-05 | Container outbound traffic (Cloudflare DDNS update, Paperless OCR language download or an equivalent documented request) | Works |
 | HH-06 | Restart of the Docker service, then host reboot | Firewall rules, zones and bridge assignment persist after each; HH-03 still passes; every service returns healthy |
 | HH-07 | `rpcbind` | Inactive and disabled; port 111 closed on every interface |
@@ -217,6 +240,12 @@ security audit checks that keep all of it verifiable.
   target `ACCEPT`; Homebridge listens on its UI port, its main bridge port and
   several random high ports used by child bridges; `/etc/ssh/sshd_config.d/`
   exists and holds a distribution drop-in.
+- Observed 2026-11-19: `iptables` uses the legacy backend and `firewalld`
+  2.0 is installed with its default `nftables` backend; `rpcbind` is active
+  with the NFS server disabled and no exports; the orphan
+  `/etc/docker/daemon.json` holds only keys that the management layer's
+  configuration file also sets; the host has no global IPv6 address; no
+  repository service reaches host services from a container.
 
 ## Order of work
 
