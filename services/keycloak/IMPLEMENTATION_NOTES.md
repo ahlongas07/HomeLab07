@@ -229,3 +229,16 @@ fix are in the base image `sqlite-libs`.
 
 Rollback restores the previous digest; no database recovery is required
 because the Keycloak version is unchanged.
+
+Target result (2026-11-19, update at 13:55 UTC, about 30 seconds without
+login). Detailed evidence remains in the private evidence location.
+
+- [x] Runtime `quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e…`, healthy,
+      no restarts; `java -version` reports 21.0.13.1; Keycloak started in
+      6.6 s with no model migration and every readiness check `UP`.
+- [x] Discovery answers for the `homelab07` and `master` realms; the
+      `homelab07` login page serves the theme stylesheets; `/admin` on the
+      public route answers `403`.
+- [x] Nextcloud redirects its OIDC login to Keycloak (`303`).
+- [x] Security audit without required-control failures; platform status
+      passes.
