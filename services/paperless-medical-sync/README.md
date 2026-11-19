@@ -32,7 +32,7 @@ failure, rebuild or removal never restarts or changes Paperless.
 |---|---|
 | Image | Built locally from `python:3.13-alpine3.24` pinned by digest |
 | PDF decryption | `qpdf` 12.3.2-r0 |
-| Code | Python standard library only, no `pip` packages |
+| Code | Python standard library only; `pip` is removed from the image |
 | Scheduling | Container entrypoint loop: run at start, on settled source changes and daily; no host cron or systemd |
 | Change detection | Standard-library `stat` polling of the source folder; no inotify, works on any mount |
 | Paperless access | REST API version 10 on `homelab07-internal` |

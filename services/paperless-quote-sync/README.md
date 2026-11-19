@@ -34,7 +34,7 @@ the `Work Item` field exist since 2026-10-30 (see
 |---|---|
 | Image | Built locally from `python:3.13-alpine3.24` pinned by digest, the same base as the medical sync |
 | PDF check | `qpdf` 12.3.2-r0 (`--requires-password`) |
-| Code | Python standard library only, no `pip` packages |
+| Code | Python standard library only; `pip` is removed from the image |
 | Scheduling | Container entrypoint loop: run at start, on settled folder changes, every `QUOTE_RETRY_SECONDS` while something is unconfirmed, and daily |
 | Change detection | Standard-library `stat` polling of the folder; no inotify |
 | Paperless access | REST API version 10 on `homelab07-internal` with the `juanchoai` token |

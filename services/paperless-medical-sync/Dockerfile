@@ -6,6 +6,10 @@ FROM python:3.13-alpine3.24@sha256:7984cf56ceaddebe4fefeb75d64000b9f45d8b77b11a0
 # hadolint ignore=DL3018
 RUN apk add --no-cache qpdf=12.3.2-r0 tzdata
 
+# The code uses only the standard library; pip and its vendored packages are
+# never run, so they are removed from the runtime image.
+RUN python3 -m pip uninstall --yes --root-user-action=ignore pip
+
 COPY --chmod=0755 medical_sync.py /usr/local/bin/medical-sync
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
 
