@@ -244,6 +244,13 @@
   against the `aquasecurity/trivy` release workflow for tag `v0.76.2`, and the
   image binary matches the tarball's. On five platform images with the
   repository ignore file, 0.72.0 and 0.76.2 reported identical findings.
+- Update the shared MariaDB 11.4.13 pin to the 2026-11-11 rebuild of the same
+  tag (`sha256:5e73baf8…`, amd64 `sha256:f6eca938…`) for the Ubuntu 24.04
+  apt, PCRE2, Perl, SQLite and ca-certificates updates; the MariaDB version is
+  unchanged and no data upgrade runs. High findings with an available fix in
+  operating system packages drop from 2 to 0. The remaining findings are the
+  Go standard library of the bundled `gosu` (1.24.6), which runs only at
+  container start and is unchanged by the rebuild.
 - Update Nextcloud from 33.0.10 to 33.0.11 pinned by digest (same branch,
   PHP and Debian base) for the Debian libopenexr, libpq and zlib fixes and
   the bundled `symfony/http-foundation` v6.4.49; high findings with an

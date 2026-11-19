@@ -17,6 +17,7 @@ The README links here instead of maintaining a separate sprint summary.
 | Platform Enhancement — Keycloak 26.8.2 security upgrade | Complete — target validation 2026-11-09 | None. |
 | Platform Enhancement — Jellyfin 12.4 security update | Complete — target validation 2026-11-09 | None. |
 | Platform Enhancement — NAS Command Center swap condition | Complete — target validation 2026-11-17 | None. |
+| Platform Enhancement — MariaDB 11.4.13 image rebuild | Implemented 2026-11-19 — target deployment pending | Take the recovery point, deploy and confirm every database consumer reconnects. |
 | Platform Enhancement — Nextcloud 33.0.11 security update | Complete — target validation 2026-11-17 | None for the update; account and exposure mitigations from the private review remain unapproved. |
 | Platform Enhancement — Paperless-ngx 3 upgrade | Complete — target validation confirmed 2026-10-20 | None; evidence remains private. |
 | Sprint 014 — NAS Command Center | Completed 2026-11-12 | None. |
