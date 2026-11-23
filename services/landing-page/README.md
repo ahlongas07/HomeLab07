@@ -27,7 +27,7 @@ lives in the repository and the Roadmap.
 
 ## Technology
 
-- Nginx `1.30.6-alpine` pinned by digest (official stable image)
+- Nginx `1.30.7-alpine` pinned by digest (official stable image)
 - Docker Compose
 - HTML
 - CSS
@@ -69,8 +69,8 @@ docker inspect homelab07-landing-page \
 docker exec homelab07-landing-page nginx -v
 ```
 
-The expected references are `nginx:1.30.6-alpine@sha256:901e593c…` (the full
-digest is in `compose.yaml`) and `nginx/1.30.6`.
+The expected references are `nginx:1.30.7-alpine@sha256:caf4e1e0…` (the full
+digest is in `compose.yaml`) and `nginx/1.30.7`.
 
 Validate that the page and its assets return the security headers and that
 Nginx does not announce its version:

@@ -352,3 +352,45 @@ following here during the controlled PoC:
 
 POC-001 is closed and the candidate is approved for a future implementation
 sprint. These remaining results are mandatory before production migration.
+
+## Image Rebuild 33.0.11 (2026-11-19)
+
+Approved on 2026-11-23 as a digest-only update of the same tag after new
+Debian fixes raised the findings of the platform scan. Nextcloud stays at
+33.0.11 and the Debian 13.7 base is unchanged, so the entrypoint runs no
+`occ upgrade` and no data changes.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `nextcloud:33.0.11-apache` | `nextcloud:33.0.11-apache` |
+| Index digest | `sha256:3bbb8b04c6ea1b6687502802f9097fd9723797668a9dd6d0adcf4525b530f7a1` | `sha256:293744abb460e5e1b07a3bd730a687003d1e0c45bdce6645e3c54075e83479ae` |
+| amd64 manifest | `sha256:00518fd36da472b5e9e8765c227cd838f3d5022b65b9a7acd593b40634d857c7` | `sha256:22b57650e8fc0216a8ff1aa120efe9a86f55eba16a6af1f54208c1821a9a6ff1` |
+| arm64 manifest | `sha256:504714d8dac82e8ceabd0cd9ede179a92b0db3a5ae4f85e26ec13e8d36ac7739` | `sha256:514adc7768440c3331482a11665e590448916efce77716224dc288d5a4b1cbb1` |
+| Image built | 2026-11-13 | 2026-11-19 |
+| PHP | 8.4.27 | 8.4.28 |
+| Apache | 2.4.69 | 2.4.71 |
+
+Digests were read from the registry on 2026-11-23. The installed package
+lists differ only in `apache2`, `apache2-bin`, `apache2-data` and
+`apache2-utils` (2.4.69-1~deb13u1 → 2.4.71-1~deb13u1), `libopenexr-3-1-30`
+(deb13u1 → deb13u2) and `linux-libc-dev` (6.12.115-2 → 6.12.117-1); PHP comes
+from the upstream PHP base image and moves to the 8.4.28 patch release.
+
+Both images were scanned on 2026-11-23 with the pinned scanner (Trivy 0.76.2,
+high and critical, without the repository ignore file) and the same
+vulnerability database:
+
+| | Current | Target |
+|---|---|---|
+| Critical with an available fix | 5 | 0 |
+| High with an available fix | 109 | 76 |
+| Critical / high without a fix | 1 / 144 | 1 / 144 |
+
+The rebuild removes the Apache findings, including the `mod_http2` remote
+code execution (CVE-2026-119618; the module is not loaded here). Most
+remaining high findings with a fix are `linux-libc-dev` kernel headers, which
+are not executed, and the Debian Kerberos libraries, which this deployment
+does not use.
+
+Rollback restores the previous digest; no recovery point is required because
+the Nextcloud version and database are unchanged.

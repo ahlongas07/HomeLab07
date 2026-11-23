@@ -174,6 +174,17 @@
 
 ### Changed
 
+- Update the landing page Nginx from 1.30.6-alpine to 1.30.7-alpine pinned by
+  digest (`sha256:caf4e1e0…`) for the Nginx fixes published on 2026-11-18,
+  four of them critical (CVE-2026-113425, CVE-2026-121810, CVE-2026-123007,
+  CVE-2026-123633). Critical findings with a fix drop from 4 to 0 and high
+  findings with a fix from 6 to 1 (`libxml2`, not yet rebuilt upstream). The
+  configuration is unchanged and passes `nginx -t` on the new image.
+- Update the Nextcloud 33.0.11 pin to the 2026-11-19 rebuild of the same tag
+  (`sha256:293744ab…`, amd64 `sha256:22b57650…`): Apache 2.4.71, PHP 8.4.28
+  and Debian `libopenexr` and `linux-libc-dev` updates; the Nextcloud version
+  is unchanged and no `occ upgrade` runs. Critical findings with a fix drop
+  from 5 to 0 and high findings with a fix from 109 to 76.
 - Remove `pip` from the Paperless medical and quote sync images. Both run
   only standard-library code, and the five high findings in each image came
   from packages vendored inside `pip` (`msgpack`, `urllib3`, `setuptools`).
