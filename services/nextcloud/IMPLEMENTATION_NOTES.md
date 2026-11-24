@@ -394,3 +394,17 @@ does not use.
 
 Rollback restores the previous digest; no recovery point is required because
 the Nextcloud version and database are unchanged.
+
+Target result (2026-11-24, deployed at 00:17 UTC, about 25 seconds without
+service). Detailed evidence remains in the private evidence location.
+
+- [x] Application and cron run `nextcloud:33.0.11-apache@sha256:293744ab…`
+      without restarts; Apache 2.4.71 and PHP 8.4.28 in the runtime; the
+      entrypoint ran no upgrade.
+- [x] `occ status` reports 33.0.11, no maintenance mode and no pending
+      database upgrade; `occ integrity:check-core` clean.
+- [x] `status.php` returns `200`, WebDAV `401` without a session and the
+      OIDC login redirects to the `homelab07` realm (`303`).
+- [x] Cron ran after the deployment (00:20 UTC).
+- [x] The entrypoint again reports the known `redis.config.php` and
+      `s3.config.php` template differences; platform status passes.
