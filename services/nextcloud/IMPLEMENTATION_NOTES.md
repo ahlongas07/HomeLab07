@@ -408,3 +408,47 @@ service). Detailed evidence remains in the private evidence location.
 - [x] Cron ran after the deployment (00:20 UTC).
 - [x] The entrypoint again reports the known `redis.config.php` and
       `s3.config.php` template differences; platform status passes.
+
+## Image Rebuild 33.0.11 (2026-11-24)
+
+Approved on 2026-11-27 as a digest-only update of the same tag. The rebuild
+moves the base to Debian 13.8; Nextcloud stays at 33.0.11 with the same PHP
+and Apache, so the entrypoint runs no `occ upgrade` and no data changes.
+
+| | Current | Target |
+|---|---|---|
+| Tag | `nextcloud:33.0.11-apache` | `nextcloud:33.0.11-apache` |
+| Index digest | `sha256:293744abb460e5e1b07a3bd730a687003d1e0c45bdce6645e3c54075e83479ae` | `sha256:73d52a6c57497a619120d1fca99d559f09dad52fb5e542051e31ebc66e05c7f3` |
+| amd64 manifest | `sha256:22b57650e8fc0216a8ff1aa120efe9a86f55eba16a6af1f54208c1821a9a6ff1` | `sha256:dac919ead1963ff3a4e1548c879ed95dd59007b273559eaacae11081a0385ed1` |
+| arm64 manifest | `sha256:514adc7768440c3331482a11665e590448916efce77716224dc288d5a4b1cbb1` | `sha256:47d8a0e88aa24ce749125a4da7c262c15d5cb70869b664cc5e5d861d5fad8887` |
+| Image built | 2026-11-19 | 2026-11-24 |
+| Debian | 13.7 | 13.8 |
+| PHP / Apache | 8.4.28 / 2.4.71 | 8.4.28 / 2.4.71 |
+
+Digests were read from the registry on 2026-11-27. The installed package
+lists differ only in:
+
+- `openssl`, `libssl3t64` and `openssl-provider-legacy` 3.5.7-1~deb13u3 →
+  3.5.9-1~deb13u1;
+- `libc6`, `libc-bin`, `libc6-dev` and `libc-dev-bin` 2.41-12+deb13u4 →
+  deb13u5;
+- `libgssapi-krb5-2`, `libk5crypto3`, `libkrb5-3` and `libkrb5support0`
+  1.21.3-5+deb13u1 → deb13u2;
+- `libnghttp2-14` (deb13u1 → deb13u2), `libfreetype6` (deb13u1 → deb13u2),
+  `rsync` (deb13u1 → deb13u2), `patch` (2.8-2 → 2.8-2+deb13u1),
+  `linux-libc-dev` (6.12.117-1 → 6.12.118-1) and `base-files`.
+
+Both images were scanned on 2026-11-27 with the pinned scanner (Trivy 0.76.2,
+high and critical, without the repository ignore file) and the same
+vulnerability database:
+
+| | Current | Target |
+|---|---|---|
+| Critical with an available fix | 0 | 0 |
+| High with an available fix | 77 | 1 |
+| Critical / high without a fix | 1 / 144 | 1 / 144 |
+
+The remaining high finding with a fix is `libzstd1`, not yet rebuilt upstream.
+
+Rollback restores the previous digest; no recovery point is required because
+the Nextcloud version and database are unchanged.

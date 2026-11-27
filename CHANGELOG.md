@@ -174,6 +174,11 @@
 
 ### Changed
 
+- Update the Nextcloud 33.0.11 pin to the 2026-11-24 rebuild of the same tag
+  (`sha256:73d52a6c…`, amd64 `sha256:dac919ea…`) on Debian 13.8: OpenSSL
+  3.5.9, glibc, Kerberos, nghttp2, FreeType, rsync and patch updates; the
+  Nextcloud version, PHP and Apache are unchanged and no `occ upgrade` runs.
+  High findings with a fix drop from 77 to 1.
 - Update the landing page Nginx from 1.30.6-alpine to 1.30.7-alpine pinned by
   digest (`sha256:caf4e1e0…`) for the Nginx fixes published on 2026-11-18,
   four of them critical (CVE-2026-113425, CVE-2026-121810, CVE-2026-123007,
