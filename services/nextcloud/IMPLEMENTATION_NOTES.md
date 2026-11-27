@@ -452,3 +452,15 @@ The remaining high finding with a fix is `libzstd1`, not yet rebuilt upstream.
 
 Rollback restores the previous digest; no recovery point is required because
 the Nextcloud version and database are unchanged.
+
+Target result (2026-11-27, deployed at 19:07 UTC, about 25 seconds without
+service). Detailed evidence remains in the private evidence location.
+
+- [x] Application and cron run `nextcloud:33.0.11-apache@sha256:73d52a6c…`
+      without restarts; Debian 13.8 and OpenSSL 3.5.9 in the runtime; the
+      entrypoint ran no upgrade.
+- [x] `occ status` reports 33.0.11, no maintenance mode and no pending
+      database upgrade; `occ integrity:check-core` clean.
+- [x] `status.php` returns `200`, WebDAV `401` without a session and the
+      OIDC login redirects to Keycloak (`303`).
+- [x] Cron ran after the deployment (19:10 UTC); platform status passes.
